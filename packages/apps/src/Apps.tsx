@@ -26,6 +26,7 @@ interface SidebarState {
 
 function WarmUp (): React.ReactElement {
   const { api, isApiReady } = useApi();
+  // const fees = useCall<any>(isApiReady ? api.derive.balances?.fees : undefined, []);
   const fees = null;
   const indexes = useCall<any>(isApiReady ? api.derive.accounts?.indexes : undefined, []);
   const registrars = useCall<any>(isApiReady ? api.query.identity?.registrars : undefined, []);
