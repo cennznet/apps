@@ -5,6 +5,7 @@
 import { BareProps } from '@polkadot/react-api/types';
 
 import React from 'react';
+// Commented for easy tracking while rebasing'
 // import { useApi, useCall } from '@polkadot/react-hooks';
 import FormatBalance from './FormatBalance';
 import BN from 'bn.js';
@@ -15,6 +16,7 @@ interface Props extends BareProps {
 }
 
 export default function TotalIssuance ({ children, className, label, style }: Props): React.ReactElement<Props> {
+  // Commented for easy tracking while rebasing'
   // const { api } = useApi();
   // const totalIssuance = useCall<string>(api.query.balances.totalIssuance, []);
   const totalIssuance = new BN(0);
