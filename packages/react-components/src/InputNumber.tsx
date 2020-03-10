@@ -240,6 +240,8 @@ export default function InputNumber (props: Props): React.ReactElement<Props> {
 
     if (event.key.length === 1 && !isPreKeyDown) {
       const { selectionStart: i, selectionEnd: j, value } = event.target as HTMLInputElement;
+      // Commented for easy tracking while rebasing'
+      // const newValue = `${value.substring(0, i || 0)}${event.key}${value.substring(j || 0)}`;
       let newValue = `${value.substring(0, i || 0)}${event.key}${value.substring(j || 0)}`;
       // The following will just remove the 0's on the left and send it to check the regex for decimal and allow user to enter number without having to enter backspace
       newValue = new BN(newValue.replace(/,/g, '')).toString();

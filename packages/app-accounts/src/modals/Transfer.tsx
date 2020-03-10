@@ -72,7 +72,7 @@ function Transfer ({ className, onClose, recipientId: propRecipientId, senderId:
 
   useEffect((): void => {
     if (senderId && recipientId) {
-      setExtrinsic(api.tx.balances.transfer(recipientId, amount || ZERO));
+      setExtrinsic(api.tx.genericAsset.transfer('16000', recipientId, amount || ZERO));
 
       // We currently have not enabled the max functionality - we don't take care of weights
       // calcMax(api, balances_fees, senderId, recipientId)
