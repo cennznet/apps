@@ -7,7 +7,7 @@ import { BareProps, BitLength } from './types';
 
 import BN from 'bn.js';
 import React, { useEffect, useState } from 'react';
-import { formatBalance } from '@polkadot/util';
+import { formatBalance, formatNumber } from '@polkadot/util';
 
 import { classes } from './util';
 import { BitLengthOption } from './constants';
@@ -169,10 +169,7 @@ function getValuesFromString (value: string, si: SiDef | null, props: Props): [s
   const regex = RegExp('^\\d{1,3}(,\\d{3})*(\\.\\d+)?$');
   // Format only if required
   if (!regex.exec(value)) {
-    const defaultValue = valueBn
-      ? formatBalance(valueBn, { forceUnit: '-', withSi: false }).replace(',', ',')
-      : valueBn;
-    formatedValue = defaultValue.split('.')[0];
+    formatedValue = formatNumber(new BN(value.replace(/,/g, '')));
   }
   // The following will just remove the 0 on the left, example 01 -> 1
   formatedValue = value.length === 2 ? new BN(value).toString() : formatedValue;
@@ -245,8 +242,8 @@ export default function InputNumber (props: Props): React.ReactElement<Props> {
       const { selectionStart: i, selectionEnd: j, value } = event.target as HTMLInputElement;
       let newValue = `${value.substring(0, i || 0)}${event.key}${value.substring(j || 0)}`;
       // The following will just remove the 0's on the left and send it to check the regex for decimal and allow user to enter number without having to enter backspace
-      newValue = new BN(newValue).toString();
-      if (!getRegex(isDecimal || !!si).test(newValue.replace(/,/g, ''))) {
+      newValue = new BN(newValue.replace(/,/g, '')).toString();
+      if (!getRegex(isDecimal || !!si).test(newValue)) {
         event.preventDefault();
       }
     }
