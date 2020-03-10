@@ -62,8 +62,8 @@ function getGlobalMaxValue (bitLength?: number): BN {
 function getRegex (isDecimal: boolean): RegExp {
   return new RegExp(
     isDecimal
-      ? `^(0|[1-9]\\d*)(\\${KEYS.DECIMAL}\\d*)?$`
-      : '^(0|[1-9]\\d*)$'
+      ? `^(0|[0-9]\\d*)(\\${KEYS.DECIMAL}\\d*)?$`
+      : '^(0|[0-9]\\d*)$'
   );
 }
 
@@ -168,8 +168,14 @@ function getValuesFromString (value: string, si: SiDef | null, props: Props): [s
   // Sometimes the value is already formatted, avoid formatting in those cases
   const regex = RegExp('^\\d{1,3}(,\\d{3})*(\\.\\d+)?$');
   // Format only if required
-  if (!regex.exec(value)) {
+  if (value && !regex.exec(value)) {
+    let decimalValue;
+    if (value.includes('.')) {
+      decimalValue = value.split('.');
+      value = decimalValue[0];
+    }
     formatedValue = formatNumber(new BN(value.replace(/,/g, '')));
+    formatedValue = decimalValue ? `${formatedValue}.${decimalValue[1]}` : formatedValue;
   }
   // The following will just remove the 0 on the left, example 01 -> 1
   formatedValue = value.length === 2 ? new BN(value).toString() : formatedValue;
@@ -240,12 +246,8 @@ export default function InputNumber (props: Props): React.ReactElement<Props> {
 
     if (event.key.length === 1 && !isPreKeyDown) {
       const { selectionStart: i, selectionEnd: j, value } = event.target as HTMLInputElement;
-      // Commented for easy tracking while rebasing'
-      // const newValue = `${value.substring(0, i || 0)}${event.key}${value.substring(j || 0)}`;
-      let newValue = `${value.substring(0, i || 0)}${event.key}${value.substring(j || 0)}`;
-      // The following will just remove the 0's on the left and send it to check the regex for decimal and allow user to enter number without having to enter backspace
-      newValue = new BN(newValue.replace(/,/g, '')).toString();
-      if (!getRegex(isDecimal || !!si).test(newValue)) {
+      const newValue = `${value.substring(0, i || 0)}${event.key}${value.substring(j || 0)}`;
+      if (!getRegex(isDecimal || !!si).test(newValue.replace(/,/g, ''))) {
         event.preventDefault();
       }
     }
