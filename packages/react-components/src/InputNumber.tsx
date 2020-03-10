@@ -62,8 +62,8 @@ function getGlobalMaxValue (bitLength?: number): BN {
 function getRegex (isDecimal: boolean): RegExp {
   return new RegExp(
     isDecimal
-      ? `^(0|[0-9]\\d*)(\\${KEYS.DECIMAL}\\d*)?$`
-      : '^(0|[0-9]\\d*)$'
+      ? `^([0-9]\\d*)(\\${KEYS.DECIMAL}\\d*)?$`
+      : '^([0-9]\\d*)$'
   );
 }
 
