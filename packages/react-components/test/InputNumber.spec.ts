@@ -29,6 +29,13 @@ describe('Test formatting', () => {
     done();
   });
 
+  it('Check number format for 1234.0:', done => {
+    const value = '1234.0';
+    const formatted = formatInput(value);
+    expect(formatted).toEqual('1,234.0');
+    done();
+  });
+
   it('Check number format for 0.:', done => {
     const value = '0.';
     const formatted = formatInput(value);
