@@ -178,7 +178,7 @@ function getValuesFromString (value: string, si: SiDef | null, props: Props): [s
     formatedValue = decimalValue ? `${formatedValue}.${decimalValue[1]}` : formatedValue;
   }
   // The following will just remove the 0 on the left, example 01 -> 1
-  formatedValue = value.length === 2 ? new BN(value).toString() : formatedValue;
+  formatedValue = value.startsWith('0') ? new BN(value).toString() : formatedValue;
 
   return [
     formatedValue,
