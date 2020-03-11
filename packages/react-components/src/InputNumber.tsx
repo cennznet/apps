@@ -161,9 +161,7 @@ function inputToBn (input: string, si: SiDef | null, props: Props): [BN, boolean
 //   }`;
 // }
 
-function getValuesFromString (value: string, si: SiDef | null, props: Props): [string, BN, boolean] {
-  const [valueBn, isValid] = inputToBn(value, si, props);
-
+export function formatInput (value: string) {
   let formatedValue = value;
   // Sometimes the value is already formatted, avoid formatting in those cases
   const regex = RegExp('^\\d{1,3}(,\\d{3})*(\\.\\d+)?$');
@@ -181,7 +179,13 @@ function getValuesFromString (value: string, si: SiDef | null, props: Props): [s
   const regexCheckZero = RegExp('^(0\\d)');
   // The following will just remove the 0 on the left, example 01 -> 1
   formatedValue = regexCheckZero.exec(value) ? new BN(value).toString() : formatedValue;
+  return formatedValue;
+}
 
+function getValuesFromString (value: string, si: SiDef | null, props: Props): [string, BN, boolean] {
+  const [valueBn, isValid] = inputToBn(value, si, props);
+
+  const formatedValue = formatInput(value);
   return [
     formatedValue,
     valueBn,
