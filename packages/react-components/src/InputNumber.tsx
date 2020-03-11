@@ -177,8 +177,10 @@ function getValuesFromString (value: string, si: SiDef | null, props: Props): [s
     formatedValue = formatNumber(new BN(value.replace(/,/g, '')));
     formatedValue = decimalValue ? `${formatedValue}.${decimalValue[1]}` : formatedValue;
   }
+
+  const regexCheckZero = RegExp('^(0\\d)');
   // The following will just remove the 0 on the left, example 01 -> 1
-  formatedValue = value.startsWith('0') ? new BN(value).toString() : formatedValue;
+  formatedValue = regexCheckZero.exec(value) ? new BN(value).toString() : formatedValue;
 
   return [
     formatedValue,
