@@ -108,7 +108,6 @@ function SideBar ({ className, collapse, handleResize, isCollapsed, isMenuOpen, 
             <Menu.Divider hidden={false}/>
             <details
               className='apps--SideBar-Advanced'
-              close
             >
               <summary>{t('  Advanced')}</summary>
               <Menu.Divider hidden/>
