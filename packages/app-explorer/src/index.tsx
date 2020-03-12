@@ -38,16 +38,15 @@ function ExplorerApp ({ basePath, className }: Props): React.ReactElement<Props>
       hasParams: true,
       name: 'query',
       text: t('Block details')
-    }
-    // },
+    },
     // {
     //   name: 'forks',
     //   text: t('Forks')
     // },
-    // {
-    //   name: 'node',
-    //   text: t('Node info')
-    // }
+    {
+      name: 'node',
+      text: t('Node info')
+    }
   ], [t]);
 
   return (
