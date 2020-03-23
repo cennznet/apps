@@ -15,6 +15,7 @@ import AccountsOverlay from './overlays/Accounts';
 import ConnectingOverlay from './overlays/Connecting';
 import { SideBarTransition, SIDEBAR_MENU_THRESHOLD } from './constants';
 import Content from './Content';
+import MenuOverlay from './MenuOverlay';
 import SideBar from './SideBar';
 import BN from 'bn.js';
 
@@ -76,10 +77,7 @@ function Apps ({ className }: Props): React.ReactElement<Props> {
     <>
       <GlobalStyle />
       <div className={`apps--Wrapper ${isCollapsed ? 'collapsed' : 'expanded'} ${isMenu && 'fixed'} ${isMenuOpen && 'menu-open'} theme--default ${className}`}>
-        <div
-          className={`apps--Menu-bg ${isMenuOpen ? 'open' : 'closed'}`}
-          onClick={_handleResize}
-        />
+        <MenuOverlay {...{ _handleResize, isMenuOpen }} />
         <SideBar
           collapse={_collapse}
           handleResize={_handleResize}
@@ -187,7 +185,7 @@ export default styled(Apps)`
   &.menu-open {
     .apps--SideBar-Wrapper {
       width: 12rem;
-    } */
+    }
   }
 
   .apps--Menu-bg {
@@ -208,5 +206,5 @@ export default styled(Apps)`
     &.open {
       opacity: 1;
     }
-  }
+  }*/
 `;
