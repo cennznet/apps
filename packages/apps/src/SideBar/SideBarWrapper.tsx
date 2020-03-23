@@ -25,11 +25,6 @@ const StyledResponsive = styled(Responsive)`
     }
   }
 
-/*
-  .expanded & {
-    width: 15rem;
-  } */
-
   .menu-open & {
     width: 15rem;
   }

@@ -3,11 +3,8 @@
 // of the Apache-2.0 license. See the LICENSE file for details.
 
 import { RuntimeVersion } from '@polkadot/types/interfaces';
-// import { SIDEBAR_MENU_THRESHOLD } from '../constants';
-
 import React, { useState } from 'react';
 import styled from 'styled-components';
-// import { Responsive } from 'semantic-ui-react';
 import routing from '@polkadot/apps-routing';
 import { Icon, Menu, media } from '@polkadot/react-components';
 import { useCall, useApi } from '@polkadot/react-hooks';
