@@ -1,35 +1,45 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Button } from '@polkadot/react-components';
-import { Responsive } from 'semantic-ui-react';
-import { SIDEBAR_MENU_THRESHOLD } from '../constants';
+import { ChainImg, media } from '@polkadot/react-components';
 import { colors } from '../../../../styled-theming';
 
 interface Props {
-  collapse: () => void;
+  isMenuOpen: boolean;
+  toggleMenu: () => void;
 }
 
-const ToggleButton = styled(Button).attrs({
-  className: 'apps--SideBar-toggle'
+const StyledChainImg = styled(ChainImg).attrs({
 })`
-  height: 100%;
+  cursor: pointer;
+  height: 2.75rem;
+  left: 0.9rem;
+  opacity: 0;
   position: absolute;
-  right: 0px;
   top: 0px;
-  transition: all 0.2s;
-  width: 6px;
+  transition: opacity 0.2s ease-in, top 0.2s ease-in;
+  width: 2.75rem;
 
-  &:hover {
-    background: rgba(255,255,255,0.15);
-    cursor: pointer;
+  &.delayed {
+    transition-delay: 0.4s;
   }
+
+  &.open {
+    opacity: 1;
+    top: 0.9rem;
+  }
+
+  ${media.DESKTOP`
+    opacity: 0 !important;
+    top: -2.9rem !important;
+  `}
 `;
 
-function SideBarToggle ({ collapse }: Props): React.ReactElement<Props> {
+function SideBarToggle ({ isMenuOpen, toggleMenu }: Props): React.ReactElement<Props> {
   return (
-    <Responsive minWidth={SIDEBAR_MENU_THRESHOLD}>
-      <ToggleButton onClick={collapse} />
-    </Responsive>
+    <StyledChainImg
+      className={`toggleImg ${isMenuOpen ? 'closed' : 'open delayed'}`}
+      onClick={toggleMenu}
+    />
   );
 }
 

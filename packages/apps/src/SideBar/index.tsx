@@ -3,13 +3,13 @@
 // of the Apache-2.0 license. See the LICENSE file for details.
 
 import { RuntimeVersion } from '@polkadot/types/interfaces';
-import { SIDEBAR_MENU_THRESHOLD } from '../constants';
+// import { SIDEBAR_MENU_THRESHOLD } from '../constants';
 
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Responsive } from 'semantic-ui-react';
+// import { Responsive } from 'semantic-ui-react';
 import routing from '@polkadot/apps-routing';
-import { ChainImg, Icon, Menu, media } from '@polkadot/react-components';
+import { Icon, Menu, media } from '@polkadot/react-components';
 import { useCall, useApi } from '@polkadot/react-hooks';
 import { useTranslation } from '../translate';
 import Item from './Item';
@@ -22,6 +22,7 @@ import SideBarCollapseButton from './SideBarCollapseButton';
 import { SideBarAdvancedContainer, SideBarAdvancedSummary } from './SideBarAdvanced';
 import SideBarHeader from './SideBarHeader';
 import SideBarScroll from './SideBarScroll';
+import SideBarToggle from './SideBarToggle';
 import SideBarWrapper from './SideBarWrapper';
 
 interface Props {
@@ -53,10 +54,7 @@ function SideBarContainer ({ className, collapse, handleResize, isCollapsed, isM
   return (
     <SideBarWrapper {...{ className, handleResize, isCollapsed }}>
       <SideBarCollapseButton {...{ collapse, isCollapsed }} />
-      <ChainImg
-        className={`toggleImg ${isMenuOpen ? 'closed' : 'open delayed'}`}
-        onClick={toggleMenu}
-      />
+      <SideBarToggle {...{ isMenuOpen, toggleMenu }} />
       {routing.routes.map((route): React.ReactNode => (
         route && route.Modal
           ? route.Modal && modals[route.name]
@@ -262,7 +260,7 @@ export default styled(SideBarContainer)`
         cursor: pointer;
       }
     }
-  } */
+  }
 
   .toggleImg {
     cursor: pointer;
@@ -287,5 +285,5 @@ export default styled(SideBarContainer)`
       opacity: 0 !important;
       top: -2.9rem !important;
     `}
-  }
+  } */
 `;
