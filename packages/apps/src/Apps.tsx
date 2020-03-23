@@ -173,7 +173,7 @@ export default styled(Apps)`
     }
   } */
 
-  &.fixed {
+  /* &.fixed {
     .apps--SideBar-Wrapper {
       position: absolute;
       width: 0px;
@@ -187,7 +187,7 @@ export default styled(Apps)`
   &.menu-open {
     .apps--SideBar-Wrapper {
       width: 12rem;
-    }
+    } */
   }
 
   .apps--Menu-bg {

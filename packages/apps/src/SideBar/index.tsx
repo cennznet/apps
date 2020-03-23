@@ -11,7 +11,6 @@ import { Responsive } from 'semantic-ui-react';
 import routing from '@polkadot/apps-routing';
 import { ChainImg, Icon, Menu, media } from '@polkadot/react-components';
 import { useCall, useApi } from '@polkadot/react-hooks';
-import { classes } from '@polkadot/react-components/util';
 import { useTranslation } from '../translate';
 import Item from './Item';
 import NodeInfo from './NodeInfo';
@@ -23,6 +22,7 @@ import SideBarCollapseButton from './SideBarCollapseButton';
 import { SideBarAdvancedContainer, SideBarAdvancedSummary } from './SideBarAdvanced';
 import SideBarHeader from './SideBarHeader';
 import SideBarScroll from './SideBarScroll';
+import SideBarWrapper from './SideBarWrapper';
 
 interface Props {
   className?: string;
@@ -51,10 +51,7 @@ function SideBarContainer ({ className, collapse, handleResize, isCollapsed, isM
     (): void => setModals({ ...modals, [name]: !modals[name] });
 
   return (
-    <Responsive
-      onUpdate={handleResize}
-      className={classes(className, 'apps--SideBar-Wrapper', isCollapsed ? 'collapsed' : 'expanded')}
-    >
+    <SideBarWrapper {...{ className, handleResize, isCollapsed }}>
       <SideBarCollapseButton {...{ collapse, isCollapsed }} />
       <ChainImg
         className={`toggleImg ${isMenuOpen ? 'closed' : 'open delayed'}`}
@@ -152,18 +149,18 @@ function SideBarContainer ({ className, collapse, handleResize, isCollapsed, isM
           />
         </Responsive>
       </SideBar>
-    </Responsive>
+    </SideBarWrapper>
   );
 }
 
 export default styled(SideBarContainer)`
-  display: flex;
+  /* display: flex;
   position: relative;
   transition: width 0.3s linear;
   z-index: 300;
 
   .apps--SideBar {
-    /* align-items: center;
+    align-items: center;
     background: #4f4f4f;
     display: flex;
     flex-flow: column;

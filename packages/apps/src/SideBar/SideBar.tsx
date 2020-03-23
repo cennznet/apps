@@ -29,9 +29,9 @@ const SideBar = styled.div.attrs({
     width: 5rem;
   }
 
-  .expanded & {
+  /* .expanded & {
     width: 15rem;
-  }
+  } */
 `;
 
 SideBar.defaultProps = {
