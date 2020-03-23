@@ -142,12 +142,6 @@ function SideBarContainer ({ className, collapse, handleResize, isCollapsed, isM
             }
           </SideBarScroll>
         </Menu>
-        <Responsive minWidth={SIDEBAR_MENU_THRESHOLD}>
-          <div
-            className='apps--SideBar-toggle'
-            onClick={collapse}
-          />
-        </Responsive>
       </SideBar>
     </SideBarWrapper>
   );
@@ -253,7 +247,7 @@ export default styled(SideBarContainer)`
         margin: 0;
         transition: transform 0.15s;
       }
-    } */
+    }
 
     .apps--SideBar-toggle {
       height: 100%;
@@ -268,7 +262,7 @@ export default styled(SideBarContainer)`
         cursor: pointer;
       }
     }
-  }
+  } */
 
   .toggleImg {
     cursor: pointer;
