@@ -1,4 +1,5 @@
 import React from 'react';
+import { RuntimeVersion } from '@polkadot/types/interfaces';
 import styled from 'styled-components';
 import { ChainImg } from '@polkadot/react-components';
 import { BestNumber, Chain } from '@polkadot/react-query';
@@ -6,8 +7,8 @@ import { useTranslation } from '../translate';
 import { colors } from '../../../../styled-theming';
 
 interface Props {
-  runtimeVersion: any;
-  _toggleModal: () => void;
+  runtimeVersion: RuntimeVersion;
+  _toggleModal: (arg0: string) => any;
 }
 
 const SideBarHeaderContainer = styled.div`
@@ -54,9 +55,7 @@ function SideBarHeader ({ _toggleModal, runtimeVersion }: Props): React.ReactEle
       <ChainImg logo='cennznetLight' />
       <div className='info'>
         <Chain className='chain' />
-        {runtimeVersion && (
           <div className='runtimeVersion'>{t('version {{version}}', { replace: { version: runtimeVersion.specVersion.toNumber() } })}</div>
-        )}
         <BestNumber label='#' />
       </div>
     </SideBarHeaderContainer>

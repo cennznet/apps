@@ -34,7 +34,7 @@ interface Props {
 function SideBarContainer ({ className, collapse, handleResize, isCollapsed, isMenuOpen, toggleMenu }: Props): React.ReactElement<Props> {
   const { t } = useTranslation();
   const { api } = useApi();
-  const runtimeVersion = useCall<RuntimeVersion>(api.rpc.state.subscribeRuntimeVersion, []);
+  const runtimeVersion = useCall<RuntimeVersion | undefined>(api.rpc.state.subscribeRuntimeVersion, []);
   const [modals, setModals] = useState<Record<string, boolean>>(
     routing.routes.reduce((result: Record<string, boolean>, route): Record<string, boolean> => {
       if (route && route.Modal) {
@@ -73,7 +73,7 @@ function SideBarContainer ({ className, collapse, handleResize, isCollapsed, isM
           vertical
         >
           <SideBarScroll>
-            <SideBarHeader {...{ _toggleModal, runtimeVersion }} />
+            {runtimeVersion && <SideBarHeader {...{ _toggleModal, runtimeVersion }} />}
             {routing.routes.map((route, index): React.ReactNode => (
               route && !route.isAdvanced
                 ? (
