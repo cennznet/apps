@@ -51,7 +51,7 @@ function SideBarHeader ({ _toggleModal, runtimeVersion }: Props): React.ReactEle
       className='apps--SideBar-logo'
       onClick={_toggleModal('network')}
     >
-      <ChainImg />
+      <ChainImg logo='cennznet' />
       <div className='info'>
         <Chain className='chain' />
         {runtimeVersion && (

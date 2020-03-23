@@ -1,7 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
 import { ChainImg, media } from '@polkadot/react-components';
-import { colors } from '../../../../styled-theming';
 
 interface Props {
   isMenuOpen: boolean;
@@ -38,6 +37,7 @@ function SideBarToggle ({ isMenuOpen, toggleMenu }: Props): React.ReactElement<P
   return (
     <StyledChainImg
       className={`toggleImg ${isMenuOpen ? 'closed' : 'open delayed'}`}
+      logo='cennznet'
       onClick={toggleMenu}
     />
   );
