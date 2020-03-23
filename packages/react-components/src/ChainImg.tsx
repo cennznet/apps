@@ -11,7 +11,8 @@ import { useApi } from '@polkadot/react-hooks';
 
 // last-resort fallback, just something empty
 import EMPTY from '@polkadot/ui-assets/empty.svg';
-import cennznetLogo from '../../apps/assets/cennznet-logo.png';
+// import cennznetLogoDark from '../../apps/assets/cennznet-logo-light.svg';
+import cennznetLogoLight from '../../apps/assets/cennznet-logo-light.svg';
 
 // anything fopr a specific chain, most items will probably go in here
 import chainKusama from '@polkadot/ui-assets/chains/kusama-128.gif';
@@ -44,7 +45,8 @@ const NODES: Record<string, any> = {
 // overrides as specified
 const LOGOS: Record<string, any> = {
   // centrifuge,
-  cennznet: cennznetLogo,
+  cennznetDark: cennznetLogoLight,
+  cennznetLight: cennznetLogoLight,
   empty: EMPTY
   // edgeware,
   // alexander: polkadot,

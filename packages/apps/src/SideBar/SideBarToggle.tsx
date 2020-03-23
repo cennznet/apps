@@ -37,7 +37,7 @@ function SideBarToggle ({ isMenuOpen, toggleMenu }: Props): React.ReactElement<P
   return (
     <StyledChainImg
       className={`toggleImg ${isMenuOpen ? 'closed' : 'open delayed'}`}
-      logo='cennznet'
+      logo='cennznetDark'
       onClick={toggleMenu}
     />
   );
