@@ -92,7 +92,7 @@ function SideBarContainer ({ className, collapse, handleResize, isCollapsed, isM
             ))}
             <SideBarItemDivider />
             <SideBarAdvancedContainer>
-              <SideBarAdvancedSummary>{t('Advanced')}</SideBarAdvancedSummary>
+              <SideBarAdvancedSummary><span>{t('Advanced')}</span></SideBarAdvancedSummary>
               {routing.routes.map((route, index): React.ReactNode => (
                 route && route.isAdvanced
                   ? (

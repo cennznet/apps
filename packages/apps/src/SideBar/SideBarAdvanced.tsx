@@ -1,9 +1,9 @@
 import styled from 'styled-components';
+import { colors } from '../../../../styled-theming';
 
 const SideBarAdvancedContainer = styled.details`
   margin-top: 0.5rem;
   min-height: 29rem;
-  /* padding: 0 0.75rem; */
 
   .expanded & {
     width: 100%;
@@ -17,6 +17,20 @@ const SideBarAdvancedContainer = styled.details`
 
 const SideBarAdvancedSummary = styled.summary`
   margin-bottom: 0.5rem;
+  padding-left: 0.75rem;
+
+  &:hover{
+    color: ${colors.N200};
+  }
+
+  .collapsed & {
+    margin-left: 0.3rem;
+    font-size: 1.5rem;
+
+    span {
+      display: none;
+    }
+  }
 `;
 
 export {
