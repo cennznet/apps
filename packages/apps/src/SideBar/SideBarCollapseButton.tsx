@@ -28,6 +28,10 @@ const StyledButton = styled(Button).attrs({
     color: ${colors.N900} !important;
   }
 
+  .fixed & {
+    display: none;
+  }
+
   i {
     position: absolute;
     left: 7px;

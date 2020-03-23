@@ -10,7 +10,7 @@ const SideBarScroll = styled.div.attrs({
   flex-direction: column;
   height: 100vh;
   overflow-y: auto;
-  padding: 0 1rem;
+  padding: 0 1.4rem;
   scrollbar-width: none;
   user-select: none;
 

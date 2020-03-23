@@ -22,8 +22,10 @@ const SideBar = styled.div.attrs({
   display: flex;
   flex-flow: column;
   height: auto;
+  overflow: hidden;
   position: relative;
   transition: left 0.3s linear;
+  width: 100%; /* important to sidebar hidden in mobile view */
 
   .collapsed & {
     width: 5rem;
