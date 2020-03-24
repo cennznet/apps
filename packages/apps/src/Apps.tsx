@@ -15,14 +15,18 @@ import AccountsOverlay from './overlays/Accounts';
 import ConnectingOverlay from './overlays/Connecting';
 import { SideBarTransition, SIDEBAR_MENU_THRESHOLD } from './constants';
 import Content from './Content';
+import MenuOverlay from './MenuOverlay';
 import SideBar from './SideBar';
 import BN from 'bn.js';
+import routing from '@polkadot/apps-routing';
+import { useLocation } from 'react-router-dom';
 
 interface SidebarState {
   isCollapsed: boolean;
   isMenu: boolean;
   isMenuOpen: boolean;
   transition: SideBarTransition;
+  isAdvanceOpen: boolean; // This is used when user from landing page choses is open advanced option (expand it), we need to pass the information to sidebar about it
 }
 
 function WarmUp (): React.ReactElement {
@@ -50,10 +54,21 @@ function Apps ({ className }: Props): React.ReactElement<Props> {
     isMenuOpen: false,
     transition: SideBarTransition.COLLAPSED,
     ...store.get('sidebar', {}),
-    isMenu: window.innerWidth < SIDEBAR_MENU_THRESHOLD
+    isMenu: window.innerWidth < SIDEBAR_MENU_THRESHOLD,
+    isAdvanceOpen: false
   });
   const { isCollapsed, isMenu, isMenuOpen } = sidebar;
+  const location = useLocation();
+  const app = location.pathname.slice(1) || '';
+  let openAdvance : boolean;
 
+  const element = routing.routes.find(route => route && route.name === app);
+  if (element && element.isAdvanced) {
+    openAdvance = element.isAdvanced
+  } else {
+    openAdvance = false;
+  }
+  // const advancedInput = useRef(null);
   const _setSidebar = (update: Partial<SidebarState>): void =>
     setSidebar(store.set('sidebar', { ...sidebar, ...update }));
   const _collapse = (): void =>
@@ -76,16 +91,14 @@ function Apps ({ className }: Props): React.ReactElement<Props> {
     <>
       <GlobalStyle />
       <div className={`apps--Wrapper ${isCollapsed ? 'collapsed' : 'expanded'} ${isMenu && 'fixed'} ${isMenuOpen && 'menu-open'} theme--default ${className}`}>
-        <div
-          className={`apps--Menu-bg ${isMenuOpen ? 'open' : 'closed'}`}
-          onClick={_handleResize}
-        />
+        <MenuOverlay {...{ _handleResize, isMenuOpen }} />
         <SideBar
           collapse={_collapse}
           handleResize={_handleResize}
           isCollapsed={isCollapsed}
           isMenuOpen={isMenuOpen}
           toggleMenu={_toggleMenu}
+          isAdvanceOpen={openAdvance}
         />
         <Signer>
           <Content />
@@ -105,7 +118,7 @@ export default styled(Apps)`
   flex-direction: row;
   min-height: 100vh;
 
-  &.theme--default {
+  /* &.theme--default {
     a.apps--SideBar-Item-NavLink {
       color: #f5f5f5;
       display: block;
@@ -171,9 +184,9 @@ export default styled(Apps)`
     .apps--SideBar-Scroll {
       padding-left: 0.75rem;
     }
-  }
+  } */
 
-  &.fixed {
+  /* &.fixed {
     .apps--SideBar-Wrapper {
       position: absolute;
       width: 0px;
@@ -208,5 +221,5 @@ export default styled(Apps)`
     &.open {
       opacity: 1;
     }
-  }
+  }*/
 `;
