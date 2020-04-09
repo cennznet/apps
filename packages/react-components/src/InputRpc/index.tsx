@@ -8,7 +8,6 @@ import { RpcMethod } from '@polkadot/jsonrpc/types';
 import { DropdownOptions } from '../util/types';
 
 import React, { useState } from 'react';
-import map from '@polkadot/jsonrpc';
 import { useApi } from '@polkadot/react-hooks';
 
 import LinkedWrapper from '../InputExtrinsic/LinkedWrapper';
@@ -16,6 +15,7 @@ import SelectMethod from './SelectMethod';
 import SelectSection from './SelectSection';
 import methodOptions from './options/method';
 import sectionOptions from './options/section';
+import cennznetJsonRpc from './cennznetJsonRpc';
 
 interface Props {
   className?: string;
@@ -51,7 +51,7 @@ export default function InputRpc ({ className, defaultValue, help, label, onChan
     const optionsMethod = methodOptions(api, section);
 
     setOptionsMethod(optionsMethod);
-    _onMethodChange(map[section].methods[optionsMethod[0].value]);
+    _onMethodChange(cennznetJsonRpc[section].methods[optionsMethod[0].value]);
   };
 
   return (

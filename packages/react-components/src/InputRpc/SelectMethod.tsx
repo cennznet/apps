@@ -8,7 +8,7 @@ import { BareProps } from '../types';
 
 import React from 'react';
 
-import map from '@polkadot/jsonrpc';
+import cennznetJsonRpc from './cennznetJsonRpc';
 
 import Dropdown from '../Dropdown';
 import { classes } from '../util';
@@ -22,7 +22,7 @@ interface Props extends BareProps {
 
 function transform ({ value }: Props): (method: string) => RpcMethod {
   return function (method: string): RpcMethod {
-    return map[value.section].methods[method];
+    return cennznetJsonRpc[value.section].methods[method];
   };
 }
 
