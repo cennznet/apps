@@ -25,9 +25,6 @@ export default function CryptoType ({ accountId, className, label = '' }: Props)
         : null;
 
       if (current) {
-        // @ts-ignore
-        const currentType = typeof current.type === 'object' && current.type.type ? current.type.type : current.type;
-
         setType(
           current.meta.isInjected
             ? 'injected'
@@ -35,7 +32,8 @@ export default function CryptoType ({ accountId, className, label = '' }: Props)
               ? current.meta.hardwareType || 'hardware'
               : current.meta.isExternal
                 ? 'external'
-                : currentType
+                // @ts-ignore
+                : current?.type?.type || current?.type || 'unknown'
         );
       }
     } catch (error) {
