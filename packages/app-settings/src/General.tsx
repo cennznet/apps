@@ -30,9 +30,10 @@ export default function General ({ className, isModalContent, onClose }: Props):
   const iconOptions = useMemo((): Option[] => {
     return uiSettings.availableIcons.map((o): Option => createIdenticon(t, o, ['default']));
   }, [t]);
-  const prefixOptions = useMemo((): Option[] => {
-    return uiSettings.availablePrefixes.map((o): Option => createOption(t, o, ['default']));
-  }, [t]);
+  // Address prefixes are unused in CENNZnet
+  // const prefixOptions = useMemo((): Option[] => {
+  //   return uiSettings.availablePrefixes.map((o): Option => createOption(t, o, ['default']));
+  // }, [t]);
   const translateLanguages = useMemo((): Option[] => {
     return availableLanguages.map(({ text, value, withI18n }) => ({
       value,
