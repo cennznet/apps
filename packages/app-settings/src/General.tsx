@@ -11,7 +11,7 @@ import uiSettings, { SettingsStruct } from '@polkadot/ui-settings';
 
 import { availableLanguages } from './available';
 import { useTranslation } from './translate';
-import { createIdenticon, createOption, save, saveAndReload } from './util';
+import { createIdenticon, save, saveAndReload } from './util';
 import SelectUrl from './SelectUrl';
 
 interface Props {
@@ -62,7 +62,7 @@ export default function General ({ className, isModalContent, onClose }: Props):
     setChanged(null);
   };
 
-  const { icon, i18nLang, ledgerConn, prefix, uiMode } = settings;
+  const { icon, i18nLang, ledgerConn, uiMode } = settings;
 
   return (
     <div className={className}>
