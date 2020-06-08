@@ -175,11 +175,11 @@ function Create ({ className, onClose, onStatusChange, seed: propsSeed, type: pr
   ), [isDevelopment, t]);
 
   const _onChangePass = (password: string): void => {
-    setPassword({isPassValid: keyring.isPassValid(password), password});
-    checkRepeatPassword({ isRepeatPassValid: password===repeatPassword, repeatPassword});
+    setPassword({ isPassValid: keyring.isPassValid(password), password });
+    checkRepeatPassword({ isRepeatPassValid: password===repeatPassword, repeatPassword });
   }
   const _onChangeRepeatPass = (repeatPassword: string): void =>
-    checkRepeatPassword({ isRepeatPassValid: password===repeatPassword, repeatPassword});
+    checkRepeatPassword({ isRepeatPassValid: password===repeatPassword, repeatPassword });
   const _onChangeDerive = (newDerivePath: string): void =>
     setAddress(updateAddress(seed, newDerivePath, seedType, pairType));
   const _onChangeSeed = (newSeed: string): void =>
