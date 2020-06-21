@@ -28,8 +28,10 @@ const SideBar = styled.div.attrs({
   width: 100%; /* important to sidebar hidden in mobile view */
 
   .collapsed & {
-    .ui.vertical.menu {
-      position: fixed;
+    @media (min-width:1000px){
+      .ui.vertical.menu {
+        position: fixed;
+      }
     }
     width: 5rem;
   }
