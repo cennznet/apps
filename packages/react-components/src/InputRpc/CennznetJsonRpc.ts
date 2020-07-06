@@ -1,19 +1,20 @@
 import defaultJsonRpc from '@polkadot/jsonrpc';
 import createMethod from '@polkadot/jsonrpc/create/method';
 import createParam from '@polkadot/jsonrpc/create/param';
-import  userBare  from '@cennznet/api/rpc';
+import  cennznetBare  from '@cennznet/api/rpc';
 
-const userRpc = Object.entries(userBare).reduce((user, [sectionName, methods]) => {
+const userRpc = Object.entries(cennznetBare).reduce((user, [sectionName, methods]) => {
     // @ts-ignore
-    user[sectionName] =  { methods: methods.reduce((section, def) => {
+    user[sectionName] =  {
+        // @ts-ignore
+        methods: methods.reduce((section, def) => {
         const {
             description = 'User defined',
             name,
             params,
             type
         } = def;
-
-            section[name] = createMethod(sectionName, name, {
+        section[name] = createMethod(sectionName, name, {
             description,
             params: params.map(({
                                     // @ts-ignore
@@ -22,19 +23,17 @@ const userRpc = Object.entries(userBare).reduce((user, [sectionName, methods]) =
                                     name,
                                     // @ts-ignore
                                     type
-                                }) => createParam(name, type, {
+            }) => createParam(name, type, {
                 isOptional
             })),
             type: type
         });
         return section;
-    }, {})
+        }, {})
     }
     return user;
-}, {}); // decorate the sections with base and user methods
+    }, {}); // decorate the sections with base and user methods
 
-const cennznetJsonRpc = Object.assign({}, defaultJsonRpc,
-    userRpc
-);
+const cennznetJsonRpc = Object.assign({}, defaultJsonRpc, userRpc);
 
 export default cennznetJsonRpc;
