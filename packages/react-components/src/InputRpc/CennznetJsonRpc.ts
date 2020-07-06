@@ -1,7 +1,7 @@
 import defaultJsonRpc from '@polkadot/jsonrpc';
 import createMethod from '@polkadot/jsonrpc/create/method';
 import createParam from '@polkadot/jsonrpc/create/param';
-import  cennznetBare  from '@cennznet/api/rpc';
+import cennznetBare from '@cennznet/api/rpc';
 
 const userRpc = Object.entries(cennznetBare).reduce((user, [sectionName, methods]) => {
     // @ts-ignore

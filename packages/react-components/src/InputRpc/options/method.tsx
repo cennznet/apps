@@ -25,7 +25,7 @@ export default function createOptions (api: ApiPromise, sectionName: string): Dr
     })
     .map((value): DropdownOption => {
       const { description, params } = section.methods[value];
-      const inputs = params.map(({ name }): string => name).join(', ');
+      const inputs = params.map(({ name }: { name : string }): string => name).join(', ');
 
       return {
         className: 'ui--DropdownLinked-Item',
