@@ -230,16 +230,16 @@ function Create ({ className, onClose, onStatusChange, seed: propsSeed, type: pr
             autoFocus
             className='full'
             isError={!isNameValid}
-            label={t('name')}
+            label={t('Name your account (you can edit later)')}
             onChange={_onChangeName}
             onEnter={_onCommit}
-            placeholder={t('new account')}
+            placeholder={t('e.g. validate, nominate')}
             value={name}
           />
           <Password
             className='full'
             isError={!isPassValid}
-            label={t('password')}
+            label={t('Password')}
             onChange={_onChangePass}
             onEnter={_onCommit}
             value={password}
@@ -338,9 +338,6 @@ export default styled(Create)`
     margin-top: 1rem;
   }
   .bullet-points {
-    font-family: 'Open Sans';
-    font-style: normal;
-    font-size: 14px;
     margin-left: 0.3rem;
     color: rgba(78,78,78,.66);
     .password-info {
