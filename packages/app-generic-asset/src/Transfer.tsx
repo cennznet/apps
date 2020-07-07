@@ -54,12 +54,8 @@ function Transfer ({ assets, className, onClose, recipientId: propRecipientId, s
   }, [assets]);
 
   useEffect((): void => {
-    if (assetBalance) {
-      setHasBalance(!assetBalance.isZero());
-    }
-    if (amount) {
-      setHasAvailable(!amount.isZero())
-    }
+    setHasBalance( (assetBalance !== undefined) && !assetBalance.isZero());
+    setHasAvailable((amount !== undefined) && !amount.isZero());
   }, [assetBalance, amount]);
 
   // create an extrinsic if we have correct values
