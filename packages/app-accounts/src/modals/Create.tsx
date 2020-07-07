@@ -18,6 +18,7 @@ import uiSettings from '@polkadot/ui-settings';
 import { isHex, u8aToHex } from '@polkadot/util';
 import { keyExtractSuri, mnemonicGenerate, mnemonicValidate, randomAsU8a } from '@polkadot/util-crypto';
 
+import { colors } from '../../../../styled-theming';
 import { useTranslation } from '../translate';
 import CreateConfirmation from './CreateConfirmation';
 
@@ -339,7 +340,7 @@ export default styled(Create)`
   }
   .bullet-points {
     margin-left: 0.3rem;
-    color: rgba(78,78,78,.66);
+    color: ${colors.grey};
     .password-info {
       color: black;
     }
