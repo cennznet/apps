@@ -5,12 +5,11 @@
 import { SubmittableExtrinsic } from '@polkadot/api/promise/types';
 import { I18nProps } from '@polkadot/react-components/types';
 import { Balance } from '@polkadot/types/interfaces';
-
 import BN from 'bn.js';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Button, InputAddress, InputBalance, TxButton, Dropdown } from '@polkadot/react-components';
-import {useApi, useCall} from '@polkadot/react-hooks';
+import { useApi, useCall } from '@polkadot/react-hooks';
 import Available from './Available';
 import Checks from '@polkadot/react-signer/Checks';
 import { withMulti, withObservable } from '@polkadot/react-api/hoc';
@@ -45,55 +44,24 @@ function Transfer ({ assets, className, onClose, recipientId: propRecipientId, s
   let user = senderId;
   const assetBalance = useCall<Balance>(api.query.genericAsset.freeBalance as any, [id, user]);
 
-  // const poolAssetBalance = useCall<Balance>(
-  //   api.derive.cennzxSpot.poolAssetBalance as any,
-  //   [16000]
-  // );
-  // console.log('poolAssetBalance', poolAssetBalance);
+  const retrivedAssetList = useCall<any>(
+    // @ts-ignore
+    api.rpc.genericAsset.registeredAssets as any,
+    []
+  );
 
-  // const buyPrice = useCall<Balance>(
-  //   api.rpc.cennzx.buyPrice as any,
-  //   [16000, 1, 16001]
-  // );
-  // console.log('buyPrice', buyPrice);
+  const dropdownOptions = retrivedAssetList && retrivedAssetList.length > 0 && retrivedAssetList.map((asset: any) => {
+    const [assetId, assetInfo] = asset;
 
-  // const rpcMethods = useCall<Balance>(
-  //   api.rpc.methods as any,
-  //   []
-  // );
-  // console.log('api.rpc.methods', rpcMethods);
-
-  // const registered = useCall<Balance>(
-  //   api.rpc.genericAsset.registeredAssets as any,
-  //   []
-  // );
-  // console.log('registeredAssetssssss', registered);
-
-  const mockedRegisteredAssets = [
-    [
-      16001,
-      {
-        decimalPlaces: 2,
-        symbol: [67, 80, 65, 89]
-      }
-    ],
-    [
-      16000,
-      {
-        decimalPlaces: 1,
-        symbol: [67, 69, 78, 78, 90]
-      }
-    ]
-  ];
+    return {
+      text: u8aToString(assetInfo.symbol),
+      value: assetId.toString()
+    };
+  });
 
   useEffect((): void => {
-    const options = mockedRegisteredAssets.map(([assetId, { symbol }]) => ({
-      text: u8aToString(new Uint8Array(symbol)),
-      value: assetId
-    }));
-
-    setOptions(options);
-  }, [assets]);
+    setOptions(dropdownOptions || []);
+  }, [retrivedAssetList]);
 
   useEffect((): void => {
     setHasBalance((assetBalance !== undefined) && !assetBalance.isZero());
