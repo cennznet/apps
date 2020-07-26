@@ -140,5 +140,22 @@
   "balances": "balances",
   "session keys": "session keys",
   "session next": "session next",
-  "rewards": "rewards"
+  "rewards": "rewards",
+  "Address book": "Address book",
+  "Welcome to CENNZnet": "Welcome to CENNZnet",
+  "You don't have any accounts": "You don't have any accounts",
+  "Create or import an account so that you can deposit or withdraw directly from the CENNZnet UI.": "Create or import an account so that you can deposit or withdraw directly from the CENNZnet UI.",
+  "You will need to have at least one account connected to participate in the network.": "You will need to have at least one account connected to participate in the network.",
+  "Later": "Later",
+  "Create an account": "Create an account",
+  "Name your account (you can edit later)": "Name your account (you can edit later)",
+  "e.g. validate, nominate": "e.g. validate, nominate",
+  "Password": "Password",
+  "Confirm password": "Confirm password",
+  "This password encrypts your private key.": "This password encrypts your private key.",
+  "This does not act as a seed to generate your keys.": "This does not act as a seed to generate your keys.",
+  "You will need this": "You will need this",
+  "password + your keystore file (download next step)": "password + your keystore file (download next step)",
+  " to unlock your CENNZnet account.": " to unlock your CENNZnet account.",
+  "Back it up on paper or hard drive.": "Back it up on paper or hard drive."
 }

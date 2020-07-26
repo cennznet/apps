@@ -22,22 +22,18 @@ function createWebpack ({ alias = {}, context, name = 'index' }) {
   const isProd = ENV === 'production';
   const hasPublic = fs.existsSync(path.join(context, 'public'));
   const plugins = hasPublic
-    ? [new CopyWebpackPlugin([{ from: 'public' }])]
+    ? [new CopyWebpackPlugin([{ patterns: ['public'] }])]
     : [];
   // disabled, smooths dev load, was -
   // isProd ? 'source-map' : 'cheap-eval-source-map',
   const devtool = false;
-
   return {
     context,
     devtool,
     entry: [
       '@babel/polyfill',
-      `./src/${name}.tsx`,
-      isProd
-        ? null
-        : null // 'webpack-plugin-serve/client'
-    ].filter((entry) => entry),
+      './src/bootstrap.js'
+    ],
     mode: ENV,
     output: {
       chunkFilename: '[name].[chunkhash:8].js',
@@ -83,7 +79,7 @@ function createWebpack ({ alias = {}, context, name = 'index' }) {
             require.resolve('thread-loader'),
             {
               loader: require.resolve('babel-loader'),
-              options: require('@polkadot/dev/config/babel')
+              options: require('../../babel.config')
             }
           ]
         },
