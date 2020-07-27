@@ -16,7 +16,6 @@ import { withMulti, withObservable } from '@polkadot/react-api/hoc';
 import { u8aToString } from '@polkadot/util';
 import assetRegistry, { AssetsSubjectInfo } from './assetsRegistry';
 import translate from './translate';
-import { Doughnut } from '@plugnet/doughnut-wasm';
 
 interface Props extends I18nProps {
   className?: string;
@@ -32,7 +31,6 @@ interface Option {
 }
 
 function Transfer ({ assets, className, onClose, recipientId: propRecipientId, senderId: propSenderId, t }: Props): React.ReactElement<Props> {
-  console.log("*********************", Doughnut);
   const { api } = useApi();
   const [assetId, setAssetId] = useState('0');
   const [amount, setAmount] = useState<BN | undefined>(new BN(0));

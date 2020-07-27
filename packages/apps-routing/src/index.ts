@@ -28,6 +28,7 @@ import toolbox from './toolbox';
 import transfer from './transfer';
 // import treasury from './treasury';
 import landing from './landing';
+import doughnut from './doughnut';
 
 const routes: Routes = appSettings.uiMode === 'light'
   ? ([] as Routes).concat(
@@ -36,6 +37,7 @@ const routes: Routes = appSettings.uiMode === 'light'
     accounts,
     genericAsset,
     explorer,
+    doughnut,
     claims,
     transfer,
     null,
@@ -52,6 +54,7 @@ const routes: Routes = appSettings.uiMode === 'light'
     accounts,
     genericAsset,
     explorer,
+    doughnut,
     claims,
     transfer,
     null,
