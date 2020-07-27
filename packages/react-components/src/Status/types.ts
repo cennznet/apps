@@ -36,6 +36,7 @@ export interface QueueTx extends AccountInfo {
   id: number;
   isUnsigned?: boolean;
   payload?: SignerPayloadJSON;
+  doughnut?: string;
   result?: any;
   removeItem: () => void;
   rpc: RpcMethod;
@@ -82,6 +83,7 @@ export interface PartialQueueTxExtrinsic extends PartialAccountInfo {
   txStartCb?: () => void;
   txUpdateCb?: TxCallback;
   isUnsigned?: boolean;
+  doughnut?: string;
 }
 
 export interface PartialQueueTxRpc extends PartialAccountInfo {

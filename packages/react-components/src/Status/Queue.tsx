@@ -79,7 +79,7 @@ export default function Queue ({ children }: Props): React.ReactElement<Props> {
       }))]);
     }
   };
-  const queueExtrinsic = ({ accountId, extrinsic, txFailedCb, txSuccessCb, txStartCb, txUpdateCb, isUnsigned }: PartialQueueTxExtrinsic): void =>
+  const queueExtrinsic = ({ accountId, extrinsic, txFailedCb, txSuccessCb, txStartCb, txUpdateCb, isUnsigned, doughnut }: PartialQueueTxExtrinsic): void =>
     addToTxQueue({
       accountId,
       extrinsic,
@@ -87,7 +87,8 @@ export default function Queue ({ children }: Props): React.ReactElement<Props> {
       txFailedCb,
       txSuccessCb,
       txStartCb,
-      txUpdateCb
+      txUpdateCb,
+      doughnut
     });
   const queuePayload = (payload: SignerPayloadJSON, signerCb: SignerCallback): void =>
     addToTxQueue({

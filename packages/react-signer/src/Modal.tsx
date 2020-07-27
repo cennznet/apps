@@ -34,6 +34,7 @@ import Transaction from './Transaction';
 import Qr from './Qr';
 import Unlock from './Unlock';
 import translate from './translate';
+import Doughnut from "@cennznet/types/Doughnut";
 
 interface BaseProps extends BareProps {
   queue: QueueTx[];
@@ -549,7 +550,7 @@ class Signer extends React.PureComponent<Props, State> {
   private async sendExtrinsic (queueTx: QueueTx, password?: string): Promise<void> {
     const { isV2, isSubmit, showTip, tip } = this.state;
 
-    const { accountId, extrinsic, payload, isUnsigned } = queueTx;
+    const { accountId, extrinsic, payload, doughnut, isUnsigned } = queueTx;
 
     if (!isUnsigned) {
       assert(accountId, 'Expected an accountId with signed transactions');
@@ -578,9 +579,9 @@ class Signer extends React.PureComponent<Props, State> {
     assert(submittable, 'Expected an extrinsic to be supplied to sendExtrinsic');
 
     return isUnsigned
-      ? this.makeExtrinsicCall(submittable, queueTx, submittable.send.bind(submittable))
+      ? this.makeExtrinsicCall(submittable, queueTx, submittable.send.bind(submittable), doughnut)
       : isSubmit
-        ? this.makeExtrinsicCall(submittable, queueTx, submittable.signAndSend.bind(submittable), keyring.getPair(accountId as string))
+        ? this.makeExtrinsicCall(submittable, queueTx, submittable.signAndSend.bind(submittable), doughnut, keyring.getPair(accountId as string))
         : this.makeSignedTransaction(submittable, queueTx, keyring.getPair(accountId as string));
   }
 
@@ -615,6 +616,7 @@ class Signer extends React.PureComponent<Props, State> {
     extrinsic: SubmittableExtrinsic,
     { id, txFailedCb, txSuccessCb, txStartCb, txUpdateCb }: QueueTx,
     extrinsicCall: (...params: any[]) => any,
+    doughnut: string | undefined,
     pair?: KeyringPair
   ): Promise<void> {
     const { api, queueSetTxStatus } = this.props;
@@ -654,6 +656,10 @@ class Signer extends React.PureComponent<Props, State> {
 
     if (showTip && isV2 && tip) {
       params.push({ tip } as Partial<SignerOptions>);
+    }
+
+    if (doughnut) {
+      params.push({doughnut:new Doughnut(api.registry, doughnut)})
     }
 
     if (isFunction(txStartCb)) {

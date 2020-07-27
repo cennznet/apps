@@ -8,7 +8,7 @@ import { ApiProps } from '@polkadot/react-api/types';
 import { SubmittableExtrinsic } from '@polkadot/api/types';
 
 import React from 'react';
-import { Button, Extrinsic, InputAddress, TxButton, TxComponent } from '@polkadot/react-components';
+import {Button, Extrinsic, Input, InputAddress, TxButton, TxComponent} from '@polkadot/react-components';
 import { withApi, withMulti } from '@polkadot/react-api/hoc';
 import { BalanceFree } from '@polkadot/react-query';
 
@@ -23,6 +23,7 @@ interface State {
   isValidUnsigned: boolean;
   method: SubmittableExtrinsic<'promise'> | null;
   accountId?: string | null;
+  doughnut?: string | null;
 }
 
 class Selection extends TxComponent<Props, State> {
@@ -34,7 +35,7 @@ class Selection extends TxComponent<Props, State> {
 
   public render (): React.ReactNode {
     const { apiDefaultTxSudo, t } = this.props;
-    const { isValid, isValidUnsigned, accountId } = this.state;
+    const { isValid, isValidUnsigned, accountId, doughnut } = this.state;
     const extrinsic = this.getExtrinsic() || apiDefaultTxSudo;
 
     return (
@@ -45,6 +46,12 @@ class Selection extends TxComponent<Props, State> {
           onChange={this.onChangeSender}
           type='account'
         />
+        {process.env.DOUGHNUT_SUPPORT &&
+          <Input
+            label={t('using the following doughnut')}
+            onChange={this.onChangeDoughnut}
+          />
+        }
         <Extrinsic
           defaultValue={apiDefaultTxSudo}
           label={t('submit the following extrinsic')}
@@ -59,11 +66,13 @@ class Selection extends TxComponent<Props, State> {
             label={t('Submit Unsigned')}
             icon='sign-in'
             extrinsic={extrinsic}
+            doughnut={doughnut}
             withSpinner
           />
           <Button.Or />
           <TxButton
             accountId={accountId}
+            doughnut={doughnut}
             isDisabled={!isValid}
             isPrimary
             label={t('Submit Transaction')}
@@ -79,7 +88,7 @@ class Selection extends TxComponent<Props, State> {
   private nextState (newState: Partial<State>): void {
     this.setState(
       (prevState: State): State => {
-        const { method = prevState.method, accountId = prevState.accountId } = newState;
+        const { method = prevState.method, accountId = prevState.accountId, doughnut = prevState.doughnut } = newState;
         const isValid = !!(
           accountId &&
           accountId.length &&
@@ -90,7 +99,8 @@ class Selection extends TxComponent<Props, State> {
           method,
           isValid,
           isValidUnsigned: !!method,
-          accountId
+          accountId,
+          doughnut
         };
       }
     );
@@ -102,6 +112,10 @@ class Selection extends TxComponent<Props, State> {
 
   private onChangeSender = (accountId: string | null): void => {
     this.nextState({ accountId });
+  }
+
+  private onChangeDoughnut = (doughnut: string | null): void => {
+    this.nextState({ doughnut });
   }
 
   private getExtrinsic (): SubmittableExtrinsic<'promise'> | null {

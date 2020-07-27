@@ -156,6 +156,7 @@ function createWebpack ({ alias = {}, context, name = 'index' }) {
       new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
       new webpack.DefinePlugin({
         'process.env': {
+          DOUGHNUT_SUPPORT: JSON.stringify(true),
           NODE_ENV: JSON.stringify(ENV),
           VERSION: JSON.stringify(pkgJson.version),
           WS_URL: JSON.stringify(process.env.WS_URL)

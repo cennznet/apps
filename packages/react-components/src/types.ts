@@ -85,6 +85,7 @@ export interface TxButtonProps extends TxProps, ApiProps {
   onUpdate?: TxCallback;
   tooltip?: string;
   withSpinner?: boolean;
+  doughnut?: string;
 }
 
 export interface TxButtonNewProps extends TxProps {
