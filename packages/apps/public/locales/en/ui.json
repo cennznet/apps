@@ -891,5 +891,17 @@
   " to unlock your CENNZnet account.": "",
   "Back it up on paper or hard drive.": "",
   "Support": "",
-  "Click to copy public address": ""
+  "Click to copy public address": "",
+  "🍩💙📋": "",
+  "The account that will issue the doughnut.": "",
+  "issuer": "",
+  "The account that will use the doughnut.": "",
+  "holder": "",
+  "When the doughnut will expire.": "",
+  "expiry": "",
+  "When the doughnut will activate.": "",
+  "not before": "",
+  "domain key (utf8)": "",
+  "domain value (hex)": "",
+  "Make": ""
 }

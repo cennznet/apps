@@ -2,11 +2,12 @@
 // This software may be modified and distributed under the terms
 // of the Apache-2.0 license. See the LICENSE file for details.
 
-import React, { useState, useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import CopyToClipboard from 'react-copy-to-clipboard';
 
-import { KeyringPair } from '@polkadot/keyring/types';
 import { Doughnut } from '@plugnet/doughnut-wasm';
+import Unlock from '@polkadot/app-toolbox/Unlock';
+import { KeyringPair } from '@polkadot/keyring/types';
 import { Input, InputAddress, StatusContext } from '@polkadot/react-components';
 import Button from '@polkadot/react-components/Button/Button';
 import { AppProps as Props } from '@polkadot/react-components/types';
@@ -36,7 +37,8 @@ export default function DoughnutApp({ className }: Props): React.ReactElement<Pr
   };
 
   const [issuerPair, setIssuerPair] = useState<KeyringPair | null>(keyring.getPairs()[0] || null);
-  const _onChangeIssuer = (accountId: string | null): void => setIssuerPair(keyring.getPair(accountId || ''));
+  const _onChangeAccount = (accountId: string | null): void => setIssuerPair(keyring.getPair(accountId || ''));
+
   const [holderAddress, setHolderAddress] = useState<string | null>();
   const [expiry, setExpiry] = useState<string>(today);
   const [notBefore, setNotBefore] = useState<string>(yesterday);
@@ -46,34 +48,32 @@ export default function DoughnutApp({ className }: Props): React.ReactElement<Pr
 
   // Issue a doughnut from input params
   const makeDoughnut = () => {
+
+    // pacify TS null checks
+    if (!issuerPair || !holderAddress || !domainValue || !domainKey) return;
+
     var d = new Doughnut(
-      keyring.decodeAddress(issuerPair!.address),
-      keyring.decodeAddress(holderAddress!),
+      keyring.decodeAddress(issuerPair.address),
+      keyring.decodeAddress(holderAddress),
       new Date(expiry).getTime() / 1000,
       new Date(notBefore).getTime() / 1000
     )
-      .addDomain(domainKey!, hexToU8a(domainValue!));
+      .addDomain(domainKey, hexToU8a(domainValue));
 
-    if (issuerPair!.type === 'sr25519') {
-      // Signing is tricky here
-      // js schnorrkel libs are hard coded to use signing context 'substrate' which will create unverifiable doughnuts
-      // d.signSr25519();
-      console.log("sr25519 signing is broken :(");
-    }
-    else if (issuerPair!.type === 'ed25519') {
-      // hack: set the signature version to ed25519
+    // We can't get the private key bytes here for good reason
+    // therefore we must sign the doughnut using external methods.
+    if (issuerPair.type === 'sr25519') {
+      // sr25519 is not implemented yet.
+      // @polkadot schnorrkel libs are hard coded to use signing context 'substrate'
+      // which will create unverifiable doughnuts
+      alert("sr25519 signing is not supported yet 😔\n Please use an ed25519 based account");
+    } else if (issuerPair.type === 'ed25519') {
+      // Sign using UI keypair
+      // hack: to set the signature version to ed25519
       d.signEd25519(new Uint8Array(32));
-      // sign externally
-      console.log(d.payload());
-      console.log(issuerPair!.address);
-      let signature = issuerPair!.sign(d.payload());
+      // sign and attach the signature
+      let signature = issuerPair.sign(d.payload());
       let encoded = d.encode();
-
-      console.log(u8aToHex(d.payload()));
-      console.log(u8aToHex(signature));
-      console.log(issuerPair!.verify(d.payload(), signature));
-
-      // attach the signature
       encoded.set(signature, encoded.length - signature.length);
 
       setDoughnut(encoded);
@@ -84,12 +84,21 @@ export default function DoughnutApp({ className }: Props): React.ReactElement<Pr
     <main className={className}>
       <h2>D🍩UGHNUT MAKER</h2>
       <div>
+        {
+          // User must unlock account to sign doughnuts
+          issuerPair?.isLocked && (
+            <Unlock
+              onClose={() => { }}
+              onUnlock={() => { }}
+              pair={issuerPair}
+            />)
+        }
         <InputAddress
           className='full'
           help={t('The account that will issue the doughnut.')}
           label={t('issuer')}
           isInput={false}
-          onChange={_onChangeIssuer}
+          onChange={_onChangeAccount}
           type='account'
         />
         <InputAddress
