@@ -10,7 +10,7 @@ import { isUndefined } from '@polkadot/util';
 
 import Labelled from './Labelled';
 
-type Input$Type = 'number' | 'password' | 'text';
+type Input$Type = 'number' | 'password' | 'text' | 'date';
 
 interface Props extends BareProps {
   autoFocus?: boolean;

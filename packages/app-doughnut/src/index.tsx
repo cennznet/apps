@@ -2,48 +2,82 @@
 // This software may be modified and distributed under the terms
 // of the Apache-2.0 license. See the LICENSE file for details.
 
-import React, { useState } from 'react';
-import { AppProps as Props } from '@polkadot/react-components/types';
-import { Doughnut } from "@plugnet/doughnut-wasm";
-import { InputAddress } from '@polkadot/react-components';
-import Input from 'semantic-ui-react/dist/commonjs/elements/Input/Input';
-import { useTranslation } from './translate';
-import BN from 'bn.js';
-import Bytes from '@polkadot/react-params/Param/Bytes';
-import { RawParam } from '@polkadot/react-params/types';
+import React, { useState, useContext } from 'react';
+import CopyToClipboard from 'react-copy-to-clipboard';
+
+import { KeyringPair } from '@polkadot/keyring/types';
+import { Doughnut } from '@plugnet/doughnut-wasm';
+import { Input, InputAddress, StatusContext } from '@polkadot/react-components';
 import Button from '@polkadot/react-components/Button/Button';
-import { hexToU8a, u8aToHex } from '@polkadot/util';
+import { AppProps as Props } from '@polkadot/react-components/types';
 import keyring from '@polkadot/ui-keyring';
+import { hexToU8a, isHex, u8aToHex } from '@polkadot/util';
+
+import { useTranslation } from './translate';
 
 export default function DoughnutApp({ className }: Props): React.ReactElement<Props> {
 
+  var date = new Date();
+  const today = `${date.getFullYear()}-${date.getMonth().toString().padStart(2, "0")}-${date.getDay().toString().padStart(2, "0")}`;
+  date.setDate(date.getDate() - 1);
+  const yesterday = `${date.getFullYear()}-${date.getMonth().toString().padStart(2, "0")}-${date.getDay().toString().padStart(2, "0")}`;
+
   const { t } = useTranslation();
 
-  const [issuerId, setIssuerId] = useState();
-  const [holderId, setHolderId] = useState();
-  const [expiry, setExpiry] = useState(new BN(Date.now()));
-  const [notBefore, setNotBefore] = useState(new BN(0));
-  const [domain, setDomain] = useState(null);
+  // Queue clipboard event
+  const { queueAction } = useContext(StatusContext);
+  const _onCopy = (): void => {
+    queueAction && queueAction({
+      account: '',
+      action: t('clipboard'),
+      status: 'queued',
+      message: t('🍩💙📋')
+    });
+  };
+
+  const [issuerPair, setIssuerPair] = useState<KeyringPair | null>(keyring.getPairs()[0] || null);
+  const _onChangeIssuer = (accountId: string | null): void => setIssuerPair(keyring.getPair(accountId || ''));
+  const [holderAddress, setHolderAddress] = useState<string | null>();
+  const [expiry, setExpiry] = useState<string>(today);
+  const [notBefore, setNotBefore] = useState<string>(yesterday);
+  const [domainValue, setDomainValue] = useState<string | undefined>();
+  const [domainKey, setDomainKey] = useState<string | undefined>();
   const [doughnut, setDoughnut] = useState<Uint8Array | undefined>();
 
   // Issue a doughnut from input params
   const makeDoughnut = () => {
-    const d = new Doughnut(
-        keyring.decodeAddress(issuerId),
-        keyring.decodeAddress(holderId),
-        Date.now() + 60_000,
-        0
-      )
-    .addDomain("cennznet", new Uint8Array([1,2,3,4,5]));
+    var d = new Doughnut(
+      keyring.decodeAddress(issuerPair!.address),
+      keyring.decodeAddress(holderAddress!),
+      new Date(expiry).getTime() / 1000,
+      new Date(notBefore).getTime() / 1000
+    )
+      .addDomain(domainKey!, hexToU8a(domainValue!));
 
-    // sr25519 sign only
-    let signature = keyring.getPair(issuerId).sign(d.payload());
-    let encoded = d.encode();
-    encoded.set(signature, (encoded.length - 64));
+    if (issuerPair!.type === 'sr25519') {
+      // Signing is tricky here
+      // js schnorrkel libs are hard coded to use signing context 'substrate' which will create unverifiable doughnuts
+      // d.signSr25519();
+      console.log("sr25519 signing is broken :(");
+    }
+    else if (issuerPair!.type === 'ed25519') {
+      // hack: set the signature version to ed25519
+      d.signEd25519(new Uint8Array(32));
+      // sign externally
+      console.log(d.payload());
+      console.log(issuerPair!.address);
+      let signature = issuerPair!.sign(d.payload());
+      let encoded = d.encode();
 
-    console.log(encoded);
-    console.log(u8aToHex(encoded));
-    setDoughnut(encoded);
+      console.log(u8aToHex(d.payload()));
+      console.log(u8aToHex(signature));
+      console.log(issuerPair!.verify(d.payload(), signature));
+
+      // attach the signature
+      encoded.set(signature, encoded.length - signature.length);
+
+      setDoughnut(encoded);
+    }
   };
 
   return (
@@ -51,46 +85,62 @@ export default function DoughnutApp({ className }: Props): React.ReactElement<Pr
       <h2>D🍩UGHNUT MAKER</h2>
       <div>
         <InputAddress
+          className='full'
           help={t('The account that will issue the doughnut.')}
           label={t('issuer')}
-          onChange={setIssuerId}
+          isInput={false}
+          onChange={_onChangeIssuer}
           type='account'
         />
         <InputAddress
           help={t('The account that will use the doughnut.')}
           label={t('holder')}
-          onChange={setHolderId}
+          onChange={setHolderAddress}
           type='allPlus'
         />
         <Input
-          defaultValue={expiry}
           help={t('When the doughnut will expire.')}
-          label={t('expiry (unix timestamp)')}
+          value={expiry}
+          label={t('expiry')}
           onChange={setExpiry}
-          type={'datetime'}
+          type='date'
         />
         <Input
-          defaultValue={notBefore}
+          value={notBefore}
           help={t('When the doughnut will activate.')}
-          label={t('not before (unix timestamp)')}
+          label={t('not before')}
           onChange={setNotBefore}
-          type={'datetime'}
+          type='date'
         />
-        <Bytes
-          defaultValue={"0x0" as unknown as RawParam}
-          help={t('The doughnut permissions')}
-          label={t('permission domain')}
-          onChange={setDomain}
+        <Input
+          placeholder='cennznet'
+          label={t('domain key (utf8)')}
+          onChange={setDomainKey}
+          type='text'
+        />
+        <Input
+          placeholder='0x'
+          label={t('domain value (hex)')}
+          onChange={setDomainValue}
+          type='text'
         />
         <Button
-          icon='add'
+          icon='key'
           isPrimary
           label={t('Make')}
           onClick={makeDoughnut}
-          isDisabled={!domain}
+          isDisabled={
+            domainValue === undefined || domainKey === undefined ||
+            domainKey.length <= 0 || !isHex(domainValue)
+          }
         />
       </div>
-      <h3>{'👨‍🍳 ' + u8aToHex(doughnut)}</h3>
+      <h3 hidden={!doughnut}>{'Et Voilà! 👨‍🍳:'}</h3>
+      <CopyToClipboard text={u8aToHex(doughnut)} onCopy={_onCopy}>
+        <div style={{ cursor: 'copy', overflowWrap: 'break-word' }} hidden={!doughnut}>
+          {u8aToHex(doughnut)}
+        </div>
+      </CopyToClipboard>
     </main>
   );
 }

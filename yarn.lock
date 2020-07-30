@@ -2736,6 +2736,14 @@
     "@polkadot/util-crypto" "^2.18.1"
     tweetnacl "^1.0.3"
 
+"@plugnet/doughnut-wasm@0.2.0":
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/@plugnet/doughnut-wasm/-/doughnut-wasm-0.2.0.tgz#bc0bbf3650f8389db08d2f44059ba93ffd3bd2a2"
+  integrity sha512-w4VjI5UghgKXEp2+BrEIzQ7ff9NZcL0w6pyQy7K5Gv6KMD/0keb9S/N4H1mpFXE2g9fU97RJ71w1+h9T7kOGcA==
+  dependencies:
+    "@polkadot/util-crypto" "^2.18.1"
+    tweetnacl "^1.0.3"
+
 "@polkadot/api-contract@^1.4.0-beta.16":
   version "1.7.1"
   resolved "https://registry.yarnpkg.com/@polkadot/api-contract/-/api-contract-1.7.1.tgz#34e1628eb6811561eef01fc4bafe1905c64076f2"

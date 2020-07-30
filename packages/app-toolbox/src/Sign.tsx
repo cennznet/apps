@@ -92,13 +92,21 @@ function Sign ({ className }: Props): React.ReactElement<Props> {
         })
         .then(({ signature }): void => setSignature(signature));
     } else {
-      setSignature(u8aToHex(
-        currentPair.sign(
-          isHexData
-            ? hexToU8a(data)
-            : stringToU8a(data)
-        )
-      ));
+      console.log(currentPair);
+      console.log(
+        isHexData
+        ? hexToU8a(data)
+        : stringToU8a(data)
+      );
+      let sig = currentPair.sign(
+        isHexData
+          ? hexToU8a(data)
+          : stringToU8a(data)
+      );
+      setSignature(u8aToHex(sig));
+      console.log(sig, currentPair.verify(isHexData
+        ? hexToU8a(data)
+        : stringToU8a(data), sig));
     }
   };
   const _onUnlock = (): void => {
