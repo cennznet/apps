@@ -4,7 +4,7 @@
 
 import { Routes } from './types';
 
-import Template from '@cennznet/app-doughnut';
+import Doughnut from '@cennznet/app-doughnut';
 import { faCertificate } from '@fortawesome/free-solid-svg-icons';
 
 export default ([
