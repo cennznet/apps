@@ -23,4 +23,4 @@ module.exports = {
     'babel-plugin-styled-components',
     process.env.NODE_ENV === 'test' && '@polkadot/dev/config/babel-plugin-fix-istanbul'
   ].filter((p) => !!p)
-}
+};

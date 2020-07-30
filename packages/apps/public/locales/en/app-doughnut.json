@@ -1,1 +1,15 @@
-{}
+{
+  "clipboard": "clipboard",
+  "🍩💙📋": "🍩💙📋",
+  "The account that will issue the doughnut.": "The account that will issue the doughnut.",
+  "issuer": "issuer",
+  "The account that will use the doughnut.": "The account that will use the doughnut.",
+  "holder": "holder",
+  "When the doughnut will expire.": "When the doughnut will expire.",
+  "expiry": "expiry",
+  "When the doughnut will activate.": "When the doughnut will activate.",
+  "not before": "not before",
+  "domain key (utf8)": "domain key (utf8)",
+  "domain value (hex)": "domain value (hex)",
+  "Make": "Make"
+}

@@ -9,7 +9,7 @@ import { faCertificate } from '@fortawesome/free-solid-svg-icons';
 
 export default ([
   {
-    Component: Template,
+    Component: Doughnut,
     display: {
       isHidden: false,
       needsAccounts: true,
