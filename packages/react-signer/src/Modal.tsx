@@ -659,7 +659,7 @@ class Signer extends React.PureComponent<Props, State> {
     }
 
     if (doughnut) {
-      params.push({doughnut:new Doughnut(api.registry, hexToU8a(doughnut))})
+      params.push({ doughnut: new Doughnut(api.registry, hexToU8a(doughnut)) })
     }
 
     if (isFunction(txStartCb)) {
