@@ -22,7 +22,7 @@ function createWebpack ({ alias = {}, context, name = 'index' }) {
   const isProd = ENV === 'production';
   const hasPublic = fs.existsSync(path.join(context, 'public'));
   const plugins = hasPublic
-    ? [new CopyWebpackPlugin([{ patterns: ['public'] }])]
+    ? [new CopyWebpackPlugin({ patterns: [{ from: 'public' }] })]
     : [];
   // disabled, smooths dev load, was -
   // isProd ? 'source-map' : 'cheap-eval-source-map',
@@ -32,7 +32,7 @@ function createWebpack ({ alias = {}, context, name = 'index' }) {
     devtool,
     entry: [
       '@babel/polyfill',
-      './src/bootstrap.js'
+      './bootstrap.js'
     ],
     mode: ENV,
     output: {
