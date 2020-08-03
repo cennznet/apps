@@ -26,7 +26,8 @@ interface StakeInfo {
 export default function Summary ({ lastReward, numNominators, numValidators, totalStaked }: Props): React.ReactElement<Props> {
   const { t } = useTranslation();
   const { api } = useApi();
-  const totalInsurance = useCall<Balance>(api.query.balances.totalIssuance, []);
+ // const totalInsurance = useCall<Balance>(api.query.balances.totalIssuance, []);
+  const totalInsurance = new BN(10000000);
   const [{ percentage }, setStakeInfo] = useState<StakeInfo>({ percentage: '-' });
 
   useEffect((): void => {
