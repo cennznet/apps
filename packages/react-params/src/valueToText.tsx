@@ -3,7 +3,7 @@
 // of the Apache-2.0 license. See the LICENSE file for details.
 
 import React from 'react';
-import { Balance, Keys, ValidatorId } from '@polkadot/types/interfaces';
+import { Keys, ValidatorId } from '@polkadot/types/interfaces';
 import { classes, toFormattedBalance } from '@polkadot/react-components/util';
 import { isNull, isUndefined, u8aToHex } from '@polkadot/util';
 import { Option, Raw } from '@polkadot/types';
@@ -39,7 +39,7 @@ export default function valueToText (type: string, value: any, swallowError = tr
   }
 
   if (type === 'Balance') {
-    return toFormattedBalance({ balance: (value as Balance).toBn() });
+    return toFormattedBalance({ value });
   }
 
   return div(

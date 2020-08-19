@@ -29,7 +29,7 @@ const toFormattedBalance = (
   } = args;
   const unitPart = unit ? ` ${unit}` : '';
 
-  // Make it strong so we know what we're dealing with
+  // Make it a string so we know what we're dealing with
   let raw = value.toString();
 
   // values with a decimal point should be converted to their fixed width form.

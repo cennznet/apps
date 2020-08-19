@@ -2,18 +2,18 @@
 // This software may be modified and distributed under the terms
 // of the Apache-2.0 license. See the LICENSE file for details.
 
-import { SiDef } from '@polkadot/util/types';
-import { BareProps, BitLength } from './types';
-
 import BN from 'bn.js';
 import React, { useEffect, useState } from 'react';
-import { formatBalance, formatNumber } from '@polkadot/util';
 
-import { classes } from './util';
+import { decimalToFixedWidth } from '@polkadot/react-components/util';
+import { formatBalance, formatNumber } from '@polkadot/util';
+import { SiDef } from '@polkadot/util/types';
+
 import { BitLengthOption } from './constants';
 import Input, { KEYS, KEYS_PRE } from './Input';
 import { useTranslation } from './translate';
-import { decimalToFixedWidth } from '@polkadot/react-components/util';
+import { BareProps, BitLength } from './types';
+import { classes } from './util';
 
 interface Props extends BareProps {
   autoFocus?: boolean;
@@ -64,16 +64,6 @@ function getRegex (isDecimal: boolean): RegExp {
   );
 }
 
-function getSiPowers (si: SiDef | null): [BN, number, number] {
-  if (!si) {
-    return [ZERO, 0, 0];
-  }
-
-  const basePower = formatBalance.getDefaults().decimals;
-
-  return [new BN(basePower + si.power), basePower, si.power];
-}
-
 function isValidNumber (bn: BN, { bitLength = DEFAULT_BITLENGTH, isZeroable, maxValue }: Props): boolean {
   if (
     // cannot be negative
@@ -91,37 +81,6 @@ function isValidNumber (bn: BN, { bitLength = DEFAULT_BITLENGTH, isZeroable, max
   }
 
   return true;
-}
-
-function inputToBn (input: string, si: SiDef | null, props: Props): [BN, boolean] {
-  const [siPower, basePower, siUnitPower] = getSiPowers(si);
-
-  // eslint-disable-next-line @typescript-eslint/prefer-regexp-exec
-  const isDecimalValue = input.match(/^(\d+)\.(\d+)$/);
-
-  let result;
-
-  if (isDecimalValue) {
-    if (siUnitPower - isDecimalValue[2].length < -basePower) {
-      result = new BN(-1);
-    }
-
-    const div = new BN(input.replace(/\.\d*$/, ''));
-    const modString = input.replace(/^\d+\./, '');
-    const mod = new BN(modString);
-
-    result = div
-      .mul(TEN.pow(siPower))
-      .add(mod.mul(TEN.pow(new BN(basePower + siUnitPower - modString.length))));
-  } else {
-    result = new BN(input.replace(/[^\d]/g, ''))
-      .mul(TEN.pow(siPower));
-  }
-
-  return [
-    result,
-    isValidNumber(result, props)
-  ];
 }
 
 // Format user input into the current number input.
