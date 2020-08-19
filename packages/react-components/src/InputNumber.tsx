@@ -11,12 +11,9 @@ import { formatBalance, formatNumber } from '@polkadot/util';
 
 import { classes } from './util';
 import { BitLengthOption } from './constants';
-// import Button from './Button';
-// import Dropdown from './Dropdown';
 import Input, { KEYS, KEYS_PRE } from './Input';
 import { useTranslation } from './translate';
-
-// const ALLOW_MAX = false;
+import { decimalToFixedWidth } from '@polkadot/react-components/util';
 
 interface Props extends BareProps {
   autoFocus?: boolean;
@@ -72,8 +69,7 @@ function getSiPowers (si: SiDef | null): [BN, number, number] {
     return [ZERO, 0, 0];
   }
 
-  // TODO: fetch value from genericAsset.assetRegistry
-  const basePower = 4;
+  const basePower = formatBalance.getDefaults().decimals;
 
   return [new BN(basePower + si.power), basePower, si.power];
 }
@@ -128,59 +124,45 @@ function inputToBn (input: string, si: SiDef | null, props: Props): [BN, boolean
   ];
 }
 
-// function bnToInput (bn: BN, si: SiDef | null): string {
-//   const [siPower] = getSiPowers(si);
-//
-//   const base = TEN.pow(siPower);
-//   const div = bn.div(base);
-//   const mod = bn.mod(base);
-//
-//   return `${
-//     div.gt(ZERO) ? div.toString() : '0'
-//   }${
-//     mod.gt(ZERO)
-//       ? ((): string => {
-//         const padding = Math.max(
-//           mod.toString().length,
-//           base.toString().length - div.toString().length,
-//           bn.toString().length - div.toString().length
-//         );
-//
-//         return `.${mod.toString(10, padding).replace(/0*$/, '')}`;
-//       })()
-//       : ''
-//   }`;
-// }
-
+// Format user input into the current number input.
+// This is setup to invoke on every keystroke.
+const regexCheckFormatted = RegExp('^\\d{1,3}(,\\d{3})*(\\.\\d+)?$');
+const regexCheckZero = RegExp('^(0\\d)');
 export function formatInput (value: string) {
-  let formatedValue = value;
+  let formattedValue = value;
   // Sometimes the value is already formatted, avoid formatting in those cases
-  const regex = RegExp('^\\d{1,3}(,\\d{3})*(\\.\\d+)?$');
   // Format only if required
-  if (value && !regex.exec(value)) {
-    let decimalValue;
+  if (value && !regexCheckFormatted.exec(value)) {
     if (value.includes('.')) {
-      decimalValue = value.split('.');
-      value = decimalValue[0];
+      let [prefix, postfix] = value.split('.');
+      formattedValue = `${formatNumber(new BN(prefix))}.${postfix}`;
+    } else {
+      formattedValue = formatNumber(new BN(value));
     }
-    formatedValue = formatNumber(new BN(value.replace(/,/g, '')));
-    formatedValue = decimalValue ? `${formatedValue}.${decimalValue[1]}` : formatedValue;
   }
 
-  const regexCheckZero = RegExp('^(0\\d)');
-  // The following will just remove the 0 on the left, example 01 -> 1
-  formatedValue = regexCheckZero.exec(value) ? new BN(value).toString() : formatedValue;
-  return formatedValue;
+  // Remove a leading 0 e.g `01` -> `1`
+  formattedValue = regexCheckZero.exec(value) ? value.substr(1) : formattedValue;
+
+  return formattedValue;
 }
 
-function getValuesFromString (value: string, si: SiDef | null, props: Props): [string, BN, boolean] {
-  const [valueBn, isValid] = inputToBn(value, si, props);
+function getValuesFromString (value: string, props: Props): [string, BN, boolean] {
+  // sanitize the user input value, keeping digits and decimal point only.
+  const valueSanitized = value.replace(/[^\d|\.]/g, '');
+  const valueFormatted = formatInput(valueSanitized);
 
-  const formatedValue = formatInput(value);
+  const valueBn = new BN(
+    decimalToFixedWidth({
+      value: valueSanitized,
+      fixedPoint: formatBalance.getDefaults().decimals
+    })
+  );
+
   return [
-    formatedValue,
+    valueFormatted,
     valueBn,
-    isValid
+    isValidNumber(valueBn, props)
   ];
 }
 
@@ -199,7 +181,7 @@ function getValuesFromBn (valueBn: BN, si: SiDef | null): [string, BN, boolean] 
 function getValues (value: BN | string, si: SiDef | null, props: Props): [string, BN, boolean] {
   return BN.isBN(value)
     ? getValuesFromBn(value, si)
-    : getValuesFromString(value, si, props);
+    : getValuesFromString(value, props);
 }
 
 function isNewPropsValue (propsValue: BN | string, value: string, valueBn: BN): boolean {
@@ -232,7 +214,7 @@ export default function InputNumber (props: Props): React.ReactElement<Props> {
   }, [valueBn]);
 
   const _onChange = (input: string): void => {
-    setValues(getValuesFromString(input, si, props));
+    setValues(getValuesFromString(input, props));
   };
 
   const _onKeyDown = (event: React.KeyboardEvent<Element>): void => {
@@ -263,14 +245,6 @@ export default function InputNumber (props: Props): React.ReactElement<Props> {
     }
   };
 
-  // const _onSelectSiUnit = (siUnit: string): void => {
-  //   setSi(formatBalance.findSi(siUnit));
-  // };
-
-  // const _onClickMaxButton = (): void => {
-  //   !!maxValue && setValue(bnToInput(maxValue, si));
-  // };
-
   const maxValueLength = getGlobalMaxValue(bitLength).toString().length - 1;
 
   return (
@@ -278,7 +252,6 @@ export default function InputNumber (props: Props): React.ReactElement<Props> {
       {...props}
       className={classes('ui--InputNumber', className)}
       help={help}
-      // isAction={isSi}
       isDisabled={isDisabled}
       isError={!isValid || isError}
       isFull={isFull}
@@ -294,24 +267,6 @@ export default function InputNumber (props: Props): React.ReactElement<Props> {
       type='text'
       value={value}
     >
-      {/* (ALLOW_MAX && withMax && !!maxValue && valueBn.lt(maxValue)) && (
-        <Button
-          className='ui--MaxButton'
-          icon=''
-          onClick={_onClickMaxButton}
-        >
-          {t('Max')}
-        </Button>
-      ) */}
-      {/* {!!si && (
-        <Dropdown
-          dropdownClassName='ui--SiDropdown'
-          isButton
-          defaultValue={si.value}
-          onChange={_onSelectSiUnit}
-          options={getSiOptions()}
-        />
-      )} */}
     </Input>
   );
 }
