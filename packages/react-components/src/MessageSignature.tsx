@@ -2,11 +2,11 @@
 // This software may be modified and distributed under the terms
 // of the Apache-2.0 license. See the LICENSE file for details.
 
-import { ContractABIMessage } from '@polkadot/api-contract/types';
+import { AbiMessage } from '@polkadot/api-contract/types';
 
 import React from 'react';
 import styled from 'styled-components';
-import { displayType } from '@polkadot/types';
+import { encodeTypeDef } from '@polkadot/types';
 
 import Icon from './Icon';
 import Tooltip from './Tooltip';
@@ -16,7 +16,7 @@ const MAX_PARAM_LENGTH = 20;
 
 export interface Props {
   asConstructor?: boolean;
-  message: ContractABIMessage;
+  message: AbiMessage;
   params?: any[];
   withTooltip?: boolean;
 }
@@ -73,7 +73,7 @@ export default function MessageSignature ({ message: { args, mutates, name, retu
                     {truncate(params[index].toString())}
                   </b>
                 )
-                : displayType(type)}
+                : encodeTypeDef(type)}
             </Type>
             {index < args.length - 1 && ', '}
           </React.Fragment>
@@ -85,7 +85,7 @@ export default function MessageSignature ({ message: { args, mutates, name, retu
           :
           {' '}
           <ReturnType>
-            {displayType(returnType)}
+            {encodeTypeDef(returnType)}
           </ReturnType>
         </>
       )}
