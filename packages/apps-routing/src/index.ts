@@ -42,7 +42,7 @@ const routes: Routes = appSettings.uiMode === 'light'
     // staking,
     // treasury,
     // democracy,
-    council,
+    // council,
     // TODO Not sure about the inclusion of treasury, parachains & society here
     null,
     settings
