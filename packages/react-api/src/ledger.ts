@@ -6,7 +6,7 @@ import { Ledger } from '@polkadot/ui-keyring';
 import uiSettings from '@polkadot/ui-settings';
 
 import chains from '@polkadot/ui-settings/defaults/chains';
-
+import { assert } from '@polkadot/util';
 import { api } from './Api';
 
 const ALLOWED_CHAINS = chains.kusama;
@@ -31,8 +31,14 @@ export function clearLedger (): void {
 
 export function getLedger (): Ledger {
   if (!ledger) {
-    ledger = new Ledger(uiSettings.ledgerConn as 'u2f');
+    const def = api && ALLOWED_CHAINS.find(([g]) => g === api.genesisHash.toHex());
+
+    assert(def, `Unable to find supported chain for ${api.genesisHash.toHex()}`);
+
+    if (def != null) {
+      ledger = new Ledger(uiSettings.ledgerConn as 'u2f', def[1]);
+    }
   }
 
-  return ledger;
+  return ledger as Ledger;
 }

@@ -52,13 +52,13 @@ function truncate (param: string): string {
     : param;
 }
 
-export default function MessageSignature ({ message: { args, mutates, name, returnType }, params = [], asConstructor = false, withTooltip = false }: Props): React.ReactElement<Props> {
+export default function MessageSignature ({ message: { args, isMutating, identifier, returnType }, params = [], asConstructor = false, withTooltip = false }: Props): React.ReactElement<Props> {
   const { t } = useTranslation();
 
   return (
     <Signature>
       <Name>
-        {name}
+        {identifier}
       </Name>
       (
       {args.map(({ name, type }, index): React.ReactNode => {
@@ -89,17 +89,17 @@ export default function MessageSignature ({ message: { args, mutates, name, retu
           </ReturnType>
         </>
       )}
-      {mutates && (
+      {isMutating && (
         <>
           <Icon
             data-tip
-            data-for={`mutates-${name}`}
+            data-for={`mutates-${identifier}`}
             name="database"
             className="mutates"
           />
           {withTooltip && (
             <Tooltip
-              trigger={`mutates-${name}`}
+              trigger={`mutates-${identifier}`}
               text={t('Mutates contract state')}
             />
           )}
