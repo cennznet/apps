@@ -6,7 +6,7 @@ import { DropdownOption, DropdownOptions } from '../../util/types';
 
 import React from 'react';
 import ApiPromise from '@polkadot/api/promise';
-import jsonrpc from '@polkadot/types/interfaces/jsonrpc';
+import jsonrpc from '../CennznetJsonRpc';
 
 export default function createOptions (api: ApiPromise, sectionName: string): DropdownOptions {
   const section = jsonrpc[sectionName];

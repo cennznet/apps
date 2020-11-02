@@ -8,7 +8,7 @@ import { BareProps } from '../types';
 
 import React from 'react';
 
-import jsonrpc from '@polkadot/types/interfaces/jsonrpc';
+import jsonrpc from './CennznetJsonRpc';
 
 import Dropdown from '../Dropdown';
 import { classes } from '../util';

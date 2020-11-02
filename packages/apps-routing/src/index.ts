@@ -18,6 +18,7 @@ import settings from './settings';
 import society from './society';
 import storage from './storage';
 import sudo from './sudo';
+import toolbox from './toolbox';
 import transfer from './transfer';
 import landing from './landing';
 
@@ -50,6 +51,7 @@ const routes: Routes = appSettings.uiMode === 'light'
     sudo,
     null,
     settings,
+    toolbox,
     js,
     template
   );
