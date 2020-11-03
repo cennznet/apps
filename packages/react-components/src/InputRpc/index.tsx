@@ -8,8 +8,7 @@ import { DropdownOptions } from '../util/types';
 
 import React, { useCallback, useEffect, useState } from 'react';
 import { useApi } from '@polkadot/react-hooks';
-import jsonrpc from '@polkadot/types/interfaces/jsonrpc';
-
+import jsonrpc from './CennznetJsonRpc';
 import LinkedWrapper from '../InputExtrinsic/LinkedWrapper';
 import SelectMethod from './SelectMethod';
 import SelectSection from './SelectSection';
