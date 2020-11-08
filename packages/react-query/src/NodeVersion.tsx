@@ -14,13 +14,15 @@ interface Props extends BareProps {
 
 export default function NodeVersion ({ children, className, label, style }: Props): React.ReactElement<Props> {
   const { systemVersion } = useApi();
+  // change version 1.2.0-rc1-4827374-x86_64-linux-gnu to 1.2.0
+  const nodeVer = systemVersion.split('-')
 
   return (
     <div
       className={className}
       style={style}
     >
-      {label || ''}{systemVersion}{children}
+      {label || ''}{nodeVer[0]}{children}
     </div>
   );
 }
