@@ -8,14 +8,14 @@ import { Balance } from '@polkadot/types/interfaces';
 import BN from 'bn.js';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { Button, InputAddress, InputBalance, TxButton, Dropdown } from '@polkadot/react-components';
+import { InputAddress, InputBalance, TxButton, Dropdown, Modal } from '@polkadot/react-components';
 import { useApi, useCall } from '@polkadot/react-hooks';
-import Available from './Available';
+import Available from '../../../app-generic-asset/src/Available';
 import Checks from '@polkadot/react-signer/Checks';
 import { withMulti, withObservable } from '@polkadot/react-api/hoc';
 import { u8aToString } from '@polkadot/util';
-import assetRegistry, { AssetsSubjectInfo } from './assetsRegistry';
-import translate from './translate';
+import assetRegistry, { AssetsSubjectInfo } from '../../../app-generic-asset/src/assetsRegistry';
+import translate from '../../../app-generic-asset/src/translate';
 
 interface Props extends I18nProps {
   className?: string;
@@ -30,7 +30,7 @@ interface Option {
   value: string;
 }
 
-function Transfer ({ assets, className, onClose, recipientId: propRecipientId, senderId: propSenderId, t }: Props): React.ReactElement<Props> {
+function TransferWithType ({ assets, className, onClose, recipientId: propRecipientId, senderId: propSenderId, t }: Props): React.ReactElement<Props> {
   const { api } = useApi();
   const [assetId, setAssetId] = useState('0');
   const [amount, setAmount] = useState<BN | undefined>(new BN(0));
@@ -80,64 +80,70 @@ function Transfer ({ assets, className, onClose, recipientId: propRecipientId, s
   const transferrable = <span className='label'>{t('transferrable')}</span>;
 
   return (
-    <div>
-      <div className={className}>
-        <InputAddress
-          defaultValue={propSenderId}
-          help={t('The account you will send funds from.')}
-          isDisabled={!!propSenderId}
-          label={t('send from account')}
-          labelExtra={<Available label={transferrable} params={senderId} />}
-          isError={!hasBalance}
-          onChange={setSenderId}
-          type='account'
-        />
-        <InputAddress
-          defaultValue={propRecipientId}
-          help={t('Select a contact or paste the address you want to send funds to.')}
-          isDisabled={!!propRecipientId}
-          label={t('send to address')}
-          labelExtra={<Available label={transferrable} params={recipientId} />}
-          onChange={setRecipientId}
-          type='allPlus'
-        />
-        <Dropdown
-          help={t('Select the asset you want to transfer.')}
-          label={t('Asset type')}
-          onChange={setAssetId}
-          options={options}
-          value={assetId}
-        />
-        <InputBalance
-          help={t('Enter the amount you want to transfer.')}
-          isError={!hasAvailable}
-          label={t('Send amount')}
-          onChange={setAmount}
-        />
-        <Checks
-          accountId={senderId}
-          extrinsic={extrinsic}
-          isSendable
-          onChange={setHasAvailable}
-        />
-      </div>
-      <Button.Group>
+    <Modal className='app--accounts-Modal' header={t('Send funds')}>
+      <Modal.Content>
+        <div className={className}>
+          <InputAddress
+            defaultValue={propSenderId}
+            help={t('The account you will send funds from.')}
+            isDisabled={!!propSenderId}
+            label={t('Send from account')}
+            labelExtra={<Available label={transferrable} params={senderId} />}
+            isError={!hasBalance}
+            onChange={setSenderId}
+            type='account'
+          />
+          <InputAddress
+            defaultValue={propRecipientId}
+            help={t(
+              'Select a contact or paste the address you want to send funds to.'
+            )}
+            isDisabled={!!propRecipientId}
+            label={t('Send to address')}
+            labelExtra={
+              <Available label={transferrable} params={recipientId} />
+            }
+            onChange={setRecipientId}
+            type='allPlus'
+          />
+          <Dropdown
+            help={t('Select the asset you want to transfer.')}
+            label={t('Asset type')}
+            onChange={setAssetId}
+            options={options}
+            value={assetId}
+          />
+          <InputBalance
+            help={t('Enter the amount you want to transfer.')}
+            isError={!hasAvailable}
+            label={t('Send amount')}
+            onChange={setAmount}
+          />
+          <Checks
+            accountId={senderId}
+            extrinsic={extrinsic}
+            isSendable
+            onChange={setHasAvailable}
+          />
+        </div>
+      </Modal.Content>
+      <Modal.Actions onCancel={onClose}>
         <TxButton
           accountId={senderId}
           extrinsic={extrinsic}
-          isDisabled={!hasAvailable || !hasBalance}
-          isPrimary
-          label={t('Send')}
           icon='send'
+          isDisabled={!hasAvailable}
+          isPrimary
+          label={t('Make Transfer')}
           onStart={onClose}
         />
-      </Button.Group>
-    </div>
+      </Modal.Actions>
+    </Modal>
   );
 }
 
 export default withMulti(
-  styled(Transfer)`
+  styled(TransferWithType)`
     article.padded {
       box-shadow: none;
       margin-left: 2rem;
