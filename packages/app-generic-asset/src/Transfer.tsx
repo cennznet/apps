@@ -103,7 +103,7 @@ function Transfer ({ assets, className, onClose, recipientId: propRecipientId, s
         />
         <Dropdown
           help={t('Select the asset you want to transfer.')}
-          label={t('asset')}
+          label={t('Asset type')}
           onChange={setAssetId}
           options={options}
           value={assetId}
@@ -111,7 +111,7 @@ function Transfer ({ assets, className, onClose, recipientId: propRecipientId, s
         <InputBalance
           help={t('Enter the amount you want to transfer.')}
           isError={!hasAvailable}
-          label={t('amount')}
+          label={t('Send amount')}
           onChange={setAmount}
         />
         <Checks
@@ -127,7 +127,7 @@ function Transfer ({ assets, className, onClose, recipientId: propRecipientId, s
           extrinsic={extrinsic}
           isDisabled={!hasAvailable || !hasBalance}
           isPrimary
-          label={t('Make Transfer')}
+          label={t('Send')}
           icon='send'
           onStart={onClose}
         />
