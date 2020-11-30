@@ -12,7 +12,6 @@ import {
   faUsers,
   faCompass,
   faAddressBook,
-  faExchangeAlt,
   faTools,
   faCoins
 } from '@fortawesome/free-solid-svg-icons';
@@ -40,20 +39,6 @@ function Navigate({ className }: Props): React.ReactElement<Props> {
           <div className='action'>
             <Link to='/accounts'>
               <button className='button'>Go to Accounts</button>
-            </Link>
-          </div>
-        </div>
-        <div className='feature'>
-          <div className='icon'>
-            <FontAwesomeIcon icon={faExchangeAlt} color='blue' size='3x' />
-          </div>
-          <div className='header'>Send assets</div>
-          <div className='content'>
-            Send your CENNZnet assets between addresses.
-          </div>
-          <div className='action'>
-            <Link to='/send-assets'>
-              <button className='button'>Go to Send assets</button>
             </Link>
           </div>
         </div>

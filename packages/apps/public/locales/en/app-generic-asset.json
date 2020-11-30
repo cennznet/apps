@@ -19,9 +19,10 @@
   "send to address": "send to address",
   "Enter the Asset ID of the token you want to transfer.": "Enter the Asset ID of the token you want to transfer.",
   "Type the amount you want to transfer. Note that you can select the unit on the right e.g sending 1 milli is equivalent to sending 0.001.": "Type the amount you want to transfer. Note that you can select the unit on the right e.g sending 1 milli is equivalent to sending 0.001.",
-  "amount": "amount",
-  "Make Transfer": "Make Transfer",
+  "Send amount": "Send amount",
+  "Send": "Send",
   "transferrable ": "transferrable ",
   "transferrable": "transferrable",
-  "all available": "all available"
+  "all available": "all available",
+  "Asset type": "Asset type"
 }

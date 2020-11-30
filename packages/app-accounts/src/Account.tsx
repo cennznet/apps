@@ -9,7 +9,7 @@ import { RecoveryConfig } from '@polkadot/types/interfaces';
 import React, { useState, useEffect } from 'react';
 import { Label } from 'semantic-ui-react';
 import styled from 'styled-components';
-import { AddressSmall, Badge, Forget, Icon, IdentityIcon, InputTags, LinkPolkascan, Input } from '@polkadot/react-components';
+import { AddressSmall, Badge, Forget, Icon, IdentityIcon, InputTags, LinkPolkascan, Input, Button } from '@polkadot/react-components';
 import AddressInfo from './AddressInfoMvp';
 import { useApi, useCall, useToggle } from '@polkadot/react-hooks';
 import { Option } from '@polkadot/types';
@@ -22,7 +22,7 @@ import Derive from './modals/Derive';
 import Identity from './modals/Identity';
 import RecoverAccount from './modals/RecoverAccount';
 import RecoverSetup from './modals/RecoverSetup';
-import Transfer from './modals/Transfer';
+import TransferWithType from '../src/modals/TransferWithType';
 import { useTranslation } from './translate';
 
 interface Props {
@@ -160,15 +160,17 @@ function Account ({ address, className, filter, isFavorite, toggleFavorite }: Pr
           <Badge
             hover={
               <div>
-                <p>{t('This account is recoverable, with the following friends:')}</p>
+                <p>
+                  {t(
+                    'This account is recoverable, with the following friends:'
+                  )}
+                </p>
                 <div>
-                  {recoveryInfo.friends.map((friend, index): React.ReactNode => (
-                    <IdentityIcon
-                      key={index}
-                      size={24}
-                      value={friend}
-                    />
-                  ))}
+                  {recoveryInfo.friends.map(
+                    (friend, index): React.ReactNode => (
+                      <IdentityIcon key={index} size={24} value={friend} />
+                    )
+                  )}
                 </div>
                 <table>
                   <tbody>
@@ -198,19 +200,19 @@ function Account ({ address, className, filter, isFavorite, toggleFavorite }: Pr
       <td className='top'>
         <AddressSmall
           overrideName={
-            isEditingName
-              ? (
-                <Input
-                  className='name--input'
-                  autoFocus
-                  defaultValue={accName}
-                  onBlur={_saveName}
-                  onChange={setAccName}
-                  onEnter={_saveName}
-                  withLabel={false}
-                />
-              )
-              : undefined
+            isEditingName ? (
+              <Input
+                className='name--input'
+                autoFocus
+                defaultValue={accName}
+                onBlur={_saveName}
+                onChange={setAccName}
+                onEnter={_saveName}
+                withLabel={false}
+              />
+            ) : (
+              undefined
+            )
           }
           onClickName={toggleEditName}
           toggle={isEditingName}
@@ -253,7 +255,7 @@ function Account ({ address, className, filter, isFavorite, toggleFavorite }: Pr
           />
         )}
         {isTransferOpen && (
-          <Transfer
+          <TransferWithType
             key='modal-transfer'
             onClose={toggleTransfer}
             senderId={address}
@@ -275,30 +277,32 @@ function Account ({ address, className, filter, isFavorite, toggleFavorite }: Pr
         )}
       </td>
       <td className='top'>
-        {isEditingTags
-          ? (
-            <InputTags
-              onBlur={_saveTags}
-              onChange={_setTags}
-              onClose={_saveTags}
-              openOnFocus
-              defaultValue={tags}
-              searchInput={{ autoFocus: true }}
-              value={tags}
-              withLabel={false}
-            />
-          )
-          : (
-            <div className='tags--toggle' onClick={toggleEditTags}>
-              {tags.length
-                ? tags.map((tag): React.ReactNode => (
-                  <Label key={tag} size='tiny' color='grey'>{tag}</Label>
-                ))
-                : <label>{t('no tags')}</label>
-              }
-            </div>
-          )
-        }
+        {isEditingTags ? (
+          <InputTags
+            onBlur={_saveTags}
+            onChange={_setTags}
+            onClose={_saveTags}
+            openOnFocus
+            defaultValue={tags}
+            searchInput={{ autoFocus: true }}
+            value={tags}
+            withLabel={false}
+          />
+        ) : (
+          <div className='tags--toggle' onClick={toggleEditTags}>
+            {tags.length ? (
+              tags.map(
+                (tag): React.ReactNode => (
+                  <Label key={tag} size='tiny' color='grey'>
+                    {tag}
+                  </Label>
+                )
+              )
+            ) : (
+              <label>{t('no tags')}</label>
+            )}
+          </div>
+        )}
       </td>
       <td className='top'>
         <AddressInfo
@@ -314,6 +318,17 @@ function Account ({ address, className, filter, isFavorite, toggleFavorite }: Pr
           data={address}
           type='address'
           withShort
+        />
+      </td>
+      <td className='number middle'>
+        <Button
+          icon='paper plane'
+          isPrimary
+          key='send'
+          label={t('Send')}
+          onClick={() => toggleTransfer()}
+          size='small'
+          tooltip={t('Send funds from this account')}
         />
       </td>
     </tr>

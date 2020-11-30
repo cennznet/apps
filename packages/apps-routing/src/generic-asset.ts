@@ -11,7 +11,7 @@ export default ([
   {
     Component: GenericAsset,
     display: {
-      isHidden: false,
+      isHidden: true,
       needsAccounts: true,
       needsApi: [
         'tx.genericAsset.transfer'
