@@ -1,37 +1,25 @@
 import jsonrpc from '@polkadot/types/interfaces/jsonrpc';
-import {DefinitionRpcSub, DefinitionRpcParam, DefinitionTypeType} from '@cennznet/types';
+import {DefinitionRpcSub } from '@cennznet/types';
 import {DefinitionRpcExt} from '@polkadot/types/types';
-//import cennznetBare from '@cennznet/api/rpc';
 import * as definitions from '@cennznet/types/interfaces/definitions';
 
-const rpc:{[index: string]:any} = {};
-const sectionsList = Object.keys(definitions);
-Object.values(definitions).forEach((value: { rpc?: any; types: any }, index) => {
-    const section = sectionsList[index];
-    if (value.rpc) {
-        rpc[section] = value.rpc;
-    }
-});
+const cennznetRpc: Record<string, Record<string, DefinitionRpcExt>> = {};
 
-let cennznetRpc:{[index: string]:any} = rpc;
-const newJsonrpc: Record<string, Record<string, DefinitionRpcExt>> = {};
 Object
-    .keys(cennznetRpc)
+    .keys(definitions)
+    .filter((key: string) => Object.keys(definitions[key as 'cennzx'].rpc || {}).length !== 0)
     .forEach((section): void => {
-        newJsonrpc[section] = {};
+        cennznetRpc[section] = {};
 
-        Object.entries(cennznetRpc[section])
+        Object
+            .entries(definitions[section as 'cennzx'].rpc)
             .forEach(([method, def]): void => {
                 const isSubscription = !!(def as DefinitionRpcSub).pubsub;
-                newJsonrpc[section][method] = ({
-                    ...def as {description: string,params: DefinitionRpcParam[],type: DefinitionTypeType} ,
-                    isSubscription,
-                    jsonrpc: `${section}_${method}`,
-                    method,
-                    section
-                });
+
+                cennznetRpc[section][method] = ({ ...def, isSubscription, jsonrpc: `${section}_${method}`, method, section });
             });
     });
-const cennznetJsonRpc = Object.assign({}, jsonrpc, newJsonrpc);
+
+const cennznetJsonRpc = Object.assign({}, jsonrpc, cennznetRpc);
 
 export default cennznetJsonRpc;
