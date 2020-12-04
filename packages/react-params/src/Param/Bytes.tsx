@@ -5,7 +5,7 @@
 import { Props } from '../types';
 
 import React, { useState } from 'react';
-import { Compact } from '@polkadot/types';
+import { compactAddLength } from '@polkadot/util';
 import { Button } from '@polkadot/react-components';
 
 import BaseBytes from './BaseBytes';
@@ -18,7 +18,7 @@ export default function Bytes ({ className, defaultValue, isDisabled, isError, l
   const _onChangeFile = (value: Uint8Array): void => {
     onChange && onChange({
       isValid: value.length !== 0,
-      value: Compact.addLengthPrefix(value)
+      value: compactAddLength(value)
     });
   };
 

@@ -9,7 +9,7 @@ import { Button, Input } from '@polkadot/react-components';
 
 import { useTranslation } from '../translate';
 import { u8aToU8a } from '@polkadot/util';
-import { Compact } from '@polkadot/types';
+import { compactAddLength } from '@polkadot/util';
 
 export default function Raw ({ onAdd }: Props): React.ReactElement<Props> {
   const { t } = useTranslation();
@@ -24,7 +24,7 @@ export default function Raw ({ onAdd }: Props): React.ReactElement<Props> {
 
     setValue({
       isValid,
-      key: Compact.addLengthPrefix(u8a)
+      key: compactAddLength(u8a)
     });
   };
 

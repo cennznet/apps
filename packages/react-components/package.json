@@ -12,7 +12,7 @@
   "dependencies": {
     "@babel/runtime": "^7.8.4",
     "@polkadot/keyring": "^3.6.1",
-    "@polkadot/api-contract": "^2.4.1",
+    "@polkadot/api-contract": "2.7.1",
     "@polkadot/react-api": "0.40.0-beta.45",
     "@polkadot/react-identicon": "^0.52.0-beta.2",
     "@polkadot/react-query": "0.40.0-beta.45",

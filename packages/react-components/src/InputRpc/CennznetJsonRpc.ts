@@ -1,9 +1,19 @@
 import jsonrpc from '@polkadot/types/interfaces/jsonrpc';
 import {DefinitionRpcSub, DefinitionRpcParam, DefinitionTypeType} from '@cennznet/types';
 import {DefinitionRpcExt} from '@polkadot/types/types';
-import cennznetBare from '@cennznet/api/rpc';
+//import cennznetBare from '@cennznet/api/rpc';
+import * as definitions from '@cennznet/types/interfaces/definitions';
 
-let cennznetRpc:{[index: string]:any} = cennznetBare;
+const rpc:{[index: string]:any} = {};
+const sectionsList = Object.keys(definitions);
+Object.values(definitions).forEach((value: { rpc?: any; types: any }, index) => {
+    const section = sectionsList[index];
+    if (value.rpc) {
+        rpc[section] = value.rpc;
+    }
+});
+
+let cennznetRpc:{[index: string]:any} = rpc;
 const newJsonrpc: Record<string, Record<string, DefinitionRpcExt>> = {};
 Object
     .keys(cennznetRpc)

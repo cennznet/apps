@@ -32,7 +32,7 @@ export default function TreasuryProposal ({ className, asInset, insetProps, onCl
     if (!proposal && proposalId) {
       api.query.treasury
         .proposals<Option<TreasuryProposalType>>(proposalId)
-        .then((proposal): TreasuryProposalType | null => proposal.unwrapOr(null))
+        .then((proposal: any): TreasuryProposalType | null => proposal.unwrapOr(null))
         .catch((): null => null)
         .then(setProposal);
     } else {

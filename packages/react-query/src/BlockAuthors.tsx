@@ -39,12 +39,12 @@ function BlockAuthors ({ children }: Props): React.ReactElement<Props> {
       let lastBlockNumber = '';
 
       // subscribe to all validators
-      api.query.session && api.query.session.validators((validatorIds): void => {
-        setValidators(validatorIds.map((validatorId): string => validatorId.toString()));
+      api.query.session && api.query.session.validators((validatorIds: any): void => {
+        setValidators(validatorIds.map((validatorId: any): string => validatorId.toString()));
       });
 
       // subscribe to new headers
-      api.derive.chain.subscribeNewHeads((lastHeader): void => {
+      api.derive.chain.subscribeNewHeads((lastHeader: any): void => {
         if (lastHeader?.number) {
           const blockNumber = lastHeader.number.unwrap();
           const thisBlockAuthor = lastHeader.author?.toString();

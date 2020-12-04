@@ -7,7 +7,7 @@ import { BareProps } from '../types';
 import { DropdownOptions } from '../util/types';
 
 import React from 'react';
-import ApiPromise from '@polkadot/api/promise';
+import { ApiPromise } from '@polkadot/api';
 
 import Dropdown from '../Dropdown';
 import { classes } from '../util';

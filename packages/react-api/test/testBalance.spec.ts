@@ -1,12 +1,10 @@
 import { Keyring } from '@polkadot/api';
 import { cryptoWaitReady } from '@polkadot/util-crypto';
-import { TypeRegistry } from '@polkadot/types';
 import {Api as ApiPromise} from '@cennznet/api';
 
 describe('e2e transactions', () => {
   let api: ApiPromise;
   let alice: any, bob: any;
-  const registry = new TypeRegistry();
 
   beforeAll(async () => {
     await cryptoWaitReady();
@@ -17,7 +15,6 @@ describe('e2e transactions', () => {
 
     api = await ApiPromise.create({
       provider: 'ws://localhost:9944',
-      registry
     });
   });
 
