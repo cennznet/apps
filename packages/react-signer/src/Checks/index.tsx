@@ -270,18 +270,9 @@ export default function Checks ({ accountId, className, extrinsic }: Props): Rea
   });
 
   return (
-    <article
-      className={[className, 'ui--Checks', 'normal', 'padded'].join(' ')}
-      key='txinfo'
-    >
-      <div>
-        <Icon name='arrow right' />
-        {t('Fees of {{fees}} will be applied to the submission', {
-          replace: {
-            fees
-          }
-        })}
-      </div>
-    </article>
+    <p style={{ marginLeft: "2rem", marginTop: "0.5rem" }}>
+      <Icon name='chevron circle right' />
+      {t('Fees of {{fees}} apply', { replace: { fees } })}
+    </p>
   );
 }

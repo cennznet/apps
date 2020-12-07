@@ -35,7 +35,8 @@ interface Props extends BareProps {
 const DEFAULT_BITLENGTH = BitLengthOption.CHAIN_SPEC as BitLength;
 
 function InputBalance ({ autoFocus, className, defaultValue, help, isDisabled, isError, isFull, isZeroable, label, labelExtra, maxValue, onChange, onEnter, onEscape, placeholder, style, value, withEllipsis, withLabel, withMax }: Props): React.ReactElement<Props> {
-  const formattedDefaultValue =  defaultValue ? toFormattedBalance({ value: defaultValue }) : '0';
+  const formattedDefaultValue =  defaultValue ? toFormattedBalance({ value: defaultValue }) : "";
+  const defaultPlaceholder = placeholder || "0.0";
 
   return (
     <InputNumber
@@ -55,7 +56,7 @@ function InputBalance ({ autoFocus, className, defaultValue, help, isDisabled, i
       onChange={onChange}
       onEnter={onEnter}
       onEscape={onEscape}
-      placeholder={placeholder}
+      placeholder={defaultPlaceholder}
       style={style}
       value={value}
       withEllipsis={withEllipsis}

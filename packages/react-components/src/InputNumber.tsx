@@ -197,13 +197,6 @@ export default function InputNumber (props: Props): React.ReactElement<Props> {
     }
   };
 
-  const _onPaste = (event: React.ClipboardEvent<Element>): void => {
-    const { value: newValue } = event.target as HTMLInputElement;
-    if (!getRegex(isDecimal || !!si).test(newValue.replace(/,/g, ''))) {
-      event.preventDefault();
-    }
-  };
-
   const maxValueLength = getGlobalMaxValue(bitLength).toString().length - 1;
 
   return (
@@ -220,7 +213,6 @@ export default function InputNumber (props: Props): React.ReactElement<Props> {
       onEscape={onEscape}
       onKeyDown={_onKeyDown}
       onKeyUp={_onKeyUp}
-      onPaste={_onPaste}
       placeholder={placeholder || t('Positive number')}
       style={style}
       type='text'
