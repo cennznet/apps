@@ -2,22 +2,19 @@
 // This software may be modified and distributed under the terms
 // of the Apache-2.0 license. See the LICENSE file for details.
 
+import { AssetId, Balance, Bytes, Codec } from '@cennznet/types';
 import { SubmittableExtrinsic } from '@polkadot/api/promise/types';
+import FormatBalance from '@polkadot/app-generic-asset/FormatBalance';
+import { withMulti } from '@polkadot/react-api/hoc';
+import { Dropdown, InputAddress, InputBalance, Modal, TxButton } from '@polkadot/react-components';
 import { I18nProps } from '@polkadot/react-components/types';
-import { AssetId, Balance } from '@polkadot/types/interfaces';
+import { useApi } from '@polkadot/react-hooks';
+import Checks from '@polkadot/react-signer/Checks';
+import { u8aToString } from '@polkadot/util';
 import BN from 'bn.js';
 import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
-import { InputAddress, InputBalance, TxButton, Dropdown, Modal } from '@polkadot/react-components';
-import { useApi, useDebounce } from '@polkadot/react-hooks';
-import Checks from '@polkadot/react-signer/Checks';
-import { withMulti, withObservable } from '@polkadot/react-api/hoc';
-import { u8aToString } from '@polkadot/util';
-import assetRegistry from '../../../app-generic-asset/src/assetsRegistry';
 import translate from '../../../app-generic-asset/src/translate';
-import FormatBalance from '@polkadot/app-generic-asset/FormatBalance';
-import { Bytes } from '@cennznet/types';
-import { toFormattedBalance } from '@polkadot/react-components/util';
 
 interface Props extends I18nProps {
   className?: string;
@@ -36,20 +33,13 @@ interface Option {
   value: string;
 }
 
-// ~ largest value `BN` can handle before overflow issues
-const maxValue = new BN('1,000,000,000,000');
-
 function TransferWithType ({ className, onClose, recipientId: propRecipientId, senderId: propSenderId, t }: Props): React.ReactElement<Props> {
   const { api } = useApi();
   const [assetId, setAssetId] = useState('0');
   const [assetBalance, setAssetBalance] = useState<BN>(new BN(0));
   const [assetName, setAssetName] = useState<string>('');
   // The BN value for transaction (no decimal)
-  const [_amount, setAmount] = useState<BN | undefined>(undefined);
-  const amount = useDebounce(_amount, 700);
-  // The formatted value to display (includes decimal)
-  const [amountDisplay, setAmountDisplay] = useState<string>("");
-
+  const [amount, setAmount] = useState<BN | undefined>(undefined);
   const [extrinsic, setExtrinsic] = useState<SubmittableExtrinsic | null>(null);
   const [hasAvailable, setHasAvailable] = useState(true);
   const [options, setOptions] = useState<Option[]>([]);
@@ -77,18 +67,16 @@ function TransferWithType ({ className, onClose, recipientId: propRecipientId, s
   // Query balances on assetId or senderId change
   useMemo((): void => {
     // @ts-ignore
-    api.query.genericAsset.freeBalance(assetId, senderId || '').then(
-      (balance: any) => setAssetBalance((balance as Balance).toBn())
+    api.query.genericAsset.freeBalance(assetId, senderId!).then(
+      (balance: Codec) => setAssetBalance((balance as Balance).toBn())
     );
   }, [assetId]);
 
   useEffect((): void => {
     if (amount !== undefined && !amount!.isZero()) {
       setHasAvailable(amount.lte(assetBalance));
-      setAmountDisplay(toFormattedBalance({ value: amount }));
     } else {
       setHasAvailable(true);
-      setAmountDisplay(amount !== undefined ? '0' : '');
     }
   }, [assetId, amount, assetBalance]);
 
@@ -102,13 +90,12 @@ function TransferWithType ({ className, onClose, recipientId: propRecipientId, s
   }, [amount, assetId, recipientId]);
 
   // When assetId is selected, update assetName also
-  function setAssetId_(assetId: string): void {
+  function setAsset(assetId: string): void {
     setAssetId(assetId);
     setAssetName(options.find(x => x.value == assetId)?.text || "?");
   }
 
   const notEnoughTransferrable = <span style={{ color: "#9f3a38" }}>{t('not enough transferrable')}</span>;
-  const maxButton = <div className="maxBtn" onClick={() => setAmount(BN.min(assetBalance, maxValue))}>max</div>;
 
   return (
     <Modal style={{ marginTop: "8rem", minWidth: "50%", maxWidth: "600px" }} header={t('Send funds')}>
@@ -142,17 +129,16 @@ function TransferWithType ({ className, onClose, recipientId: propRecipientId, s
           <Dropdown
             help={t('Select the asset you want to transfer.')}
             label={t('Asset type')}
-            onChange={setAssetId_}
+            onChange={setAsset}
             options={options}
             value={assetId}
           />
           <InputBalance
             help={t('Enter the amount you want to transfer.')}
             isError={!hasAvailable}
-            label={<span>{t('Send amount')}{maxButton}</span>}
+            label={<span>{t('Send amount')}</span>}
             labelExtra={!hasAvailable && notEnoughTransferrable}
             onChange={setAmount}
-            value={amountDisplay}
             isZeroable={true}
           />
           <Checks
@@ -198,23 +184,6 @@ export default withMulti(
     label.with-help {
       flex-basis: 10rem;
     }
-
-    .maxBtn {
-      display: inline;
-      border-radius: 5px;
-      padding: 1px 5px 1px 5px;
-      margin-left: 4px;
-      color: rgba(78,78,78,.66);
-      border: 1px solid rgba(78,78,78,.66);
-      background-color: white;
-    }
-
-    .maxBtn:hover {
-      color: #f191359e;
-      border: 1px solid #f191359e;
-      cursor: pointer;
-    }
   `,
-  translate,
-  withObservable(assetRegistry.subject, { propName: 'assets' })
+  translate
 );
