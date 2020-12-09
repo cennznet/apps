@@ -42,7 +42,7 @@ function Overview ({ className, onStatusChange }: Props): React.ReactElement<Pro
   const _toggleCreate = (): void => setIsCreateOpen(!isCreateOpen);
 
   return (
-    <div className={className}>
+    <div className={className} style={{ minWidth: "800px", maxWidth: "80%" }}>
       <Button.Group>
         <Button
           icon='add'
@@ -60,15 +60,6 @@ function Overview ({ className, onStatusChange }: Props): React.ReactElement<Pro
       {hasAddresses
         ? (
           <>
-            <div className='filter--tags'>
-              <Input
-                autoFocus
-                isFull
-                label={t('filter by name or tags')}
-                onChange={setFilter}
-                value={filter}
-              />
-            </div>
             <Table>
               <Table.Body>
                 {sortedAddresses.map(({ address, isFavorite }): React.ReactNode => (

@@ -9,7 +9,7 @@ import { RecoveryConfig } from '@polkadot/types/interfaces';
 import React, { useState, useEffect } from 'react';
 import { Label } from 'semantic-ui-react';
 import styled from 'styled-components';
-import { AddressSmall, Badge, Forget, Icon, IdentityIcon, InputTags, LinkPolkascan, Input, Button } from '@polkadot/react-components';
+import { AddressSmall, Badge, Button, ChainLock, Forget, Icon, IdentityIcon, InputTags, Menu, Popup, Input } from '@polkadot/react-components';
 import AddressInfo from './AddressInfoMvp';
 import { useApi, useCall, useToggle } from '@polkadot/react-hooks';
 import { Option } from '@polkadot/types';
@@ -24,6 +24,7 @@ import RecoverAccount from './modals/RecoverAccount';
 import RecoverSetup from './modals/RecoverSetup';
 import TransferWithType from './modals/TransferWithType';
 import { useTranslation } from './translate';
+import { colors } from '../../../styled-theming';
 
 interface Props {
   address: string;
@@ -37,25 +38,18 @@ function Account ({ address, className, filter, isFavorite, toggleFavorite }: Pr
   const { t } = useTranslation();
   const api = useApi();
   const info = useCall<DeriveAccountInfo>(api.api.derive.accounts.info as any, [address]);
-  const recoveryInfo = useCall<RecoveryConfig | null>(api.api.query.recovery?.recoverable, [address], {
-    transform: (opt: Option<RecoveryConfig>): RecoveryConfig | null =>
-      opt.unwrapOr(null)
-  });
-  const [tags, setTags] = useState<string[]>([]);
   const [accName, setAccName] = useState('');
+  const [genesisHash, setGenesisHash] = useState<string | null>(null);
+  const [{ isDevelopment, isEditable, isExternal }, setFlags] = useState({ isDevelopment: false, isEditable: false, isExternal: false });
   const [isVisible, setIsVisible] = useState(true);
   const [isEditingName, toggleEditName] = useToggle();
-  const [isEditingTags, toggleEditTags] = useToggle();
   const [isBackupOpen, toggleBackup] = useToggle();
   const [isDeriveOpen, toggleDerive] = useToggle();
   const [isForgetOpen, toggleForget] = useToggle();
   const [isIdentityOpen, toggleIdentity] = useToggle();
   const [isPasswordOpen, togglePassword] = useToggle();
-  const [isRecoverAccountOpen, toggleRecoverAccount] = useToggle();
-  const [isRecoverSetupOpen, toggleRecoverSetup] = useToggle();
+  const [isSettingsOpen, toggleSettings] = useToggle();
   const [isTransferOpen, toggleTransfer] = useToggle();
-
-  const _setTags = (tags: string[]): void => setTags(tags.sort());
 
   useEffect((): void => {
     const { identity, nickname } = info || {};
@@ -72,23 +66,14 @@ function Account ({ address, className, filter, isFavorite, toggleFavorite }: Pr
   useEffect((): void => {
     const account = keyring.getAccount(address);
 
-    _setTags(account?.meta?.tags as string[] || []);
+    setGenesisHash(account?.meta.genesisHash || null);
+    setFlags({
+      isDevelopment: account?.meta.isTesting || false,
+      isEditable: (account && !(account.meta.isInjected || account.meta.isHardware)) || false,
+      isExternal: account?.meta.isExternal as boolean || false
+    });
     setAccName(account?.meta.name || '');
   }, [address]);
-
-  useEffect((): void => {
-    if (filter.length === 0) {
-      setIsVisible(true);
-    } else {
-      const _filter = filter.toLowerCase();
-
-      setIsVisible(
-        tags.reduce((result: boolean, tag: string): boolean => {
-          return result || tag.toLowerCase().includes(_filter);
-        }, accName.toLowerCase().includes(_filter))
-      );
-    }
-  }, [accName, filter, tags]);
 
   if (!isVisible) {
     return null;
@@ -109,21 +94,7 @@ function Account ({ address, className, filter, isFavorite, toggleFavorite }: Pr
       }
     }
   };
-  const _saveTags = (): void => {
-    toggleEditTags();
 
-    const meta = { tags, whenEdited: Date.now() };
-
-    if (address) {
-      try {
-        const currentKeyring = keyring.getPair(address);
-
-        currentKeyring && keyring.saveAccountMeta(currentKeyring, meta);
-      } catch (error) {
-        keyring.saveAddress(address, meta);
-      }
-    }
-  };
   const _onForget = (): void => {
     if (!address) {
       return;
@@ -143,7 +114,13 @@ function Account ({ address, className, filter, isFavorite, toggleFavorite }: Pr
       status.message = error.message;
     }
   };
+  const _onGenesisChange = (genesisHash: string | null): void => {
+    const account = keyring.getPair(address);
 
+    account && keyring.saveAccountMeta(account, { ...account.meta, genesisHash });
+
+    setGenesisHash(genesisHash);
+  };
   const _onFavorite = (): void => toggleFavorite(address);
 
   return (
@@ -155,49 +132,7 @@ function Account ({ address, className, filter, isFavorite, toggleFavorite }: Pr
           onClick={_onFavorite}
         />
       </td>
-      <td className='together'>
-        {recoveryInfo && (
-          <Badge
-            hover={
-              <div>
-                <p>
-                  {t(
-                    'This account is recoverable, with the following friends:'
-                  )}
-                </p>
-                <div>
-                  {recoveryInfo.friends.map(
-                    (friend, index): React.ReactNode => (
-                      <IdentityIcon key={index} size={24} value={friend} />
-                    )
-                  )}
-                </div>
-                <table>
-                  <tbody>
-                    <tr>
-                      <td>{t('threshold')}</td>
-                      <td>{formatNumber(recoveryInfo.threshold)}</td>
-                    </tr>
-                    <tr>
-                      <td>{t('delay')}</td>
-                      <td>{formatNumber(recoveryInfo.delayPeriod)}</td>
-                    </tr>
-                    <tr>
-                      <td>{t('deposit')}</td>
-                      <td>{formatBalance(recoveryInfo.deposit)}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            }
-            info={<Icon name='shield' />}
-            isInline
-            isTooltip
-            type='online'
-          />
-        )}
-      </td>
-      <td className='top'>
+      <td className='middle'>
         <AddressSmall
           overrideName={
             isEditingName ? (
@@ -261,50 +196,8 @@ function Account ({ address, className, filter, isFavorite, toggleFavorite }: Pr
             senderId={address}
           />
         )}
-        {isRecoverAccountOpen && (
-          <RecoverAccount
-            address={address}
-            key='recover-account'
-            onClose={toggleRecoverAccount}
-          />
-        )}
-        {isRecoverSetupOpen && (
-          <RecoverSetup
-            address={address}
-            key='recover-setup'
-            onClose={toggleRecoverSetup}
-          />
-        )}
       </td>
-      <td className='top'>
-        {isEditingTags ? (
-          <InputTags
-            onBlur={_saveTags}
-            onChange={_setTags}
-            onClose={_saveTags}
-            openOnFocus
-            defaultValue={tags}
-            searchInput={{ autoFocus: true }}
-            value={tags}
-            withLabel={false}
-          />
-        ) : (
-          <div className='tags--toggle' onClick={toggleEditTags}>
-            {tags.length ? (
-              tags.map(
-                (tag): React.ReactNode => (
-                  <Label key={tag} size='tiny' color='grey'>
-                    {tag}
-                  </Label>
-                )
-              )
-            ) : (
-              <label>{t('no tags')}</label>
-            )}
-          </div>
-        )}
-      </td>
-      <td className='top'>
+      <td className='middle'>
         <AddressInfo
           address={address}
           withBalance
@@ -312,15 +205,66 @@ function Account ({ address, className, filter, isFavorite, toggleFavorite }: Pr
           withExtended={false}
         />
       </td>
-      <td className='mini top'>
-        <LinkPolkascan
-          className='ui--AddressCard-exporer-link'
-          data={address}
-          type='address'
-          withShort
-        />
-      </td>
-      <td className='number middle'>
+       <td className='number middle'>
+        <Popup
+          className='theme--default'
+          onClose={toggleSettings}
+          open={isSettingsOpen}
+          position='bottom right'
+          trigger={
+            <Button
+              icon='setting'
+              onClick={toggleSettings}
+              size='small'
+            />
+          }
+        >
+          <Menu
+            vertical
+            text
+            onClick={toggleSettings}
+          >
+            <p
+              disabled={!isEditable || isExternal || isDevelopment}
+              onClick={toggleBackup}
+              style={{ color: colors.N100 }}
+            >
+              {t('Create a backup file for this account')}
+            </p>
+            <p
+              disabled={!isEditable || isExternal || isDevelopment}
+              onClick={togglePassword}
+              style={{ color: colors.N100 }}
+            >
+              {t("Change this account's password")}
+            </p>
+            <p
+              disabled={!isEditable || isDevelopment}
+              onClick={toggleForget}
+              style={{ color: colors.N100 }}
+            >
+              {t('Forget this account')}
+            </p>
+            <p
+              disabled={!isEditable || isExternal}
+              onClick={toggleDerive}
+              style={{ color: colors.N100 }}
+            >
+              {t('Derive account via derivation path')}
+            </p>
+            {!api.isDevelopment && (
+              <>
+                <Menu.Divider />
+                <ChainLock
+                  className='accounts--network-toggle'
+                  genesisHash={genesisHash}
+                  onChange={_onGenesisChange}
+                  preventDefault
+                />
+              </>
+            )}
+          </Menu>
+        </Popup>
         <Button
           icon='paper plane'
           isPrimary

@@ -12,7 +12,7 @@ import styled from 'styled-components';
 import { AddressSmall, AddressInfo, Button, ChainLock, Icon, InputTags, Input, LinkPolkascan, Forget, Menu, Popup } from '@polkadot/react-components';
 import { useApi, useCall } from '@polkadot/react-hooks';
 import keyring from '@polkadot/ui-keyring';
-import Transfer from '@polkadot/app-accounts/modals/Transfer';
+import colors from '../../../styled-theming';
 
 import { useTranslation } from './translate';
 import TransferWithType from '@polkadot/app-accounts/modals/TransferWithType';
@@ -274,8 +274,9 @@ function Address ({ address, className, filter, isFavorite, toggleFavorite }: Pr
             <Menu.Item
               disabled={!isEditable}
               onClick={_toggleForget}
+              style={{ color: colors.N100 }}
             >
-              <p style={{ color: "#fff" }}>{t('Forget this address')}</p>
+              {t('Forget this address')}
             </Menu.Item>
             {!api.isDevelopment && (
               <>
