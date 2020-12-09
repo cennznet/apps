@@ -6,11 +6,10 @@ import { KeyringAddress } from '@polkadot/ui-keyring/types';
 import { ComponentProps as Props } from './types';
 
 import React, { useEffect, useState } from 'react';
-import styled from 'styled-components';
 import keyring from '@polkadot/ui-keyring';
 import { getLedger, isLedger } from '@polkadot/react-api';
 import { useAccounts, useFavorites } from '@polkadot/react-hooks';
-import { Button, Input, Table } from '@polkadot/react-components';
+import { Button, Table } from '@polkadot/react-components';
 
 import CreateModal from './modals/Create';
 import ImportModal from './modals/Import';
@@ -43,7 +42,6 @@ export default function Overview ({ className, onStatusChange }: Props): React.R
   const [isQrOpen, setIsQrOpen] = useState(false);
   const [favorites, toggleFavorite] = useFavorites(STORE_FAVS);
   const [sortedAccounts, setSortedAccounts] = useState<SortedAccount[]>([]);
-  const [filter, setFilter] = useState<string>('');
 
   useEffect((): void => {
     setSortedAccounts(
@@ -123,7 +121,6 @@ export default function Overview ({ className, onStatusChange }: Props): React.R
                 {sortedAccounts.map(({ address, isFavorite }): React.ReactNode => (
                   <Account
                     address={address}
-                    filter={filter}
                     isFavorite={isFavorite}
                     key={address}
                     toggleFavorite={toggleFavorite}

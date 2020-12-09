@@ -94,6 +94,10 @@ function extractExternal (
   };
 }
 
+interface IKeyringPair extends KeyringPair {
+  addressRaw: Uint8Array;
+}
+
 // eslint-disable-next-line @typescript-eslint/require-await
 async function makeExtrinsicSignature (
   payload: SignerPayloadJSON,
@@ -102,7 +106,8 @@ async function makeExtrinsicSignature (
 ): Promise<void> {
   console.log('makeExtrinsicSignature: payload ::', JSON.stringify(payload));
 
-  const result = createType(registry, 'ExtrinsicPayload', payload, { version: payload.version }).sign(pair);
+  (pair as IKeyringPair).addressRaw = keyring.decodeAddress(pair.address);
+  const result = createType(registry, 'ExtrinsicPayload', payload, { version: payload.version }).sign(pair as IKeyringPair);
 
   if (isFunction(signerCb)) {
     signerCb(id, { id, ...result });

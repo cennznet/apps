@@ -12,7 +12,7 @@ import styled from 'styled-components';
 import { AddressSmall, AddressInfo, Button, ChainLock, Icon, InputTags, Input, LinkPolkascan, Forget, Menu, Popup } from '@polkadot/react-components';
 import { useApi, useCall } from '@polkadot/react-hooks';
 import keyring from '@polkadot/ui-keyring';
-import colors from '../../../styled-theming';
+import { colors } from '../../../styled-theming';
 
 import { useTranslation } from './translate';
 import TransferWithType from '@polkadot/app-accounts/modals/TransferWithType';
@@ -20,7 +20,6 @@ import TransferWithType from '@polkadot/app-accounts/modals/TransferWithType';
 interface Props {
   address: string;
   className?: string;
-  filter: string;
   isFavorite: boolean;
   toggleFavorite: (address: string) => void;
 }
@@ -29,7 +28,7 @@ const WITH_EXTENDED = { nonce: true };
 
 const isEditable = true;
 
-function Address ({ address, className, filter, isFavorite, toggleFavorite }: Props): React.ReactElement<Props> | null {
+function Address ({ address, className, isFavorite, toggleFavorite }: Props): React.ReactElement<Props> | null {
   const { t } = useTranslation();
   const api = useApi();
   const info = useCall<DeriveAccountInfo>(api.api.derive.accounts.info as any, [address]);
@@ -42,7 +41,6 @@ function Address ({ address, className, filter, isFavorite, toggleFavorite }: Pr
   const [isForgetOpen, setIsForgetOpen] = useState(false);
   const [isSettingPopupOpen, setIsSettingPopupOpen] = useState(false);
   const [isTransferOpen, setIsTransferOpen] = useState(false);
-  const [isVisible, setIsVisible] = useState(true);
 
   const _setTags = (tags: string[]): void => setTags(tags.sort());
 
@@ -71,24 +69,6 @@ function Address ({ address, className, filter, isFavorite, toggleFavorite }: Pr
     _setTags(account?.meta?.tags as string[] || []);
     setAccName(account?.meta?.name || '');
   }, [address]);
-
-  useEffect((): void => {
-    if (filter.length === 0) {
-      setIsVisible(true);
-    } else {
-      const _filter = filter.toLowerCase();
-
-      setIsVisible(
-        tags.reduce((result: boolean, tag: string): boolean => {
-          return result || tag.toLowerCase().includes(_filter);
-        }, accName.toLowerCase().includes(_filter))
-      );
-    }
-  }, [accName, filter, tags]);
-
-  if (!isVisible) {
-    return null;
-  }
 
   const _toggleEditName = (): void => setIsEditingName(!isEditingName);
   const _toggleEditTags = (): void => setIsEditingTags(!isEditingTags);

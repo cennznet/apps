@@ -4,24 +4,18 @@
 
 import { DeriveAccountInfo } from '@polkadot/api-derive/types';
 import { ActionStatus } from '@polkadot/react-components/Status/types';
-import { RecoveryConfig } from '@polkadot/types/interfaces';
 
 import React, { useState, useEffect } from 'react';
-import { Label } from 'semantic-ui-react';
 import styled from 'styled-components';
-import { AddressSmall, Badge, Button, ChainLock, Forget, Icon, IdentityIcon, InputTags, Menu, Popup, Input } from '@polkadot/react-components';
+import { AddressSmall, Button, ChainLock, Forget, Icon, Menu, Popup, Input } from '@polkadot/react-components';
 import AddressInfo from './AddressInfoMvp';
 import { useApi, useCall, useToggle } from '@polkadot/react-hooks';
-import { Option } from '@polkadot/types';
 import keyring from '@polkadot/ui-keyring';
-import { formatBalance, formatNumber } from '@polkadot/util';
 
 import Backup from './modals/Backup';
 import ChangePass from './modals/ChangePass';
 import Derive from './modals/Derive';
 import Identity from './modals/Identity';
-import RecoverAccount from './modals/RecoverAccount';
-import RecoverSetup from './modals/RecoverSetup';
 import TransferWithType from './modals/TransferWithType';
 import { useTranslation } from './translate';
 import { colors } from '../../../styled-theming';
@@ -29,19 +23,17 @@ import { colors } from '../../../styled-theming';
 interface Props {
   address: string;
   className?: string;
-  filter: string;
   isFavorite: boolean;
   toggleFavorite: (address: string) => void;
 }
 
-function Account ({ address, className, filter, isFavorite, toggleFavorite }: Props): React.ReactElement<Props> | null {
+function Account ({ address, className, isFavorite, toggleFavorite }: Props): React.ReactElement<Props> | null {
   const { t } = useTranslation();
   const api = useApi();
   const info = useCall<DeriveAccountInfo>(api.api.derive.accounts.info as any, [address]);
   const [accName, setAccName] = useState('');
   const [genesisHash, setGenesisHash] = useState<string | null>(null);
   const [{ isDevelopment, isEditable, isExternal }, setFlags] = useState({ isDevelopment: false, isEditable: false, isExternal: false });
-  const [isVisible, setIsVisible] = useState(true);
   const [isEditingName, toggleEditName] = useToggle();
   const [isBackupOpen, toggleBackup] = useToggle();
   const [isDeriveOpen, toggleDerive] = useToggle();
@@ -74,10 +66,6 @@ function Account ({ address, className, filter, isFavorite, toggleFavorite }: Pr
     });
     setAccName(account?.meta.name || '');
   }, [address]);
-
-  if (!isVisible) {
-    return null;
-  }
 
   const _saveName = (): void => {
     toggleEditName();
@@ -224,34 +212,34 @@ function Account ({ address, className, filter, isFavorite, toggleFavorite }: Pr
             text
             onClick={toggleSettings}
           >
-            <p
+            <Menu.Item
               disabled={!isEditable || isExternal || isDevelopment}
               onClick={toggleBackup}
               style={{ color: colors.N100 }}
             >
               {t('Create a backup file for this account')}
-            </p>
-            <p
+            </Menu.Item>
+            <Menu.Item
               disabled={!isEditable || isExternal || isDevelopment}
               onClick={togglePassword}
               style={{ color: colors.N100 }}
             >
               {t("Change this account's password")}
-            </p>
-            <p
+            </Menu.Item>
+            <Menu.Item
               disabled={!isEditable || isDevelopment}
               onClick={toggleForget}
               style={{ color: colors.N100 }}
             >
               {t('Forget this account')}
-            </p>
-            <p
+            </Menu.Item>
+            <Menu.Item
               disabled={!isEditable || isExternal}
               onClick={toggleDerive}
               style={{ color: colors.N100 }}
             >
               {t('Derive account via derivation path')}
-            </p>
+            </Menu.Item>
             {!api.isDevelopment && (
               <>
                 <Menu.Divider />

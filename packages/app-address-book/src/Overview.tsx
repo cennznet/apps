@@ -6,7 +6,7 @@ import { ComponentProps as Props } from './types';
 
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { Button, Input, Table } from '@polkadot/react-components';
+import { Button, Table } from '@polkadot/react-components';
 import { useAddresses, useFavorites } from '@polkadot/react-hooks';
 
 import CreateModal from './modals/Create';
@@ -23,7 +23,6 @@ function Overview ({ className, onStatusChange }: Props): React.ReactElement<Pro
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [favorites, toggleFavorite] = useFavorites(STORE_FAVS);
   const [sortedAddresses, setSortedAddresses] = useState<SortedAddress[]>([]);
-  const [filter, setFilter] = useState<string>('');
 
   useEffect((): void => {
     setSortedAddresses(
@@ -65,7 +64,6 @@ function Overview ({ className, onStatusChange }: Props): React.ReactElement<Pro
                 {sortedAddresses.map(({ address, isFavorite }): React.ReactNode => (
                   <Address
                     address={address}
-                    filter={filter}
                     isFavorite={isFavorite}
                     key={address}
                     toggleFavorite={toggleFavorite}
