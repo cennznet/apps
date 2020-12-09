@@ -22,7 +22,7 @@ import Derive from './modals/Derive';
 import Identity from './modals/Identity';
 import RecoverAccount from './modals/RecoverAccount';
 import RecoverSetup from './modals/RecoverSetup';
-import TransferWithType from '../src/modals/TransferWithType';
+import TransferWithType from './modals/TransferWithType';
 import { useTranslation } from './translate';
 
 interface Props {

@@ -15,6 +15,7 @@ import keyring from '@polkadot/ui-keyring';
 import Transfer from '@polkadot/app-accounts/modals/Transfer';
 
 import { useTranslation } from './translate';
+import TransferWithType from '@polkadot/app-accounts/modals/TransferWithType';
 
 interface Props {
   address: string;
@@ -194,7 +195,7 @@ function Address ({ address, className, filter, isFavorite, toggleFavorite }: Pr
               />
             )}
             {isTransferOpen && (
-              <Transfer
+              <TransferWithType
                 key='modal-transfer'
                 onClose={_toggleTransfer}
                 recipientId={address}
@@ -274,7 +275,7 @@ function Address ({ address, className, filter, isFavorite, toggleFavorite }: Pr
               disabled={!isEditable}
               onClick={_toggleForget}
             >
-              {t('Forget this address')}
+              <p style={{ color: "#fff" }}>{t('Forget this address')}</p>
             </Menu.Item>
             {!api.isDevelopment && (
               <>
