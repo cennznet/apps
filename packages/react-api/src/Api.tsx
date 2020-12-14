@@ -45,6 +45,26 @@ let api: ApiPromise;
 
 export { api };
 
+export function supportOldKeyringInLocalStorage() {
+  const store = new BrowserStore();
+  store.all((key, json: any) => {
+    if (accountRegex.test(key) && json.encoding) {
+      // The difference between new way of storing the keyring is only in the field content
+      // "encoding":{"content":["pkcs8",{"type":"sr25519"}] --- old
+      // "encoding":{"content":["pkcs8","sr25519"] --- new
+      // update the local storage with new way
+      const pkcs8 = json.encoding.content[0];
+      let accountType = json.encoding.content[1];
+      if (typeof accountType === 'object' && accountType !== null) {
+        accountType = Object.values(accountType)[0]
+        json.encoding.content = [pkcs8, accountType];
+        // update the storage only if has old format
+        store.set(key, json);
+      }
+    }
+  });
+}
+
 async function loadOnReady (api: ApiPromise): Promise<State> {
   const [properties, _systemChain, _systemName, _systemVersion, injectedAccounts] = await Promise.all([
     api.rpc.system.properties(),
@@ -91,24 +111,9 @@ async function loadOnReady (api: ApiPromise): Promise<State> {
   });
   TokenUnit.setAbbr(tokenSymbol);
 
-  // Go through local storage and update the storage with old keyring value
-  const store = new BrowserStore();
-  store.all((key, json: any) => {
-    if(accountRegex.test(key) && json.encoding){
-      // The difference between new way of storing the keyring is only in the field content
-      // "encoding":{"content":["pkcs8",{"type":"sr25519"}] --- old
-      // "encoding":{"content":["pkcs8","sr25519"] --- new
-      // update the local storage with new way
-      const pkcs8 = json.encoding.content[0];
-      let accountType = json.encoding.content[1];
-      if (typeof accountType === 'object' && accountType !== null) {
-        accountType = Object.values(accountType)[0]
-        json.encoding.content = [pkcs8, accountType];
-        // update the storage only if has old format
-        store.set(key, json);
-      }
-    }
-  });
+  // Go through local storage and support the storage with old keyring value
+  supportOldKeyringInLocalStorage();
+
   // finally load the keyring
   keyring.loadAll({
     genesisHash: api.genesisHash,
