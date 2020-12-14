@@ -90,7 +90,9 @@ async function loadOnReady (api: ApiPromise): Promise<State> {
     unit: tokenSymbol
   });
   TokenUnit.setAbbr(tokenSymbol);
-  const store = new BrowserStore()
+
+  // Go through local storage and update the storage with old keyring value
+  const store = new BrowserStore();
   store.all((key, json: any) => {
     if(accountRegex.test(key) && json.encoding){
       // The difference between new way of storing the keyring is only in the field content
@@ -101,9 +103,10 @@ async function loadOnReady (api: ApiPromise): Promise<State> {
       let accountType = json.encoding.content[1];
       if (typeof accountType === 'object' && accountType !== null) {
         accountType = Object.values(accountType)[0]
+        json.encoding.content = [pkcs8, accountType];
+        // update the storage only if has old format
+        store.set(key, json);
       }
-      json.encoding.content = [pkcs8, accountType];
-      store.set(key, json);
     }
   });
   // finally load the keyring
