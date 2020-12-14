@@ -15,7 +15,8 @@ import { createType } from '@polkadot/types';
 import { formatBalance, isTestChain } from '@polkadot/util';
 import { setSS58Format } from '@polkadot/util-crypto';
 import { defaults as addressDefaults } from '@polkadot/util-crypto/address/defaults';
-
+import { BrowserStore } from '@polkadot/ui-keyring/stores';
+import { accountRegex } from '@polkadot/ui-keyring/defaults';
 import ApiContext from './ApiContext';
 import registry from './typeRegistry';
 import {Api as ApiPromise} from '@cennznet/api';
@@ -89,7 +90,22 @@ async function loadOnReady (api: ApiPromise): Promise<State> {
     unit: tokenSymbol
   });
   TokenUnit.setAbbr(tokenSymbol);
-
+  const store = new BrowserStore()
+  store.all((key, json: any) => {
+    if(accountRegex.test(key) && json.encoding){
+      // The difference between new way of storing the keyring is only in the field content
+      // "encoding":{"content":["pkcs8",{"type":"sr25519"}] --- old
+      // "encoding":{"content":["pkcs8","sr25519"] --- new
+      // update the local storage with new way
+      const pkcs8 = json.encoding.content[0];
+      let accountType = json.encoding.content[1];
+      if (typeof accountType === 'object' && accountType !== null) {
+        accountType = Object.values(accountType)[0]
+      }
+      json.encoding.content = [pkcs8, accountType];
+      store.set(key, json);
+    }
+  });
   // finally load the keyring
   keyring.loadAll({
     genesisHash: api.genesisHash,
