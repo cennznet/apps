@@ -9,7 +9,7 @@ import { ModalProps } from '../types';
 
 import React from 'react';
 import { AddressRow, Button, InputAddress, InputFile, Modal, Password, TxComponent } from '@polkadot/react-components';
-import { isHex, isObject, u8aToString } from '@polkadot/util';
+import { isObject, u8aToString } from '@polkadot/util';
 import keyring from '@polkadot/ui-keyring';
 
 import translate from '../translate';
@@ -58,7 +58,7 @@ class Import extends TxComponent<Props, State> {
     const { t } = this.props;
     const { address, isFileValid, isPassValid, json, password } = this.state;
     const acceptedFormats = ['application/json', 'text/plain'].join(', ');
-    console.log('isFileValid:::',isFileValid);
+
     return (
       <Modal.Content>
         <AddressRow
