@@ -42,8 +42,8 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
     - name: start latest test node
-        run: |
-          docker run --network=host -d cennznet/cennznet:1.2.0 --dev --tmp --ws-external --rpc-external --no-mdns
+      run: |
+        docker run --network=host -d cennznet/cennznet:1.2.0 --dev --tmp --ws-external --rpc-external --no-mdns
     - name: Config yarn cache
       id: yarn-cache-dir-path
       run: echo "::set-output name=dir::$(yarn cache dir)"
