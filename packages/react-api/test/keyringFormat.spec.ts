@@ -1,5 +1,5 @@
-import {Api as ApiPromise} from '@cennznet/api';
-import {BrowserStore} from '@polkadot/ui-keyring/stores';
+import { Api as ApiPromise } from '@cennznet/api';
+import { BrowserStore } from '@polkadot/ui-keyring/stores';
 import keyring from '@polkadot/ui-keyring';
 import { KeyringAddress } from '@polkadot/ui-keyring/types';
 import { supportOldKeyringInLocalStorage } from "@polkadot/react-api/Api";
@@ -96,7 +96,7 @@ describe('Test different keyring format with support to old key format', () => {
         done();
     });
 
-    it('test import keyring v2 and v3 format', async done => {
+    it('import keyring v2 and v3 formats', async done => {
         const jsonWithV2 = {
             "address": "5FuenKsBAocZ2xCvgvqNJ2pMwDuSRVsyduBxEnVbTwXHDBPX",
             "encoded": "0xeb82436a530edc8fb2066e9252c09d0b3b704f18e8defa314c53014e3a957b89f9af87ed8e412f52c72a6cf1d495c6d6756243c3b55372b1ba55e6ed67389bffef1233ab48e2b9a2fb94867de6dca00b6862189e2aa756b278e971db99ffa5164047712f53fd84e9ba03c881ab20c51ad68c93bb864bda506e9f326eb5ba1c7b8cc59c10d4c9eb604a991f453d316da27ba1e0b0b60cff7e79893263a3",

@@ -1,5 +1,5 @@
 import { KeyringPair$Json } from '@polkadot/keyring/types';
-import {KeyringPair$Json2} from "@polkadot/react-api/types";
+import { KeyringPair$Json2 } from "@polkadot/react-api/types";
 
 export function updateToV3KeyringFormat(json: KeyringPair$Json | KeyringPair$Json2) {
     // The difference between keyring v2 and v3 is in the field content
