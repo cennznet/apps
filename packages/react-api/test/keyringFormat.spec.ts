@@ -1,7 +1,6 @@
 import {Api as ApiPromise} from '@cennznet/api';
 import {BrowserStore} from '@polkadot/ui-keyring/stores';
 import keyring from '@polkadot/ui-keyring';
-import {KeyringAddress} from '@polkadot/ui-keyring/types';
 import {supportOldKeyringInLocalStorage} from "@polkadot/react-api/Api";
 
 describe('Test different keyring format with support to old key format', () => {
