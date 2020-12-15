@@ -58,7 +58,7 @@ class Import extends TxComponent<Props, State> {
     const { t } = this.props;
     const { address, isFileValid, isPassValid, json, password } = this.state;
     const acceptedFormats = ['application/json', 'text/plain'].join(', ');
-
+    console.log('isFileValid:::',isFileValid);
     return (
       <Modal.Content>
         <AddressRow
@@ -95,7 +95,7 @@ class Import extends TxComponent<Props, State> {
       const json = JSON.parse(u8aToString(file));
       const publicKey = keyring.decodeAddress(json.address, true);
       const address = keyring.encodeAddress(publicKey);
-      const isFileValid = publicKey.length === 32 && isHex(json.encoded) && isObject(json.meta) && (
+      const isFileValid = publicKey.length === 32 && json.encoded && isObject(json.meta) && (
         Array.isArray(json.encoding.content)
           ? json.encoding.content[0] === 'pkcs8'
           : json.encoding.content === 'pkcs8'
