@@ -11,8 +11,8 @@ import React from 'react';
 import { AddressRow, Button, InputAddress, InputFile, Modal, Password, TxComponent } from '@polkadot/react-components';
 import { isObject, u8aToString } from '@polkadot/util';
 import keyring from '@polkadot/ui-keyring';
-
 import translate from '../translate';
+import {updateToV3KeyringFormat} from "@polkadot/react-api/util/keyringFormat";
 
 interface Props extends ModalProps, I18nProps {}
 
@@ -134,6 +134,7 @@ class Import extends TxComponent<Props, State> {
     const status: Partial<ActionStatus> = { action: 'restore' };
 
     try {
+      updateToV3KeyringFormat(json);
       const pair = keyring.restoreAccount(json, password);
       const { address } = pair;
 

@@ -1,9 +1,11 @@
 import {Api as ApiPromise} from '@cennznet/api';
 import {BrowserStore} from '@polkadot/ui-keyring/stores';
 import keyring from '@polkadot/ui-keyring';
-import {KeyringAddress} from '@polkadot/ui-keyring/types';
-import {supportOldKeyringInLocalStorage} from "@polkadot/react-api/Api";
-import {u8aToHex} from '@polkadot/util';
+import { KeyringAddress } from '@polkadot/ui-keyring/types';
+import { supportOldKeyringInLocalStorage } from "@polkadot/react-api/Api";
+import { u8aToHex } from '@polkadot/util';
+import { KeyringPair$Json } from '@polkadot/keyring/types';
+import { updateToV3KeyringFormat } from "@polkadot/react-api/util/keyringFormat";
 
 describe('Test different keyring format with support to old key format', () => {
     let api: ApiPromise;
@@ -90,6 +92,36 @@ describe('Test different keyring format with support to old key format', () => {
             type: 'ed25519'
         }, [])).toThrow();
 
+        done();
+    });
+
+    it('test import keyring v2 and v3 format', async done => {
+        const jsonWithV2 = {
+            "address": "5FuenKsBAocZ2xCvgvqNJ2pMwDuSRVsyduBxEnVbTwXHDBPX",
+            "encoded": "0xeb82436a530edc8fb2066e9252c09d0b3b704f18e8defa314c53014e3a957b89f9af87ed8e412f52c72a6cf1d495c6d6756243c3b55372b1ba55e6ed67389bffef1233ab48e2b9a2fb94867de6dca00b6862189e2aa756b278e971db99ffa5164047712f53fd84e9ba03c881ab20c51ad68c93bb864bda506e9f326eb5ba1c7b8cc59c10d4c9eb604a991f453d316da27ba1e0b0b60cff7e79893263a3",
+            "encoding": {"content": ["pkcs8", {"type": "sr25519"}], "type": "xsalsa20-poly1305", "version": "2"},
+            "meta": {"name": "test_keyring_at_2.3", "tags": [], "whenCreated": 1607898333408}
+        };
+        updateToV3KeyringFormat(jsonWithV2 as unknown as KeyringPair$Json);
+        const pairV2 = keyring.keyring.createFromJson(jsonWithV2 as unknown as KeyringPair$Json);
+        const password = 'test';
+        const { pair } = keyring.addPair(pairV2, password);
+        const pairFromRestore = keyring.restoreAccount(jsonWithV2 as unknown as KeyringPair$Json, password);
+        expect(pair.address).toEqual(pairFromRestore.address);
+        expect(pair.meta).toEqual(pairFromRestore.meta);
+        expect(pair.publicKey).toEqual(pairFromRestore.publicKey);
+        const jsonWithV3 = {
+            "address": "5EWSJyq6xh1yTEmpyC3g72vM57jwN5JgSWxYNSeGGdbNxPhV",
+            "encoded": "RP642fYxGERWmLeOKVJzBlOMZa46mvdyNtODp4utSwIAgAAAAQAAAAgAAAAP09919cuhhU1SKfwX0pAfXjNI0NWsxc6DK5oqL3yHPW6FBvFNzFDRrjKCKxHMlV3pzW0TYrh7koJO44TLyIFlPN8PSQzLo7JHBQv8QVlKoPU8sUDN9lUhURiHnkNK0rJ5IWY161LmuZvYBUJV2gR3He2+47PG/2zduXNh2PhvpEQ65w0IftJ7MJb9ZUaAo35UoCyWhEQvfzHOWpD3",
+            "encoding": {"content": ["pkcs8", "sr25519"], "type": ["scrypt", "xsalsa20-poly1305"], "version": "3"},
+            "meta": {"name": "test_v3_account", "tags": [], "whenCreated": 1608000225604, "whenEdited": 1608000232843}
+        }
+        const pairV3 = keyring.keyring.createFromJson(jsonWithV3 as unknown as KeyringPair$Json);
+        const pairAtV3 = keyring.addPair(pairV3, password);
+        const pairV3FromRestore = keyring.restoreAccount(jsonWithV3 as unknown as KeyringPair$Json, password);
+        expect(pairAtV3.pair.address).toEqual(pairV3FromRestore.address);
+        expect(pairAtV3.pair.meta).toEqual(pairV3FromRestore.meta);
+        expect(pairAtV3.pair.publicKey).toEqual(pairV3FromRestore.publicKey);
         done();
     });
 });
