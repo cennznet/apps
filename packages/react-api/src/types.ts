@@ -5,6 +5,8 @@
 import { SubmittableExtrinsicFunction } from '@polkadot/api/promise/types';
 
 import { ApiPromise } from '@polkadot/api';
+import { KeyringPair$JsonEncodingTypes, KeyringPair$JsonVersion, KeyringPair$Meta } from '@polkadot/keyring/types';
+import { KeypairType } from '@polkadot/util-crypto/types';
 
 // helpers for HOC props
 export type OmitProps<T, K> = Pick<T, Exclude<keyof T, K>>;
@@ -58,3 +60,15 @@ export type BaseProps<T> = BareProps & CallProps & ChangeProps & {
 };
 
 export type Formatter = (value?: any) => string;
+
+export interface KeyringPair$JsonEncoding2 {
+  content: ['pkcs8', {'type': KeypairType} ];
+  type: KeyringPair$JsonEncodingTypes | KeyringPair$JsonEncodingTypes[];
+  version: KeyringPair$JsonVersion;
+}
+export interface KeyringPair$Json2 {
+  address: string;
+  encoded: string;
+  encoding: KeyringPair$JsonEncoding2;
+  meta: KeyringPair$Meta;
+}

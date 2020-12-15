@@ -5,6 +5,7 @@ import { KeyringAddress } from '@polkadot/ui-keyring/types';
 import { supportOldKeyringInLocalStorage } from "@polkadot/react-api/Api";
 import { u8aToHex } from '@polkadot/util';
 import { KeyringPair$Json } from '@polkadot/keyring/types';
+import { KeyringPair$Json2, KeyringPair$JsonEncoding2 } from "@polkadot/react-api/types";
 import { updateToV3KeyringFormat } from "@polkadot/react-api/util/keyringFormat";
 
 describe('Test different keyring format with support to old key format', () => {
@@ -99,10 +100,10 @@ describe('Test different keyring format with support to old key format', () => {
         const jsonWithV2 = {
             "address": "5FuenKsBAocZ2xCvgvqNJ2pMwDuSRVsyduBxEnVbTwXHDBPX",
             "encoded": "0xeb82436a530edc8fb2066e9252c09d0b3b704f18e8defa314c53014e3a957b89f9af87ed8e412f52c72a6cf1d495c6d6756243c3b55372b1ba55e6ed67389bffef1233ab48e2b9a2fb94867de6dca00b6862189e2aa756b278e971db99ffa5164047712f53fd84e9ba03c881ab20c51ad68c93bb864bda506e9f326eb5ba1c7b8cc59c10d4c9eb604a991f453d316da27ba1e0b0b60cff7e79893263a3",
-            "encoding": {"content": ["pkcs8", {"type": "sr25519"}], "type": "xsalsa20-poly1305", "version": "2"},
+            "encoding": {"content": ["pkcs8", {"type": "sr25519"}], "type": "xsalsa20-poly1305", "version": "2"} as KeyringPair$JsonEncoding2,
             "meta": {"name": "test_keyring_at_2.3", "tags": [], "whenCreated": 1607898333408}
         };
-        updateToV3KeyringFormat(jsonWithV2 as unknown as KeyringPair$Json);
+        updateToV3KeyringFormat(jsonWithV2 as KeyringPair$Json2);
         const pairV2 = keyring.keyring.createFromJson(jsonWithV2 as unknown as KeyringPair$Json);
         const password = 'test';
         const { pair } = keyring.addPair(pairV2, password);
