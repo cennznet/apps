@@ -16,7 +16,7 @@ describe('Test different keyring format with support to old key format', () => {
         store = new BrowserStore();
     });
 
-    it('Check if keyring can load from local storage values:', async done => {
+    it('v2 and v3 keyring loads from local storage:', async done => {
         const keyForOldFormat = 'account:0xdcffd5cb838e225a1c00780700a253bd05ca464643d0fa3a0b0ea25c1b088a1b';
         const valueForOldFormat = {
             "address": "5H4UPcayhPuih5yA1mUyzo6C5s6yPSSnrfrnzifngXeLaMAL",
@@ -42,6 +42,14 @@ describe('Test different keyring format with support to old key format', () => {
             }
         };
         store.set(keyForNewFormat, valueForNewFormat);
+        const keyV3Format = 'account:0x6c1883852ad677486a68bfb0480e75ba9f8a7053a22605ad957f946daecd3f4b';
+        const valueV3Format = {
+            "address": "5EWSJyq6xh1yTEmpyC3g72vM57jwN5JgSWxYNSeGGdbNxPhV",
+            "encoded": "RP642fYxGERWmLeOKVJzBlOMZa46mvdyNtODp4utSwIAgAAAAQAAAAgAAAAP09919cuhhU1SKfwX0pAfXjNI0NWsxc6DK5oqL3yHPW6FBvFNzFDRrjKCKxHMlV3pzW0TYrh7koJO44TLyIFlPN8PSQzLo7JHBQv8QVlKoPU8sUDN9lUhURiHnkNK0rJ5IWY161LmuZvYBUJV2gR3He2+47PG/2zduXNh2PhvpEQ65w0IftJ7MJb9ZUaAo35UoCyWhEQvfzHOWpD3",
+            "encoding": {"content": ["pkcs8", "sr25519"], "type": ["scrypt", "xsalsa20-poly1305"], "version": "3"},
+            "meta": {"name": "test_v3_account", "tags": [], "whenCreated": 1608000225604, "whenEdited": 1608000232843}
+        }
+        store.set(keyV3Format, valueV3Format);
         supportOldKeyringInLocalStorage();
         // finally load the keyring
         expect(() => keyring.loadAll({
@@ -53,16 +61,20 @@ describe('Test different keyring format with support to old key format', () => {
         const allAccounts = keyring.getAccounts();
         const hasYoloAccount = (account: KeyringAddress) => account.address === '5H4UPcayhPuih5yA1mUyzo6C5s6yPSSnrfrnzifngXeLaMAL' && account.meta.name === 'yolo';
         const hasTestAccount = (account: KeyringAddress) => account.address === '5Hg7YGG9qRe8Nt8tbNTPMoiNJwrsEXEkRuQouxicrRtQzRVb' && account.meta.name === 'test';
+        const hasV3Account = (account: KeyringAddress) => account.address === '5EWSJyq6xh1yTEmpyC3g72vM57jwN5JgSWxYNSeGGdbNxPhV' && account.meta.name === 'test_v3_account';
+        expect(allAccounts.some(hasV3Account)).toBe(true);
         expect(allAccounts.some(hasYoloAccount)).toBe(true);
         expect(allAccounts.some(hasTestAccount)).toBe(true);
         const accountYolo: KeyringAddress = keyring.getAccount('5H4UPcayhPuih5yA1mUyzo6C5s6yPSSnrfrnzifngXeLaMAL') as KeyringAddress;
         expect(u8aToHex(accountYolo.publicKey)).toEqual('0xdcffd5cb838e225a1c00780700a253bd05ca464643d0fa3a0b0ea25c1b088a1b');
         const accountTest: KeyringAddress = keyring.getAccount('5Hg7YGG9qRe8Nt8tbNTPMoiNJwrsEXEkRuQouxicrRtQzRVb') as KeyringAddress;
         expect(u8aToHex(accountTest.publicKey)).toEqual('0xf82e7abaa5a20645a698a08a503a0cc26d8f8ffa38e93f0771405d0a4831f26e');
+        const accountV3Test: KeyringAddress = keyring.getAccount('5EWSJyq6xh1yTEmpyC3g72vM57jwN5JgSWxYNSeGGdbNxPhV') as KeyringAddress;
+        expect(u8aToHex(accountV3Test.publicKey)).toEqual('0x6c1883852ad677486a68bfb0480e75ba9f8a7053a22605ad957f946daecd3f4b');
         done();
     });
 
-    it('Negative test if keyring can load from local storage values:', async done => {
+    it('v2 keyring loads from local storage will fail without applying supportOldKeyringInLocalStorage function', async done => {
         const key = 'account:0xaa095fcd37058d98a052211ff66ab8adcf1f13a73550907273ce4bd7d697de58';
         const value = {
             "address": "5FuenKsBAocZ2xCvgvqNJ2pMwDuSRVsyduBxEnVbTwXHDBPX",
