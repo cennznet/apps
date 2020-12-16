@@ -233,13 +233,6 @@ function Account ({ address, className, isFavorite, toggleFavorite }: Props): Re
             >
               {t('Forget this account')}
             </Menu.Item>
-            <Menu.Item
-              disabled={!isEditable || isExternal}
-              onClick={toggleDerive}
-              style={{ color: colors.N100 }}
-            >
-              {t('Derive account via derivation path')}
-            </Menu.Item>
             {!api.isDevelopment && (
               <>
                 <Menu.Divider />
