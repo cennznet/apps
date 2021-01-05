@@ -40,7 +40,7 @@ interface InjectedAccountExt {
 
 const DEFAULT_DECIMALS = createType(registry, 'u32', 4);
 const DEFAULT_SS58 = createType(registry, 'u32', addressDefaults.prefix);
-const injectedPromise = web3Enable('polkadot-js/apps');
+const injectedPromise = web3Enable('cennznet.io');
 let api: ApiPromise;
 
 export { api };
