@@ -247,6 +247,14 @@ function Account ({ address, className, isFavorite, toggleFavorite }: Props): Re
           </Menu>
         </Popup>
         <Button
+          icon='history'
+          key='history'
+          label={t('History')}
+          onClick={() => { location.href = `https://uncoverexplorer.com/account/${address}` }}
+          size='small'
+          tooltip={t('View account transaction history')}
+        />
+        <Button
           icon='paper plane'
           isPrimary
           key='send'
