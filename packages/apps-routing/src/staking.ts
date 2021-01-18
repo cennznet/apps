@@ -21,6 +21,6 @@ export default ([
     },
     icon: 'certificate',
     name: 'staking',
-    isAdvanced: true
+    isAdvanced: false
   }
 ] as Routes);

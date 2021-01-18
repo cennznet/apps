@@ -73,8 +73,9 @@ function Address ({ address, className = '', filterName, hasQueries, isElected, 
     [validatorInfo]
   );
 
-  let chainInfo = useCall<string>(api.rpc.system.chain, []);
-  let chain: string | undefined = chainInfo ? chainInfo.toString() : undefined;
+  const chainInfo = useCall<string>(api.rpc.system.chain, []);
+  const chain: string | undefined = chainInfo ? chainInfo.toString() : undefined;
+  const pool = chain ? poolRegistry[chain][address] ? poolRegistry[chain][address] : 'unknown' : 'unknown';
 
   return (
       <tr className={className}>
@@ -82,7 +83,7 @@ function Address ({ address, className = '', filterName, hasQueries, isElected, 
                <AddressSmall value={address} />
            </td>
           <td className='address'>
-              {chain? poolRegistry[chain]?[address]: 'unknown' : 'unknown'}
+              {pool}
           </td>
           <td className='badge together'>
               <Status

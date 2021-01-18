@@ -106,14 +106,14 @@ export async function getStake(
   ).unwrapOrDefault() as StakingLedger;
   const stakeAmount = new BN(stakeLedger.total.toString());
 
-  const rewardDestination = await api.query.staking.payee(stashAccountAddress);
+  const rewardDestination = await api.query.rewards.payee(stashAccountAddress);
   let rewardDestinationsAddress: string;
-  if (rewardDestination.isStash) {
+  if (rewardDestination.toString() === stashAccountAddress ) {
     rewardDestinationsAddress = stashAccountAddress;
-  } else if (rewardDestination.isController) {
+  } else if (rewardDestination.toString() === controllerAccountAddress) {
     rewardDestinationsAddress = controllerAccountAddress;
-  } else if (rewardDestination.isAccount) {
-    rewardDestinationsAddress = rewardDestination.asAccount.toString();
+  } else if (rewardDestination) {
+    rewardDestinationsAddress = rewardDestination.toString();
   } else {
     throw new Error(`reward destinations is not stash, controller or account`);
   }
@@ -198,7 +198,7 @@ export async function getNextRewardEstimate(
   commission: BigNumber,
   stakeShare: BigNumber
 ): Promise<BigNumber> {
-  const inflationBalanceOf = (await api.query.rewards.inflationRate()) as BalanceOf;
+  const inflationBalanceOf = (await api.query.rewards.targetInflationPerStakingEra()) as BalanceOf;
   const inflationRate = new BigNumber(inflationBalanceOf.toString()).div(
     INFLATION_DIVIDED_NUMBER
   ); // If inflationBalanceOf is 1,000,000,000,000,000(10pow16), than inflation should be 1.01 (10pow16/10pow18 + 1)

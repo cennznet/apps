@@ -94,6 +94,11 @@ export const textHover = N200;
 export const link = B500;
 export const linkHover = B600;
 export const popUpBackground = '#1B1C1D';
+
+/* highlighted buttons, orange */
+export const highlightedOrange = '#f19135';
+export const matterhorn = '#4e4e4e';
+export const lightBrown = '#f3e8d4';
 /*
  * NOTICE: this file only contains basic color defination of basic elements like border,
  * text, link, etc.

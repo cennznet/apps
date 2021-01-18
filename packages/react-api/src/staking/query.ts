@@ -51,7 +51,7 @@ function retrievePrev (api: ApiInterfaceRx, stashId: AccountId): Observable<Mult
   return api.queryMulti<MultiResult>([
     [api.query.staking.bonded, stashId],
     [api.query.staking.nominators, stashId],
-    [api.query.staking.payee, stashId],
+    [api.query.rewards.payee, stashId],
     [api.query.staking.validators, stashId],
     [api.query.staking.stakers, stashId]
   ]);
@@ -72,7 +72,7 @@ function retrieveCurr (api: ApiInterfaceRx, stashIds: AccountId[], activeEra: Er
       ? api.query.staking.nominators.multi<Option<Nominations>>(stashIds)
       : of(stashIds.map(() => emptyNoms)),
     withDestination
-      ? api.query.staking.payee.multi<RewardDestination>(stashIds)
+      ? api.query.rewards.payee.multi<RewardDestination>(stashIds)
       : of(stashIds.map(() => emptyRewa)),
     withPrefs
       ? api.query.staking.validators.multi<ValidatorPrefs>(stashIds)
