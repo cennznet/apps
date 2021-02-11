@@ -1,0 +1,1 @@
+export const STAKE_SHARE_DISPLAY_DECIMAL_PLACE = 3;

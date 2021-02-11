@@ -18,6 +18,7 @@ import { Balance, FixedI128 } from '@polkadot/types/interfaces';
 import { toFormattedBalance } from "@polkadot/react-components/util";
 import { formatBalance } from '@polkadot/util';
 import BN from "bn.js";
+import MyStake from './Overview/MyStake';
 
 export default function ToolboxApp ({ basePath }: Props): React.ReactElement<Props> {
     const { t } = useTranslation();
@@ -56,10 +57,16 @@ export default function ToolboxApp ({ basePath }: Props): React.ReactElement<Pro
             text: t('Overview')
         },
         {
+            name: 'mystake',
+            text: t('My Stake')
+        },
+        {
             name: 'actions',
             text: t('Actions')
         },
     ], [t]);
+
+    const _renderMyStakeComponent = (): React.ReactNode => <MyStake />;
 
     return (
         <main className='toolbox--App'>
@@ -93,6 +100,7 @@ export default function ToolboxApp ({ basePath }: Props): React.ReactElement<Pro
                     />
                 </Route>
                 <Route path={`${basePath}/actions`} component={Actions} />
+                <Route path={`${basePath}/mystake`}>{_renderMyStakeComponent()}</Route>
                 <Route><Overview
                     favorites={favorites}
                     hasQueries={hasQueries}

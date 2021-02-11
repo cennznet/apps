@@ -17,7 +17,7 @@ const findPackages = require('../../scripts/findPackages');
 
 const ENV = process.env.NODE_ENV || 'development';
 
-function createWebpack ({ alias = {}, context, name = 'index' }) {
+function createWebpack({ alias = {}, context, name = 'index' }) {
   const pkgJson = require(path.join(context, 'package.json'));
   const isProd = ENV === 'production';
   const hasPublic = fs.existsSync(path.join(context, 'public'));
@@ -34,15 +34,13 @@ function createWebpack ({ alias = {}, context, name = 'index' }) {
     entry: [
       '@babel/polyfill',
       `./src/${name}.tsx`,
-      isProd
-        ? null
-        : null // 'webpack-plugin-serve/client'
-    ].filter((entry) => entry),
+      isProd ? null : null // 'webpack-plugin-serve/client'
+    ].filter(entry => entry),
     mode: ENV,
     output: {
       chunkFilename: '[name].[chunkhash:8].js',
       filename: '[name].[hash:8].js',
-      globalObject: '(typeof self !== \'undefined\' ? self : this)',
+      globalObject: "(typeof self !== 'undefined' ? self : this)",
       path: path.join(context, 'build')
     },
     resolve: {
@@ -156,34 +154,39 @@ function createWebpack ({ alias = {}, context, name = 'index' }) {
     performance: {
       hints: false
     },
-    plugins: plugins.concat([
-      new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
-      new webpack.DefinePlugin({
-        'process.env': {
-          NODE_ENV: JSON.stringify(ENV),
-          VERSION: JSON.stringify(pkgJson.version),
-          WS_URL: JSON.stringify(process.env.WS_URL)
-        }
-      }),
-      new HtmlWebpackPlugin({
-        inject: true,
-        template: path.join(context, `${hasPublic ? 'public/' : ''}${name}.html`),
-        PAGE_TITLE: 'CENNZnet Portal'
-      }),
-      new webpack.optimize.SplitChunksPlugin(),
-      new MiniCssExtractPlugin({
-        filename: '[name].[contenthash:8].css'
-      }),
-      isProd
-        ? null
-        : new WebpackPluginServe({
-          hmr: false, // switch off, Chrome WASM memory leak
-          liveReload: false, // explict off, overrides hmr
-          progress: false, // since we have hmr off, disable
-          port: 3000,
-          static: path.join(process.cwd(), '/build')
-        })
-    ]).filter((plugin) => plugin),
+    plugins: plugins
+      .concat([
+        new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
+        new webpack.DefinePlugin({
+          'process.env': {
+            NODE_ENV: JSON.stringify(ENV),
+            VERSION: JSON.stringify(pkgJson.version),
+            WS_URL: JSON.stringify(process.env.WS_URL)
+          }
+        }),
+        new HtmlWebpackPlugin({
+          inject: true,
+          template: path.join(
+            context,
+            `${hasPublic ? 'public/' : ''}${name}.html`
+          ),
+          PAGE_TITLE: 'CENNZnet Portal'
+        }),
+        new webpack.optimize.SplitChunksPlugin(),
+        new MiniCssExtractPlugin({
+          filename: '[name].[contenthash:8].css'
+        }),
+        isProd
+          ? null
+          : new WebpackPluginServe({
+              hmr: false, // switch off, Chrome WASM memory leak
+              liveReload: false, // explict off, overrides hmr
+              progress: false, // since we have hmr off, disable
+              port: 3000,
+              static: path.join(process.cwd(), '/build')
+            })
+      ])
+      .filter(plugin => plugin),
     watch: !isProd
   };
 }

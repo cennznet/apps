@@ -159,5 +159,11 @@
   "Active nominations ({{count}})": "Active nominations ({{count}})",
   "profit/era est.": "profit/era est.",
   "nominators": "nominators",
-  "validators/nominators": "validators/nominators"
+  "validators/nominators": "validators/nominators",
+  "Actions": "Actions",
+  "Overview": "Overview",
+  "My Stake": "My Stake",
+  "Primary account holding CENNZ at stake (aka stash)": "Primary account holding CENNZ at stake (aka stash)",
+  "Controls staking preferences for the stash. Requires Cpay for transactions fees only": "Controls staking preferences for the stash. Requires Cpay for transactions fees only",
+  "Account to receive rewards payouts": "Account to receive rewards payouts"
 }
