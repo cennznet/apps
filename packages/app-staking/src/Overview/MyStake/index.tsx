@@ -8,10 +8,8 @@ import { Table } from '@polkadot/react-components';
 import { useAccounts, useApi } from '@polkadot/react-hooks';
 import { BigNumber } from "bignumber.js";
 import BN from 'bn.js';
-import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css';
-import Loader from 'react-loader-spinner';
 
-import { findStakedAccounts, getStakes, StakePair } from './utils';
+import { findStakedAccounts, StakePair } from './utils';
 import { Api } from '@cennznet/api';
 import StakeInfo from './StakeInfo';
 
@@ -37,9 +35,6 @@ interface Props {
 }
 
 function MyStake({ className = '' }: Props): React.ReactElement<Props> {
-  const [stakes, setStakes] = useState<Stake[]>([]);
-  const [isDisplaySpinner, setIsDisplaySpinner] = useState<boolean>(true);
-  const [setStakesCount, setSetStakesCount] = useState<number>(0); // The number of unfinished setStakes calls
   const [stakedAccounts, setStakedAccounts] = useState<Map<string, StakePair>>();
 
   const { api } = useApi();
@@ -51,62 +46,20 @@ function MyStake({ className = '' }: Props): React.ReactElement<Props> {
     });
   }, [allAccounts]);
 
-  useEffect(() => {
-    setIsDisplaySpinner(true);
-    setSetStakesCount(setStakesCount + 1);
-
-    getStakes(api as Api, allAccounts).then(stakes => {
-      setSetStakesCount(setStakesCount - 1);
-      setStakes(stakes);
-    });
-  }, [allAccounts]);
-
-  useEffect(() => {
-    if (setStakesCount <= 0) {
-      setIsDisplaySpinner(false);
-    } else {
-      setIsDisplaySpinner(true);
-    }
-  }, [stakes]);
-
-  const _renderSpinner = () => (
-    <StyledLoader>
-      <Loader
-        type='TailSpin'
-        color='#1E2022'
-        height={100}
-        width={100}
-        timeout={-1} // 3 secs
-      />
-    </StyledLoader>
-  );
-
   return (
     <div className={`staking--Overview--MyStake ${className}`}>
-      {isDisplaySpinner ? (
-        _renderSpinner()
-      ) : (
-        <StyledTable className='staking--Overview--MyStake-Table'>
-          {
-           Array.from((stakedAccounts?.values()) || []).map((stakePair, index) => {
-             return (<StakeInfo key={index} stakePair={stakePair}/>)
-           })
-          }
-        </StyledTable>
-      )}
+      <StyledTable className='staking--Overview--MyStake-Table'>
+        {
+          Array.from((stakedAccounts?.values()) || []).map((stakePair, index) => {
+            return (<StakeInfo key={index} stakePair={stakePair}/>)
+          })
+        }
+      </StyledTable>
     </div>
   );
 }
 
 export default MyStake;
-
-const StyledLoader = styled.div`
-  &:nth-child(1) {
-    margin: auto;
-    margin-top: 100px;
-    width: 100px;
-  }
-`;
 
 const StyledTable = styled(Table)`
   font-size: 15px;
