@@ -7,8 +7,7 @@ import {
   InputAddress,
   Table,
   AddressSmall,
-  Icon,
-  TxButton, StakingExtrinsic
+  TxButton, StakingExtrinsic, Modal
 } from "@polkadot/react-components";
 import { useTranslation } from "@polkadot/app-staking/translate";
 import { useApi, useCall } from "@polkadot/react-hooks";
@@ -21,13 +20,13 @@ import { AssetId, StakingLedger } from "@cennznet/types";
 import { Option } from '@polkadot/types';
 import { SubmittableExtrinsic } from '@polkadot/api/promise/types';
 import styled from 'styled-components';
-import { colors } from '../../../../styled-theming';
 
 interface Props extends BareProps {
-  isVisible: boolean;
+  stakedAccountId: string;
+  onClose: () => void;
 }
 
-function ManageStake ({ className, isVisible }: Props): React.ReactElement<Props> {
+function ManageStake ({ className, stakedAccountId, onClose }: Props): React.ReactElement<Props> {
     const { api } = useApi();
     const defaultSection = Object.keys(api.tx)[0];
     const defaultMethod = Object.keys(api.tx[defaultSection])[0];
@@ -36,7 +35,6 @@ function ManageStake ({ className, isVisible }: Props): React.ReactElement<Props
     const electedInfo = useCall<DeriveStakingElected>(api.derive.staking.electedInfo);
     const [method, setMethod] = useState<SubmittableExtrinsic | null>();
     const chainInfo = useCall<string>(api.rpc.system.chain, []);
-    const [stakedAccountId, setStakedAccountId] = useState<string | null | undefined>();
     const [assetBalance, setAssetBalance] = useState<BN>(new BN(0));
     const stakingAssetId = useCall<AssetId>(api.query.genericAsset.stakingAssetId as any, []);
     const [extrinsic, setExtrinsic] = useState<SubmittableExtrinsic | null>(null);
@@ -116,104 +114,93 @@ function ManageStake ({ className, isVisible }: Props): React.ReactElement<Props
     const stake = <span className='label'>{t('stake')}</span>;
 
     return (
-          <div className={className}>
-            <div className='nominator--Selection'>
-                <div className='menuActive'>
-                    <Icon name={'address card'} size='big' color={'black'}/>
-                    <span className='label'>{'Manage stake'}</span>
-                </div>
-                <InputAddress
-                    label={t('Staked account')}
-                    // help={t('Choose an account to stake CENNZ with')}
-                    labelExtra={<FormatBalance label={stake} value={assetBalance} symbol={STAKING_ASSET_NAME}/>}
-                    onChange={setStakedAccountId}
-                    type='account'
-                />
-                <StakingExtrinsic
-                  defaultValue={apiDefaultTxSudo}
-                  label={t('Stake action')}
-                  onChange={setMethod}
-                />
-                <div className='validator-info' style={showValidatorList ? {display: "block"} : {display: "none"}}>
-                  <div className='label'>
-                    Select validators to nominate
-                  </div>
-                  <Table>
-                    <Table.Body>
-                      <tr>
-                        <th>{t('Validator')}</th>
-                        <th>{t('Pool')}</th>
-                        <th>{t('Commission')}</th>
-                        <th>{t('Total Staked')}</th>
-                        <th></th>
-                      </tr>
-                      {electedInfo?.info.map(({ accountId, exposure, validatorPrefs }): React.ReactNode => (
-                        <tr className={className} key={accountId.toString()}>
-                          <td className='address'>
-                            <AddressSmall value={accountId.toString()} />
-                          </td>
-                          <td className='address'>
-                            {chain? poolRegistry[chain][accountId.toString()]: 'CENTRALITY'}
-                          </td>
-                          <td>
-                            {validatorPrefs["commission"].toHuman()}
-                          </td>
-                          <td>
-                            {exposure.total?.toBn()?.gtn(0) && (
-                              <FormatBalance value={exposure.total} symbol={STAKING_ASSET_NAME}/>)}
-                          </td>
-                          <td>
-                            <input
-                              className='checkbox'
-                              type={"checkbox"}
-                              value={accountId.toString()}
-                              onClick={_validatorSelected}
-                            />
-                          </td>
-                        </tr>
-                      ))}
-                    </Table.Body>
-                  </Table>
-                </div>
-                <div className='submitTx'>
-                  <TxButton
-                    accountId={stakedAccountId}
-                    extrinsic={extrinsic}
-                    icon='sign-in'
-                    isDisabled={!isValid}
-                    isPrimary
-                    label={t('Submit Transaction')}
+        <Modal style={{ marginTop: "8rem", minWidth: "50%", maxWidth: "700px" }} header={t('Manage stake')}>
+          <Modal.Content>
+            <div className={className}>
+              <div className='nominator--Selection'>
+                  <InputAddress
+                      label={t('Account')}
+                      defaultValue={stakedAccountId}
+                      labelExtra={<FormatBalance label={stake} value={assetBalance} symbol={STAKING_ASSET_NAME}/>}
+                      type='account'
+                      isDisabled={true}
                   />
-                </div>
+                  <StakingExtrinsic
+                    defaultValue={apiDefaultTxSudo}
+                    label={t('Action')}
+                    onChange={setMethod}
+                  />
+                  <div className='validator-info' style={showValidatorList ? {display: "block"} : {display: "none"}}>
+                    <div className='label'>
+                      Select validators to nominate
+                    </div>
+                    <Table>
+                      <Table.Body>
+                        <tr>
+                          <th>{t('Validator')}</th>
+                          <th>{t('Pool')}</th>
+                          <th>{t('Commission')}</th>
+                          <th>{t('Total Staked')}</th>
+                          <th></th>
+                        </tr>
+                        {electedInfo?.info.map(({ accountId, exposure, validatorPrefs }): React.ReactNode => (
+                          <tr className={className} key={accountId.toString()}>
+                            <td className='address'>
+                              <AddressSmall value={accountId.toString()} />
+                            </td>
+                            <td className='address'>
+                              {chain? poolRegistry[chain][accountId.toString()]: 'CENTRALITY'}
+                            </td>
+                            <td>
+                              {validatorPrefs["commission"].toHuman()}
+                            </td>
+                            <td>
+                              {exposure.total?.toBn()?.gtn(0) && (
+                                <FormatBalance value={exposure.total} symbol={STAKING_ASSET_NAME}/>)}
+                            </td>
+                            <td>
+                              <input
+                                className='checkbox'
+                                type={"checkbox"}
+                                value={accountId.toString()}
+                                onClick={_validatorSelected}
+                              />
+                            </td>
+                          </tr>
+                        ))}
+                      </Table.Body>
+                    </Table>
+                  </div>
+              </div>
             </div>
-          </div>
+            </Modal.Content>
+            <Modal.Actions onCancel={onClose}>
+              <TxButton
+                accountId={stakedAccountId}
+                extrinsic={extrinsic}
+                icon='sign-in'
+                isDisabled={!isValid}
+                isPrimary
+                label={t('Submit Transaction')}
+              />
+          </Modal.Actions>
+      </Modal>
     );
 }
+
 export default styled(ManageStake)`
   .header {
     font-size: 22px;
     margin-top: 3rem;
     margin-left: 1.2rem;
-    color: ${colors.N1000};
-  }
-
-  .ui.primary.button.know-risk {
-    margin-top: 1.5rem;
-    margin-left: 1.2rem;
-    background-color: ${colors.highlightedOrange} !important;
   }
 
   .nominator--Selection {
-    min-width: 663px;
-    margin-top: 1.5rem;
-    width: 50%;
-    border-radius: 35px;
-    padding: 20px 3.8rem 20px 20px;
-    background: ${colors.N0};
+    border-radius: 8px;
+    padding-right: 2em;
   }
 
   .menuActive {
-    margin-bottom: 2rem;
     i.big.icon, i.big.icons {
       font-size: 3rem;
     }
@@ -231,10 +218,7 @@ export default styled(ManageStake)`
   .validator-info {
     margin-top: 3rem;
     padding-left: 2rem;
-    // display: none;
     th {
-      background: ${colors.N0};
-      color: ${colors.matterhorn};
       text-align: left;
       font-size: 15px;
     }
