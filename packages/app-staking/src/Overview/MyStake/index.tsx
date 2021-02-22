@@ -12,6 +12,7 @@ import BN from 'bn.js';
 import { findStakedAccounts, StakePair } from './utils';
 import { Api } from '@cennznet/api';
 import StakeInfo from './StakeInfo';
+import { colors } from '../../../../../styled-theming';
 
 export interface Stake {
   stashAddress: string;
@@ -65,14 +66,8 @@ const StyledTable = styled(Table)`
   font-size: 15px;
 
   table {
-    display: block;
-    width: 100%;
     border-collapse: collapse;
-  }
-
-  tbody-container {
-    display: block;
-    width: 100%;
+    max-width: 1000px;
   }
 
   tbody {
@@ -82,14 +77,13 @@ const StyledTable = styled(Table)`
 
   tr {
     display: flex;
-    width: 100%;
   }
 
   th {
-    background: #fafafa !important;
-    color: rgba(78, 78, 78, 0.66) !important;
     text-align: left !important;
+    background: ${colors.primary} !important;
     flex: 1;
+    margin-top: 1rem;
   }
 
   td {
@@ -98,33 +92,11 @@ const StyledTable = styled(Table)`
     align-items: center;
   }
 
-  td:first-child {
-    border-top-left-radius: 10px !important;
-    border-bottom-left-radius: 10px !important;
+  .header-secondary {
+    background: ${colors.N400} !important;
   }
 
-  td:last-child {
-    border-top-right-radius: 10px !important;
-    border-bottom-right-radius: 10px !important;
-  }
-
-  .tbody-container {
-    background-color: white;
-    border: 1px solid #f2f2f2;
-    border-radius: 10px;
-    padding: 1rem;
-    padding-top: 0.5rem;
-    margin: 0.75rem 0;
-
-    th {
-      background: white !important;
-    }
-    td {
-      background: #fafafa !important;
-    }
-
-    .staking-MyStake-Nomination {
-      padding-top: 1rem;
-    }
+  .nominations-container {
+    margin-left: 1.5em;
   }
 `;

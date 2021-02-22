@@ -20,6 +20,7 @@ import { AssetId, StakingLedger } from "@cennznet/types";
 import { Option } from '@polkadot/types';
 import { SubmittableExtrinsic } from '@polkadot/api/promise/types';
 import styled from 'styled-components';
+import {colors} from '../../../../styled-theming';
 
 interface Props extends BareProps {
   stakedAccountId: string;
@@ -56,11 +57,9 @@ function ManageStake ({ className, stakedAccountId, onClose }: Props): React.Rea
     useEffect((): void => {
       if (method) {
         const methodName = api.findCall(method.callIndex).method;
-        if (methodName === 'nominate' && accountIdVec.length === 0 || stakedAccountId === null) {
-              setIsValid(false);
-          } else {
-              setIsValid(true);
-          }
+        setIsValid(
+          methodName === 'nominate' && accountIdVec.length === 0 || stakedAccountId === null
+        )
       } else {
         setIsValid(false);
       }
@@ -69,11 +68,7 @@ function ManageStake ({ className, stakedAccountId, onClose }: Props): React.Rea
   useEffect((): void => {
     if (method) {
       const methodName = api.findCall(method.callIndex).method;
-      if (methodName === 'nominate') {
-        setShowValidatorList(true);
-      } else {
-        setShowValidatorList(false);
-      }
+      setShowValidatorList(methodName === 'nominate');
     }
   }, [method]);
 
@@ -201,9 +196,6 @@ export default styled(ManageStake)`
   }
 
   .menuActive {
-    i.big.icon, i.big.icons {
-      font-size: 3rem;
-    }
     .label {
       margin-left: 1rem;
       font-size: 22px;
@@ -221,11 +213,11 @@ export default styled(ManageStake)`
     th {
       text-align: left;
       font-size: 15px;
+      background: ${colors.primary}
     }
     .label {
       font-size: 18px;
       font-weight: 100;
-      margin-bottom: 2rem;
     }
     .submitTx {
       margin-left: 40%;
@@ -233,7 +225,7 @@ export default styled(ManageStake)`
     .checkbox {
       width:  20px;
       height: 20px;
-      border:2px solid #555;
+      border: 2px solid #555;
       cursor: pointer;
     }
   }

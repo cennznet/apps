@@ -73,7 +73,6 @@ function Inset ({ children, className, header, href, isCollapsible, isError, isS
 
 export default styled(Inset)`
   & {
-    box-shadow: 0 3px 3px rgba(0,0,0,.2);
     position: relative;
     background: #fefefe;
     padding: 1rem;
@@ -144,7 +143,6 @@ export default styled(Inset)`
       cursor: pointer;
 
       &:hover {
-        box-shadow: 0 5px 5px rgba(0,0,0,.2);
         transform: translateY(-2px);
       }
     }

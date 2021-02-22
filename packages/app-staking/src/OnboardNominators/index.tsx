@@ -10,7 +10,6 @@ import {
     AddressSmall,
     Button,
     HelpOverlay,
-    Icon,
     InputBalance,
     TxButton
 } from "@polkadot/react-components";
@@ -28,6 +27,7 @@ import styled from 'styled-components';
 import basicMd from '../md/basic.md';
 import { colors } from '../../../../styled-theming';
 import AccountCheckingModal from "@polkadot/app-accounts/modals/AccountsForStaking";
+import { toFormattedBalance } from '@polkadot/react-components/util';
 
 interface Props extends BareProps {
   isVisible: boolean;
@@ -46,10 +46,10 @@ function OnboardNominators ({ className, isVisible }: Props): React.ReactElement
     const [accountIdVec, setAccountIdVec] = useState<string[]>([]);
     const chain: string | undefined = chainInfo ? chainInfo.toString() : undefined;
     const [isValid, setIsValid] = useState<boolean>(false);
-    const [openHelpDailog, setOpenHelpDailog] = useState<boolean>(false);
+    const [openHelpDialog, setOpenHelpDialog] = useState<boolean>(false);
     const [isNoAccountsPopUpOpen, setIsNoAccountsPopUpOpen] = useState(true);
     const [amount, setAmount] = useState<BN | undefined>(new BN(0));
-    // const _toggleCreate = (): void => setIsNoAccountsPopUpOpen(!isCreateOpen);
+
     useEffect((): void => {
         if (stakingAssetId && stashAccountId) {
             api.query.genericAsset.freeBalance(stakingAssetId, stashAccountId).then(
@@ -97,8 +97,8 @@ function OnboardNominators ({ className, isVisible }: Props): React.ReactElement
     }
     const { t } = useTranslation();
     const available = <span className='label'>{t('available')}</span>;
-    const _toggleHelp = (): void => setOpenHelpDailog(!openHelpDailog);
-    const _closeHelp = (): void => setOpenHelpDailog(false);
+    const _toggleHelp = (): void => setOpenHelpDialog(!openHelpDialog);
+    const _closeHelp = (): void => setOpenHelpDialog(false);
 
     // If user has no accounts then open a pop-up to create account /manage stake will appear
     const { allAccounts, hasAccounts } = useAccounts();
@@ -108,21 +108,22 @@ function OnboardNominators ({ className, isVisible }: Props): React.ReactElement
     const filteredList = controllersBonded && allAccounts ? allAccounts.filter(account => !controllersBonded.includes(account) && !stashesBonded?.includes(account)) : [];
     const filteredOption: KeyringSectionOption[] = filteredList.map((address) => ({ key: address, name: address, value: address }));
     let openAccountCheckingModal = false;
-    if (api.isReady && controllersBonded && (!hasAccounts || filteredList.length==0)) {
+    if (api.isReady && controllersBonded && (!hasAccounts || filteredList.length == 0)) {
       openAccountCheckingModal = true;
     }
     let errorText = '';
     if (hasAccounts && minimumBond) {
       if ((amount as BN)?.lt(minimumBond as BN)) {
-        errorText = `Minimum bond amount - ${minimumBond}`
+        errorText = `minimum stake: ${toFormattedBalance({ value: minimumBond, unit: "CENNZ" })}`
       }
       else if (assetBalance.lt(amount as BN)){
-        errorText = 'Not enough to stake'
+        errorText = 'Not enough available'
       }
     }
+
     const notEnoughToStake =
       <span style={{ color: `${colors.red}` }}>
-        {  t(errorText)}
+        {t(errorText)}
       </span>;
 
   const closeNoAccountsPopUp = (): void => setIsNoAccountsPopUpOpen(false);
@@ -132,7 +133,7 @@ function OnboardNominators ({ className, isVisible }: Props): React.ReactElement
             {openAccountCheckingModal && isNoAccountsPopUpOpen && (
               <AccountCheckingModal closeNoAccountsPopUp={closeNoAccountsPopUp}/>
             )}
-            <HelpOverlay md={basicMd} openHelpDailog={openHelpDailog} closeHelp={_closeHelp}/>
+            <HelpOverlay md={basicMd} openHelpDailog={openHelpDialog} closeHelp={_closeHelp}/>
             <div className='header'>
               Stake <b>CENNZ</b> and nominate the best validators to earn <b>CPAY</b> rewards
             </div>
@@ -143,10 +144,6 @@ function OnboardNominators ({ className, isVisible }: Props): React.ReactElement
                   isPrimary
             />
             <div className='nominator--Selection'>
-                <div className='menuActive'>
-                    <Icon name={'users'} size='big' color={'black'}/>
-                    <span className='label'>{'new nominator'}</span>
-                </div>
                 <InputAddress
                     label={t('Stash')}
                     options={filteredOption}
@@ -158,14 +155,14 @@ function OnboardNominators ({ className, isVisible }: Props): React.ReactElement
                 />
                 <InputAddress
                     label={t('Reward to')}
-                    help={t('Choose an account where Cpay rewards will be paid')}
+                    help={t('Choose an account where CPAY rewards will be paid')}
                     onChange={setRewardDestinationId}
                     type='allPlus'
                 />
                 <InputBalance
                     help={t('The amount of CENNZ to put at stake')}
                     label={t('Stake')}
-                    labelExtra={errorText.length>0 && notEnoughToStake}
+                    labelExtra={errorText.length > 0 && notEnoughToStake}
                     onChange={setAmount}
                 />
                 <div className='validator-info'>
@@ -241,16 +238,13 @@ export default styled(OnboardNominators)`
     min-width: 663px;
     margin-top: 1.5rem;
     width: 50%;
-    border-radius: 35px;
+    border-radius: 8px;
     padding: 20px 3.8rem 20px 20px;
     background: ${colors.N0};
   }
 
   .menuActive {
     margin-bottom: 2rem;
-    i.big.icon, i.big.icons {
-      font-size: 3rem;
-    }
     .label {
       margin-left: 1rem;
       font-size: 22px;
@@ -259,18 +253,16 @@ export default styled(OnboardNominators)`
   }
 
   .validator-info {
-    margin-top: 3rem;
+    margin-top: 2rem;
     padding-left: 2rem;
     th {
-      background: ${colors.N0};
-      color: ${colors.matterhorn};
       text-align: left;
       font-size: 15px;
+      background: ${colors.primary} !important;
     }
     .label {
       font-size: 18px;
       font-weight: 100;
-      margin-bottom: 2rem;
     }
     .submitTx {
       margin-left: 40%;

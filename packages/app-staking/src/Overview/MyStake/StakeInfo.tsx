@@ -111,7 +111,7 @@ export default function StakeInfo({ stakePair }: Props): React.ReactElement<Prop
           <td className='address'>
             <AddressSmall value={rewardAddress}/>
             <Button
-              style={{ marginLeft: "1em" }}
+              style={{ marginLeft: "auto" }}
               icon='setting'
               key='settings'
               onClick={toggleSettings}
@@ -120,6 +120,7 @@ export default function StakeInfo({ stakePair }: Props): React.ReactElement<Prop
             />
           </td>
         </tr>
+        <div className='nominations-container'>
         {isSettingsOpen && <ManageStake
           key='modal-transfer'
           stakedAccountId={stakePair.stashAddress}
@@ -129,25 +130,25 @@ export default function StakeInfo({ stakePair }: Props): React.ReactElement<Prop
           <tr />
         ) : (
           <tr>
-            <th>
+            <th className='header-secondary'>
               {t('Nominating')}
               <LabelHelp
                 help={t('Validator accounts nominated by you')}
               />
             </th>
-            <th>
+            <th className='header-secondary'>
               {t('Stake share')}
               <LabelHelp
                 help={t('Your contribution of the validator\'s total stake')}
               />
             </th>
-            <th>
+            <th className='header-secondary'>
               {t('Accrued reward')}
               <LabelHelp
                 help={t('Expected total payout at the end of this era')}
               />
             </th>
-            <th>
+            <th className='header-secondary'>
               {t('Elected')}
               <LabelHelp
                 help={t('Whether the nominated validator is active this era or not')}
@@ -161,7 +162,7 @@ export default function StakeInfo({ stakePair }: Props): React.ReactElement<Prop
             key={`${stakePair.stashAddress}-${stakePair.controllerAddress}-${nominee.nominateToAddress}`}
           >
             <td>
-              <AddressSmall value={nominee.nominateToAddress} />
+              <AddressSmall value={nominee.nominateToAddress}/>
             </td>
             <td>{_renderStakeShare(nominee.stakeShare)}</td>
             <td>
@@ -170,9 +171,10 @@ export default function StakeInfo({ stakePair }: Props): React.ReactElement<Prop
                 symbol={SPENDING_ASSET_NAME}
               />
             </td>
-            <td>{nominee.elected ? "🟢" : "🟡"}</td>
+            <td style={{ textAlign: "center" }}>{nominee.elected ? "🟢" : "🟡"}</td>
           </tr>
         ))}
+        </div>
       </tbody>
   );
 }

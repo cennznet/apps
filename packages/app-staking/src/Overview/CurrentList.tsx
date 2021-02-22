@@ -13,6 +13,7 @@ import Address from './Address';
 import { SortedTargets, ValidatorInfo } from "@polkadot/app-staking/types";
 import styled from "styled-components";
 import { useTranslation } from "@polkadot/app-staking/translate";
+import { colors } from '../../../../styled-theming';
 
 interface Props {
   favorites: string[];
@@ -130,11 +131,12 @@ export default React.memo(CurrentList);
 const StyledTable = styled(Table)`
   width: 50%;
   font-size: 15px;
+
   th {
-    background: #fafafa !important;
-    color: rgba(78,78,78,.66) !important;
+    background: ${colors.primary} !important;
     text-align: left !important;
   }
+
   td:first-child {
     border-top-left-radius: 10px !important;;
     border-bottom-left-radius: 10px !important;;
