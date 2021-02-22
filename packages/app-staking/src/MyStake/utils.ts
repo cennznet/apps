@@ -158,4 +158,3 @@ export async function getStakeShare(
     elected: true
   };
 }
-s
