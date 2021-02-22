@@ -5,14 +5,14 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Table } from '@polkadot/react-components';
-import { useAccounts, useApi } from '@polkadot/react-hooks';
+import { useApi, useCacheKey } from '@polkadot/react-hooks';
 import { BigNumber } from "bignumber.js";
 import BN from 'bn.js';
 
-import { findStakedAccounts, StakePair } from './utils';
+import { findStakedAccounts, StakePair, STORE_STAKES } from './utils';
 import { Api } from '@cennznet/api';
 import StakeInfo from './StakeInfo';
-import { colors } from '../../../../../styled-theming';
+import { colors } from '../../../../styled-theming';
 
 export interface Stake {
   stashAddress: string;
@@ -21,37 +21,50 @@ export interface Stake {
   rewardAddress: string;
   // the validator stash addresses this account has nominated
   nominations: Nomination[];
+  // the total reward estimate accrued
+  nextRewardEstimate: BigNumber;
 }
 
 export interface Nomination {
   nominateToAddress: string;
+  // the % of stake behind this nominator vs. it's total
   stakeShare: BigNumber;
-  nextRewardEstimate: BigNumber;
+  // the raw stake contributed to this nomination
+  stakeRaw: BigNumber;
   // whether the nominated validator is elected this era or not
   elected: boolean;
 }
 
 interface Props {
   className?: string;
+  accounts: string[];
 }
 
-function MyStake({ className = '' }: Props): React.ReactElement<Props> {
-  const [stakedAccounts, setStakedAccounts] = useState<Map<string, StakePair>>();
-
+function MyStake({ accounts, className = '' }: Props): React.ReactElement<Props> {
   const { api } = useApi();
-  const { allAccounts } = useAccounts();
+
+  // use cache to load staked accounts
+  const [getCache, setCache] = useCacheKey<string>(STORE_STAKES);
+  var stakedAccounts_: Array<[string, StakePair]>;
+  try {
+    stakedAccounts_ = JSON.parse(getCache()!); 
+  } catch (err) {
+    stakedAccounts_ = new Array();
+  }
+  const [stakedAccounts, setStakedAccounts] = useState<Array<[string, StakePair]>>(stakedAccounts_);
 
   useEffect(() => {
-    findStakedAccounts(api as Api, allAccounts).then((stakePairs: Map<string, StakePair>) => {
-      setStakedAccounts(stakePairs);
+    findStakedAccounts(api as Api, accounts).then((staked: Map<string, StakePair>) => {
+      setStakedAccounts(Array.from(staked.entries()));
+      setCache(JSON.stringify(Array.from(staked.entries())));
     });
-  }, [allAccounts]);
+  }, [accounts]);
 
   return (
     <div className={`staking--Overview--MyStake ${className}`}>
       <StyledTable className='staking--Overview--MyStake-Table'>
         {
-          Array.from((stakedAccounts?.values()) || []).map((stakePair, index) => {
+          stakedAccounts.map(([_key, stakePair], index) => {
             return (<StakeInfo key={index} stakePair={stakePair}/>)
           })
         }

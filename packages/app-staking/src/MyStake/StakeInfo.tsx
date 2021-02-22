@@ -13,11 +13,11 @@ import { useApi, useToggle } from '@polkadot/react-hooks';
 import { BigNumber } from "bignumber.js";
 import React, { useEffect, useState } from 'react';
 import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css';
-import ManageStake from '../../ManageStake';
-import { useTranslation } from '../../translate';
+import ManageStake from '../ManageStake';
+import { useTranslation } from '../translate';
 import { STAKE_SHARE_DISPLAY_DECIMAL_PLACE } from './config';
 import { Nomination } from './index';
-import { getNominations, StakePair } from './utils';
+import { getNextRewardEstimate, getNominations, StakePair } from './utils';
 
 interface Props {
     stakePair: StakePair;
@@ -49,7 +49,8 @@ export default function StakeInfo({ stakePair }: Props): React.ReactElement<Prop
   const [isSettingsOpen, toggleSettings] = useToggle();
   const [nominations, setNominations] = useState<Nomination[]>();
   const [rewardAddress, setRewardAddress] = useState<string>();
-  const [stakedAmount, setStakedAmount] = useState<string>();
+  const [stakedAmount, setStakedAmount] = useState<BigNumber>(new BigNumber(0));
+  const [rewardEstimate, setRewardEstimate] = useState<BigNumber>(new BigNumber(0));
   const { api } = useApi();
 
   useEffect(() => {
@@ -59,14 +60,20 @@ export default function StakeInfo({ stakePair }: Props): React.ReactElement<Prop
   }, []);
 
   useEffect(() => {
-    getNominations(stakePair.stashAddress, api as Api).then((nominations) => setNominations(nominations));
+    getNextRewardEstimate(stakePair.stashAddress, api as Api).then(
+      (amount: any) => setRewardEstimate(new BigNumber(amount))
+    );
   }, []);
 
   useEffect(() => {
     api.query.staking.ledger(stakePair.controllerAddress).then((ledger: Option<StakingLedger>) => {
       const ledger_ = ledger.unwrapOrDefault();
-      setStakedAmount(ledger_.total.toString());
+      setStakedAmount(ledger_.total as any);
     });
+  }, []);
+
+  useEffect(() => {
+    getNominations(stakePair.stashAddress, api as Api).then((nominations) => setNominations(nominations));
   }, []);
 
     return (
@@ -104,7 +111,7 @@ export default function StakeInfo({ stakePair }: Props): React.ReactElement<Prop
           </td>
           <td>
             <FormatBalance
-              value={stakedAmount}
+              value={stakedAmount?.toString()}
               symbol={STAKING_ASSET_NAME}
             />
           </td>
@@ -143,35 +150,30 @@ export default function StakeInfo({ stakePair }: Props): React.ReactElement<Prop
               />
             </th>
             <th className='header-secondary'>
-              {t('Accrued reward')}
+              {t('Status')}
               <LabelHelp
-                help={t('Expected total payout at the end of this era')}
+                help={t('Whether the nomination is active now or waiting be applied in the next election')}
               />
             </th>
             <th className='header-secondary'>
-              {t('Elected')}
+              {t('Estimated reward')}
               <LabelHelp
-                help={t('Whether the nominated validator has been elected this era or not')}
+                help={t('Expected total payout at the end of this era')}
               />
             </th>
           </tr>
         )}
         {nominations?.map((nominee: Nomination, index: number) => (
-          <tr
-            className='nomination-info'
-            key={`${stakePair.stashAddress}-${stakePair.controllerAddress}-${nominee.nominateToAddress}`}
-          >
-            <td>
-              <AddressSmall value={nominee.nominateToAddress}/>
-            </td>
+          <tr className='nomination-info' key={index}>
+            <td><AddressSmall value={nominee.nominateToAddress}/></td>
             <td>{_renderStakeShare(nominee.stakeShare)}</td>
+            <td>{nominee.elected ? '🟢' : '🟡'}</td>
             <td>
               <FormatBalance
-                value={nominee.nextRewardEstimate.toString()}
+                value={rewardEstimate.multipliedBy(nominee.stakeRaw.div(stakedAmount)).toString()}
                 symbol={SPENDING_ASSET_NAME}
               />
             </td>
-            <td>{nominee.elected ? "🟢" : "🟡"}</td>
           </tr>
         ))}
         </tbody>

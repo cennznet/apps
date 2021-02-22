@@ -14,56 +14,57 @@ import {
     TxButton
 } from "@polkadot/react-components";
 import { useTranslation } from "@polkadot/app-staking/translate";
-import { useAccounts, useApi, useCall } from "@polkadot/react-hooks";
+import { useAccounts, useApi, useCacheKey, useCall } from "@polkadot/react-hooks";
 import type { DeriveStakingElected } from '@polkadot/api-derive/types';
 import FormatBalance from '@polkadot/app-generic-asset/FormatBalance';
 import { poolRegistry } from "@polkadot/app-staking/Overview/Address/poolRegistry";
-import { STAKING_ASSET_NAME } from "@polkadot/app-generic-asset/assetsRegistry";
+import assetsRegistry, { STAKING_ASSET_NAME } from "@polkadot/app-generic-asset/assetsRegistry";
 import BN from "bn.js";
-import { AssetId, Balance, Codec, AccountId } from "@cennznet/types";
-import { Option } from '@polkadot/types';
+import { Balance, Codec } from "@cennznet/types";
 import { SubmittableExtrinsic } from '@polkadot/api/promise/types';
 import styled from 'styled-components';
 import basicMd from '../md/basic.md';
 import { colors } from '../../../../styled-theming';
 import AccountCheckingModal from "@polkadot/app-accounts/modals/AccountsForStaking";
 import { toFormattedBalance } from '@polkadot/react-components/util';
+import { StakePair, STORE_STAKES } from '../MyStake/utils';
 
 interface Props extends BareProps {
   isVisible: boolean;
 }
 
-function OnboardNominators ({ className, isVisible }: Props): React.ReactElement<Props> {
+function NewStake ({ className, isVisible }: Props): React.ReactElement<Props> {
     const { api } = useApi();
     const electedInfo = useCall<DeriveStakingElected>(api.derive.staking.electedInfo);
     const minimumBond = useCall<Balance>(api.query.staking.minimumBond);
     const chainInfo = useCall<string>(api.rpc.system.chain, []);
     const [stashAccountId, setStashAccountId] = useState<string | null | undefined>();
     const [assetBalance, setAssetBalance] = useState<BN>(new BN(0));
-    const stakingAssetId = useCall<AssetId>(api.query.genericAsset.stakingAssetId as any, []);
     const [extrinsic, setExtrinsic] = useState<SubmittableExtrinsic | null>(null);
     const [rewardDestinationId, setRewardDestinationId] = useState<string | null | undefined>();
     const [accountIdVec, setAccountIdVec] = useState<string[]>([]);
     const chain: string | undefined = chainInfo ? chainInfo.toString() : undefined;
     const [isValid, setIsValid] = useState<boolean>(false);
     const [openHelpDialog, setOpenHelpDialog] = useState<boolean>(false);
+    const [acknowledged, setAcknowledgement] = useState<boolean>(false);
     const [isNoAccountsPopUpOpen, setIsNoAccountsPopUpOpen] = useState(true);
     const [amount, setAmount] = useState<BN | undefined>(new BN(0));
 
     useEffect((): void => {
-        if (stakingAssetId && stashAccountId) {
-            api.query.genericAsset.freeBalance(stakingAssetId, stashAccountId).then(
+        if (stashAccountId) {
+            api.query.genericAsset.freeBalance(assetsRegistry.getStakingAssetId(), stashAccountId).then(
                 (balance: Codec) => setAssetBalance((balance as Balance).toBn())
             );
         }
-    }, [stakingAssetId, stashAccountId]);
+    }, [stashAccountId]);
+
     useEffect((): void => {
-        if (accountIdVec.length === 0 || stashAccountId === null || rewardDestinationId === null || openAccountCheckingModal || amount?.isZero() || amount?.gte(assetBalance)) {
+        if (accountIdVec.length === 0 || stashAccountId === null || rewardDestinationId === null || openAccountCheckingModal || amount?.isZero() || amount?.gte(assetBalance) || !acknowledged) {
             setIsValid(false);
         } else {
             setIsValid(true);
         }
-    }, [stashAccountId, rewardDestinationId, amount, accountIdVec]);
+    }, [stashAccountId, rewardDestinationId, amount, accountIdVec, acknowledged]);
 
     // create an extrinsic if we have correct values
     useEffect((): void => {
@@ -97,20 +98,37 @@ function OnboardNominators ({ className, isVisible }: Props): React.ReactElement
     }
     const { t } = useTranslation();
     const available = <span className='label'>{t('available')}</span>;
-    const _toggleHelp = (): void => setOpenHelpDialog(!openHelpDialog);
-    const _closeHelp = (): void => setOpenHelpDialog(false);
+    const _toggleHelp = (): void => {
+      setAcknowledgement(true);
+      setOpenHelpDialog(!openHelpDialog);
+    }
+    const _closeHelp = (): void => {
+      setAcknowledgement(true);
+      setOpenHelpDialog(false);
+    }
 
     // If user has no accounts then open a pop-up to create account /manage stake will appear
-    const { allAccounts, hasAccounts } = useAccounts();
-    const listAlreadyBonded = useCall<[]>(api.query.staking.bonded.multi, [allAccounts]);
-    const controllersBonded = listAlreadyBonded?.map((account:Option<AccountId>)=> account.toString());
-    const stashesBonded = listAlreadyBonded?.map((account:Option<AccountId>, index) => account.isSome ? allAccounts[index] : null);
-    const filteredList = controllersBonded && allAccounts ? allAccounts.filter(account => !controllersBonded.includes(account) && !stashesBonded?.includes(account)) : [];
-    const filteredOption: KeyringSectionOption[] = filteredList.map((address) => ({ key: address, name: address, value: address }));
-    let openAccountCheckingModal = false;
-    if (api.isReady && controllersBonded && (!hasAccounts || filteredList.length == 0)) {
-      openAccountCheckingModal = true;
+    // use cache to load staked accounts
+    const [getCache] = useCacheKey<string>(STORE_STAKES);
+    var stakedAccounts_: Array<[string, StakePair]>;
+    try {
+      stakedAccounts_ = JSON.parse(getCache()!); 
+    } catch (err) {
+      stakedAccounts_ = new Array();
     }
+    const [stakedAccounts] = useState<Array<[string, StakePair]>>(stakedAccounts_);
+
+    const { hasAccounts, allAccounts } = useAccounts();
+    const filteredOption: KeyringSectionOption[] =
+    allAccounts
+      .filter((account) => !stakedAccounts.find(([_, pair]) => account == pair.stashAddress || account == pair.controllerAddress))
+      .map(address => ({
+        key: address,
+        value: address,
+        name: address,
+      }));
+
+    const openAccountCheckingModal = !hasAccounts || filteredOption.length == 0;
     let errorText = '';
     if (hasAccounts && minimumBond) {
       if ((amount as BN)?.lt(minimumBond as BN)) {
@@ -138,12 +156,6 @@ function OnboardNominators ({ className, isVisible }: Props): React.ReactElement
           <div className='header'>
             Stake <b>CENNZ</b> and nominate the best validators to earn <b>CPAY</b> rewards
           </div>
-          <Button className='know-risk'
-                label={t('Know the risks')}
-                icon='exclamation'
-                onClick={_toggleHelp}
-                isPrimary
-          />
           <div className='nominator--Selection'>
               <InputAddress
                   label={t('Stash')}
@@ -207,10 +219,17 @@ function OnboardNominators ({ className, isVisible }: Props): React.ReactElement
                   </Table.Body>
                 </Table>
                 <div className='submitTx'>
+                  <Button
+                    className='know-risk'
+                    label={t('accept the risks')}
+                    icon={acknowledged ? 'fa check square' : 'square'}
+                    onClick={_toggleHelp}
+                    isPrimary
+                  />
                   <TxButton
                     accountId={stashAccountId}
                     extrinsic={extrinsic}
-                    icon='check'
+                    icon={isValid ? 'fa check square' : 'square'}
                     isDisabled={!isValid}
                     isPrimary
                     label={t('nominate')}
@@ -223,7 +242,7 @@ function OnboardNominators ({ className, isVisible }: Props): React.ReactElement
     );
 }
 
-export default styled(OnboardNominators)`
+export default styled(NewStake)`
   .new-stake-container {
     margin-left: 1em;
   }
@@ -231,7 +250,7 @@ export default styled(OnboardNominators)`
   .header {
     font-size: 22px;
     margin-top: 3rem;
-    color: ${colors.N1000};
+    color: ${colors.N700};
   }
 
   .ui--InputAddress,
@@ -243,9 +262,10 @@ export default styled(OnboardNominators)`
   }
 
   .ui.primary.button.know-risk {
-    margin-top: 1.5rem;
-    margin-bottom: 2rem;
     background-color: ${colors.N400} !important;
+    icon {
+      background: white;
+    }
   }
 
   .nominator--Selection {
@@ -276,7 +296,7 @@ export default styled(OnboardNominators)`
       font-weight: 100;
     }
     .submitTx {
-      margin-left: 40%;
+      display: block;
     }
     .checkbox {
       width:  20px;
