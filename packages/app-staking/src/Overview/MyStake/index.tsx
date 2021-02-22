@@ -96,7 +96,9 @@ const StyledTable = styled(Table)`
     background: ${colors.N400} !important;
   }
 
-  .nominations-container {
+  .nomination-header,
+  .nomination-info {
     margin-left: 1.5em;
   }
+
 `;

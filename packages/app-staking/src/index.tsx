@@ -106,14 +106,16 @@ export default function ToolboxApp ({ basePath }: Props): React.ReactElement<Pro
                 </Route>
                 <Route path={`${basePath}/stake`} component={OnboardNominators} />
                 <Route path={`${basePath}/mystake`}>{_renderMyStakeComponent()}</Route>
-                <Route><Overview
-                    favorites={favorites}
-                    hasQueries={hasQueries}
-                    next={next}
-                    stakingOverview={stakingOverview}
-                    targets={targets}
-                    toggleFavorite={toggleFavorite}
-                /></Route>
+                <Route>
+                    <Overview
+                        favorites={favorites}
+                        hasQueries={hasQueries}
+                        next={next}
+                        stakingOverview={stakingOverview}
+                        targets={targets}
+                        toggleFavorite={toggleFavorite}
+                    />
+                </Route>
             </Switch>
         </main>
     );

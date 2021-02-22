@@ -4,6 +4,7 @@ import { BigNumber } from "bignumber.js";
 import BN from 'bn.js';
 
 import { Nomination, Stake } from './index';
+import { useMemo } from 'react';
 
 export interface StakePair {
   stashAddress: string;

@@ -120,16 +120,16 @@ export default function StakeInfo({ stakePair }: Props): React.ReactElement<Prop
             />
           </td>
         </tr>
-        <div className='nominations-container'>
         {isSettingsOpen && <ManageStake
           key='modal-transfer'
-          stakedAccountId={stakePair.stashAddress}
+          stashAddress={stakePair.stashAddress}
+          controllerAddress={stakePair.controllerAddress}
           onClose={toggleSettings}
         />}
         {nominations?.length === 0 ? (
           <tr />
         ) : (
-          <tr>
+          <tr className="nomination-header">
             <th className='header-secondary'>
               {t('Nominating')}
               <LabelHelp
@@ -151,14 +151,14 @@ export default function StakeInfo({ stakePair }: Props): React.ReactElement<Prop
             <th className='header-secondary'>
               {t('Elected')}
               <LabelHelp
-                help={t('Whether the nominated validator is active this era or not')}
+                help={t('Whether the nominated validator has been elected this era or not')}
               />
             </th>
           </tr>
         )}
         {nominations?.map((nominee: Nomination, index: number) => (
           <tr
-            className={index === 0 ? '' : 'staking-MyStake-Nomination'}
+            className='nomination-info'
             key={`${stakePair.stashAddress}-${stakePair.controllerAddress}-${nominee.nominateToAddress}`}
           >
             <td>
@@ -171,10 +171,9 @@ export default function StakeInfo({ stakePair }: Props): React.ReactElement<Prop
                 symbol={SPENDING_ASSET_NAME}
               />
             </td>
-            <td style={{ textAlign: "center" }}>{nominee.elected ? "🟢" : "🟡"}</td>
+            <td>{nominee.elected ? "🟢" : "🟡"}</td>
           </tr>
         ))}
-        </div>
-      </tbody>
+        </tbody>
   );
 }

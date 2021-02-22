@@ -7,27 +7,28 @@ import {
   InputAddress,
   Table,
   AddressSmall,
-  TxButton, StakingExtrinsic, Modal
+  TxButton, StakingExtrinsic, Modal, LabelHelp
 } from "@polkadot/react-components";
 import { useTranslation } from "@polkadot/app-staking/translate";
 import { useApi, useCall } from "@polkadot/react-hooks";
 import type { DeriveStakingElected } from '@polkadot/api-derive/types';
 import FormatBalance from '@polkadot/app-generic-asset/FormatBalance';
 import { poolRegistry } from "@polkadot/app-staking/Overview/Address/poolRegistry";
-import { STAKING_ASSET_NAME } from "@polkadot/app-generic-asset/assetsRegistry";
+import assetsRegistry, { SPENDING_ASSET_NAME, STAKING_ASSET_NAME } from "@polkadot/app-generic-asset/assetsRegistry";
 import BN from "bn.js";
-import { AssetId, StakingLedger } from "@cennznet/types";
+import { AssetId, Balance, StakingLedger } from "@cennznet/types";
 import { Option } from '@polkadot/types';
 import { SubmittableExtrinsic } from '@polkadot/api/promise/types';
 import styled from 'styled-components';
 import {colors} from '../../../../styled-theming';
 
 interface Props extends BareProps {
-  stakedAccountId: string;
+  stashAddress: string;
+  controllerAddress: string;
   onClose: () => void;
 }
 
-function ManageStake ({ className, stakedAccountId, onClose }: Props): React.ReactElement<Props> {
+function ManageStake ({ className, controllerAddress, stashAddress, onClose }: Props): React.ReactElement<Props> {
     const { api } = useApi();
     const defaultSection = Object.keys(api.tx)[0];
     const defaultMethod = Object.keys(api.tx[defaultSection])[0];
@@ -36,16 +37,20 @@ function ManageStake ({ className, stakedAccountId, onClose }: Props): React.Rea
     const electedInfo = useCall<DeriveStakingElected>(api.derive.staking.electedInfo);
     const [method, setMethod] = useState<SubmittableExtrinsic | null>();
     const chainInfo = useCall<string>(api.rpc.system.chain, []);
+    // the address which should sign the transaction.
+    // it can change between stash or controller.
+    const [signingAddress, setSigningAddress] = useState<string>(controllerAddress);
     const [assetBalance, setAssetBalance] = useState<BN>(new BN(0));
-    const stakingAssetId = useCall<AssetId>(api.query.genericAsset.stakingAssetId as any, []);
     const [extrinsic, setExtrinsic] = useState<SubmittableExtrinsic | null>(null);
     const [accountIdVec, setAccountIdVec] = useState<string[]>([]);
     const chain: string | undefined = chainInfo ? chainInfo.toString() : undefined;
     const [isValid, setIsValid] = useState<boolean>(false);
     const [showValidatorList, setShowValidatorList] = useState<boolean>(false);
+    const controllerCpayBalance = useCall<'Balance'>(api.query.genericAsset.freeBalance as any, [assetsRegistry.getSpendingAssetId(), controllerAddress]);
+
     useEffect((): void => {
-        if (stakingAssetId && stakedAccountId) {
-            api.query.staking.ledger(stakedAccountId).then(
+        if (stashAddress) {
+            api.query.staking.ledger(stashAddress).then(
                 (ledger: Option<StakingLedger>) => {
                   if (ledger.isSome) {
                     setAssetBalance((ledger.unwrap().total).toBn());
@@ -53,11 +58,12 @@ function ManageStake ({ className, stakedAccountId, onClose }: Props): React.Rea
                 }
             );
         }
-    }, [stakingAssetId, stakedAccountId]);
+    }, [stashAddress]);
+
     useEffect((): void => {
       if (method) {
         const methodName = api.findCall(method.callIndex).method;
-        if (methodName === 'nominate' && accountIdVec.length === 0 || stakedAccountId === null) {
+        if (methodName === 'nominate' && accountIdVec.length === 0 || stashAddress === null) {
           setIsValid(false)
         } else {
           setIsValid(true)
@@ -65,14 +71,20 @@ function ManageStake ({ className, stakedAccountId, onClose }: Props): React.Rea
       } else {
         setIsValid(false);
       }
-    }, [stakedAccountId, method, accountIdVec]);
+    }, [method, accountIdVec]);
 
-  useEffect((): void => {
-    if (method) {
-      const methodName = api.findCall(method.callIndex).method;
-      setShowValidatorList(methodName === 'nominate');
-    }
-  }, [method]);
+    useEffect((): void => {
+      if (method) {
+        const methodName = api.findCall(method.callIndex).method;
+        setShowValidatorList(methodName === 'nominate');
+        // quick hack, these methods should be signed by the stash
+        if (methodName === 'setController' || methodName === 'bondExtra') {
+          setSigningAddress(stashAddress);
+        } else {
+          setSigningAddress(controllerAddress);
+        }
+      }
+    }, [method]);
 
     // create an extrinsic if we have correct values
     useEffect((): void => {
@@ -85,7 +97,7 @@ function ManageStake ({ className, stakedAccountId, onClose }: Props): React.Rea
             setExtrinsic(api.tx[fn.section][fn.method](...method.args));
           }
         }
-    }, [isValid, stakedAccountId, method, accountIdVec]);
+    }, [isValid, stashAddress, method, accountIdVec]);
 
     const _validatorSelected = (element: any): void => {
         const accountSelected: string = element.currentTarget.value;
@@ -99,7 +111,7 @@ function ManageStake ({ className, stakedAccountId, onClose }: Props): React.Rea
             }
         }
         setAccountIdVec(accounts);
-        if (accounts.length !== 0 && stakedAccountId !== null) {
+        if (accounts.length !== 0 && stashAddress !== null) {
           setIsValid(true);
           setExtrinsic(api.tx.staking.nominate(accounts));
         } else {
@@ -111,14 +123,35 @@ function ManageStake ({ className, stakedAccountId, onClose }: Props): React.Rea
     const stake = <span className='label'>{t('stake')}</span>;
 
     return (
-        <Modal style={{ marginTop: "8rem", minWidth: "50%", maxWidth: "700px" }} header={t('Manage stake')}>
+        <Modal
+          className={className}
+          style={{ marginTop: "8rem", minWidth: "50%", maxWidth: "700px" }}
+          header={
+            <span>
+              {t('Manage stake')}
+              <LabelHelp help={
+                'Staking preferences are stored onchain and require sending transactions to approve changes.\
+                Some transactions are authorized by a delegated controller account which may not be the same as the stash.'
+                }
+              />
+            </span>
+          }
+        >
           <Modal.Content>
-            <div className={className}>
               <div className='nominator--Selection'>
                   <InputAddress
-                      label={t('Account')}
-                      defaultValue={stakedAccountId}
+                      label={t('Stash')}
+                      help={'The account with staked CENNZ'}
+                      defaultValue={stashAddress}
                       labelExtra={<FormatBalance label={stake} value={assetBalance} symbol={STAKING_ASSET_NAME}/>}
+                      type='account'
+                      isDisabled={true}
+                  />
+                  <InputAddress
+                      label={t('Controller')}
+                      help={'The account which controls perferences for the stash'}
+                      defaultValue={controllerAddress}
+                      labelExtra={<FormatBalance value={controllerCpayBalance} symbol={SPENDING_ASSET_NAME}/>}
                       type='account'
                       isDisabled={true}
                   />
@@ -169,11 +202,10 @@ function ManageStake ({ className, stakedAccountId, onClose }: Props): React.Rea
                     </Table>
                   </div>
               </div>
-            </div>
             </Modal.Content>
             <Modal.Actions onCancel={onClose}>
               <TxButton
-                accountId={stakedAccountId}
+                accountId={signingAddress}
                 extrinsic={extrinsic}
                 icon='sign-in'
                 isDisabled={!isValid}
@@ -220,9 +252,6 @@ export default styled(ManageStake)`
     .label {
       font-size: 18px;
       font-weight: 100;
-    }
-    .submitTx {
-      margin-left: 40%;
     }
     .checkbox {
       width:  20px;

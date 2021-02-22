@@ -126,112 +126,126 @@ function OnboardNominators ({ className, isVisible }: Props): React.ReactElement
         {t(errorText)}
       </span>;
 
-  const closeNoAccountsPopUp = (): void => setIsNoAccountsPopUpOpen(false);
+    const closeNoAccountsPopUp = (): void => setIsNoAccountsPopUpOpen(false);
 
     return (
-          <div className={className}>
-            {openAccountCheckingModal && isNoAccountsPopUpOpen && (
-              <AccountCheckingModal closeNoAccountsPopUp={closeNoAccountsPopUp}/>
-            )}
-            <HelpOverlay md={basicMd} openHelpDailog={openHelpDialog} closeHelp={_closeHelp}/>
-            <div className='header'>
-              Stake <b>CENNZ</b> and nominate the best validators to earn <b>CPAY</b> rewards
-            </div>
-            <Button className='know-risk'
-                  label={t('Know the risks')}
-                  icon='exclamation'
-                  onClick={_toggleHelp}
-                  isPrimary
-            />
-            <div className='nominator--Selection'>
-                <InputAddress
-                    label={t('Stash')}
-                    options={filteredOption}
-                    defaultValue={filteredOption[0] ? filteredOption[0].value : null}
-                    help={t('Choose an account to stake CENNZ with')}
-                    labelExtra={!openAccountCheckingModal && <FormatBalance label={available} value={assetBalance} symbol={STAKING_ASSET_NAME}/>}
-                    onChange={setStashAccountId}
-                    type='account'
-                />
-                <InputAddress
-                    label={t('Reward to')}
-                    help={t('Choose an account where CPAY rewards will be paid')}
-                    onChange={setRewardDestinationId}
-                    type='allPlus'
-                />
-                <InputBalance
-                    help={t('The amount of CENNZ to put at stake')}
-                    label={t('Stake')}
-                    labelExtra={errorText.length > 0 && notEnoughToStake}
-                    onChange={setAmount}
-                />
-                <div className='validator-info'>
-                  <div className='label'>
-                    Select validators to nominate
-                  </div>
-                  <Table>
-                    <Table.Body>
-                      <tr>
-                        <th>{t('Validator')}</th>
-                        <th>{t('Pool')}</th>
-                        <th>{t('Commission')}</th>
-                        <th>{t('Total Staked')}</th>
-                        <th></th>
-                      </tr>
-                      {electedInfo?.info.map(({ accountId, exposure, validatorPrefs }): React.ReactNode => (
-                        <tr className={className} key={accountId.toString()}>
-                          <td className='address'>
-                            <AddressSmall value={accountId.toString()} />
-                          </td>
-                          <td className='address'>
-                            {chain? poolRegistry[chain][accountId.toString()]: 'CENTRALITY'}
-                          </td>
-                          <td>
-                            {validatorPrefs["commission"].toHuman()}
-                          </td>
-                          <td>
-                            {exposure.total?.toBn()?.gtn(0) && (
-                              <FormatBalance value={exposure.total} symbol={STAKING_ASSET_NAME}/>)}
-                          </td>
-                          <td>
-                            <input
-                              className='checkbox'
-                              type={"checkbox"}
-                              value={accountId.toString()}
-                              onClick={_validatorSelected}
-                            />
-                          </td>
-                        </tr>
-                      ))}
-                    </Table.Body>
-                  </Table>
-                  <div className='submitTx'>
-                    <TxButton
-                      accountId={stashAccountId}
-                      extrinsic={extrinsic}
-                      icon='check'
-                      isDisabled={!isValid}
-                      isPrimary
-                      label={t('nominate')}
-                    />
-                  </div>
-                </div>
-            </div>
+      <div className={className}>
+        <div className='new-stake-container'>
+          {openAccountCheckingModal && isNoAccountsPopUpOpen && (
+            <AccountCheckingModal closeNoAccountsPopUp={closeNoAccountsPopUp}/>
+          )}
+          <HelpOverlay md={basicMd} openHelpDailog={openHelpDialog} closeHelp={_closeHelp}/>
+          <div className='header'>
+            Stake <b>CENNZ</b> and nominate the best validators to earn <b>CPAY</b> rewards
           </div>
+          <Button className='know-risk'
+                label={t('Know the risks')}
+                icon='exclamation'
+                onClick={_toggleHelp}
+                isPrimary
+          />
+          <div className='nominator--Selection'>
+              <InputAddress
+                  label={t('Stash')}
+                  options={filteredOption}
+                  defaultValue={filteredOption[0] ? filteredOption[0].value : null}
+                  help={t('Choose an account to stake CENNZ with')}
+                  labelExtra={!openAccountCheckingModal && <FormatBalance label={available} value={assetBalance} symbol={STAKING_ASSET_NAME}/>}
+                  onChange={setStashAccountId}
+                  type='account'
+              />
+              <InputAddress
+                  label={t('Reward to')}
+                  help={t('Choose an account where CPAY rewards will be paid')}
+                  onChange={setRewardDestinationId}
+                  type='allPlus'
+              />
+              <InputBalance
+                  help={t('The amount of CENNZ to put at stake')}
+                  label={t('Stake')}
+                  labelExtra={errorText.length > 0 && notEnoughToStake}
+                  onChange={setAmount}
+              />
+              <div className='validator-info'>
+                <div className='label'>
+                  Select validators to nominate
+                </div>
+                <Table>
+                  <Table.Body>
+                    <tr>
+                      <th>{t('Validator')}</th>
+                      <th>{t('Pool')}</th>
+                      <th>{t('Commission')}</th>
+                      <th>{t('Total Staked')}</th>
+                      <th></th>
+                    </tr>
+                    {electedInfo?.info.map(({ accountId, exposure, validatorPrefs }): React.ReactNode => (
+                      <tr className={className} key={accountId.toString()}>
+                        <td className='address'>
+                          <AddressSmall value={accountId.toString()} />
+                        </td>
+                        <td className='address'>
+                          {chain? poolRegistry[chain][accountId.toString()]: 'CENTRALITY'}
+                        </td>
+                        <td>
+                          {validatorPrefs["commission"].toHuman()}
+                        </td>
+                        <td>
+                          {exposure.total?.toBn()?.gtn(0) && (
+                            <FormatBalance value={exposure.total} symbol={STAKING_ASSET_NAME}/>)}
+                        </td>
+                        <td>
+                          <input
+                            className='checkbox'
+                            type={"checkbox"}
+                            value={accountId.toString()}
+                            onClick={_validatorSelected}
+                          />
+                        </td>
+                      </tr>
+                    ))}
+                  </Table.Body>
+                </Table>
+                <div className='submitTx'>
+                  <TxButton
+                    accountId={stashAccountId}
+                    extrinsic={extrinsic}
+                    icon='check'
+                    isDisabled={!isValid}
+                    isPrimary
+                    label={t('nominate')}
+                  />
+                </div>
+              </div>
+          </div>
+        </div>
+      </div>
     );
 }
+
 export default styled(OnboardNominators)`
+  .new-stake-container {
+    margin-left: 1em;
+  }
+
   .header {
     font-size: 22px;
     margin-top: 3rem;
-    margin-left: 1.2rem;
     color: ${colors.N1000};
+  }
+
+  .ui--InputAddress,
+  .ui--InputNumber {
+    padding-left: 0 !important;
+  }
+  label {
+    left: 1.5rem !important;
   }
 
   .ui.primary.button.know-risk {
     margin-top: 1.5rem;
-    margin-left: 1.2rem;
-    background-color: ${colors.highlightedOrange} !important;
+    margin-bottom: 2rem;
+    background-color: ${colors.N400} !important;
   }
 
   .nominator--Selection {
@@ -239,8 +253,6 @@ export default styled(OnboardNominators)`
     margin-top: 1.5rem;
     width: 50%;
     border-radius: 8px;
-    padding: 20px 3.8rem 20px 20px;
-    background: ${colors.N0};
   }
 
   .menuActive {
@@ -254,7 +266,6 @@ export default styled(OnboardNominators)`
 
   .validator-info {
     margin-top: 2rem;
-    padding-left: 2rem;
     th {
       text-align: left;
       font-size: 15px;
@@ -270,7 +281,7 @@ export default styled(OnboardNominators)`
     .checkbox {
       width:  20px;
       height: 20px;
-      border:2px solid #555;
+      border: 2px solid #555;
       cursor: pointer;
     }
   }
