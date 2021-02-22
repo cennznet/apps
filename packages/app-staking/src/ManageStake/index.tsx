@@ -50,7 +50,7 @@ function ManageStake ({ className, controllerAddress, stashAddress, onClose }: P
 
     useEffect((): void => {
         if (stashAddress) {
-            api.query.staking.ledger(stashAddress).then(
+            api.query.staking.ledger(controllerAddress).then(
                 (ledger: Option<StakingLedger>) => {
                   if (ledger.isSome) {
                     setAssetBalance((ledger.unwrap().total).toBn());
