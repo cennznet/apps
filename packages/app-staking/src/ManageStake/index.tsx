@@ -57,9 +57,11 @@ function ManageStake ({ className, stakedAccountId, onClose }: Props): React.Rea
     useEffect((): void => {
       if (method) {
         const methodName = api.findCall(method.callIndex).method;
-        setIsValid(
-          methodName === 'nominate' && accountIdVec.length === 0 || stakedAccountId === null
-        )
+        if (methodName === 'nominate' && accountIdVec.length === 0 || stakedAccountId === null) {
+          setIsValid(false)
+        } else {
+          setIsValid(true)
+        }
       } else {
         setIsValid(false);
       }

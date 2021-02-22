@@ -189,6 +189,7 @@ export async function getNextRewardEstimate(
   api: ApiPromise,
   stashAddress: String,
 ): Promise<BigNumber> {
+  // @ts-ignore
   return api.rpc.staking.accruedPayout(stashAddress);
 }
 
