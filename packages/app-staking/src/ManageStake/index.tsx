@@ -16,7 +16,7 @@ import FormatBalance from '@polkadot/app-generic-asset/FormatBalance';
 import { poolRegistry } from "@polkadot/app-staking/Overview/Address/poolRegistry";
 import assetsRegistry, { SPENDING_ASSET_NAME, STAKING_ASSET_NAME } from "@polkadot/app-generic-asset/assetsRegistry";
 import BN from "bn.js";
-import { AssetId, Balance, StakingLedger } from "@cennznet/types";
+import { StakingLedger } from "@cennznet/types";
 import { Option } from '@polkadot/types';
 import { SubmittableExtrinsic } from '@polkadot/api/promise/types';
 import styled from 'styled-components';

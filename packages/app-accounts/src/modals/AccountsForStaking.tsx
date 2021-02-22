@@ -40,16 +40,17 @@ function AccountCheckingModal ({className, closeNoAccountsPopUp }: Props): React
 
   return (
     <Modal className={className}>
-      <FontAwesomeIcon style={{marginLeft:"97%", marginTop:"1%"}} icon={faTimes} size="1x"
-                       onClick={() => {
-                         closeNoAccountsPopUp();
-                       }}/>
+      <FontAwesomeIcon
+        style={{marginLeft:"97%", marginTop:"1%"}}
+        icon={faTimes}
+        size="1x"
+        onClick={() => {closeNoAccountsPopUp()}}
+      />
       <Modal.Content className='content'>
         <ModalHeader>{t('No accounts available')}</ModalHeader>
         <Paragraph>{t('You do not have any accounts for a new nomination, try:')}</Paragraph>
         <Modaldiv className='info'>
           <Link to={`/accounts`}>{'Create a new account'}</Link>
-          <Link to={`/staking/manage`}>{'Manage existing stake'}</Link>
         </Modaldiv>
       </Modal.Content>
     </Modal>
