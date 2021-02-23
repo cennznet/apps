@@ -2,7 +2,6 @@
 // This software may be modified and distributed under the terms
 // of the Apache-2.0 license. See the LICENSE file for details.
 import React, { useEffect, useState } from 'react';
-import { KeyringSectionOption } from '@polkadot/ui-keyring/options/types';
 import { BareProps } from '@polkadot/react-components/types';
 import {
     InputAddress,
@@ -111,18 +110,17 @@ function NewStake ({ className, isVisible }: Props): React.ReactElement<Props> {
       stakedAccounts_ = new Array();
     }
     const [stakedAccounts] = useState<Array<[string, StakePair]>>(stakedAccounts_);
-
+    const [unstakedAccounts, setUnstakedAccounts] = useState<string[]>([]);
     const { hasAccounts, allAccounts } = useAccounts();
-    const filteredOption: KeyringSectionOption[] =
-    allAccounts
-      .filter((account) => !stakedAccounts.find(([_, pair]) => account == pair.stashAddress || account == pair.controllerAddress))
-      .map(address => ({
-        key: address,
-        value: address,
-        name: address,
-      }));
 
-    const openAccountCheckingModal = !hasAccounts || filteredOption.length == 0;
+    useEffect(() => {
+      setUnstakedAccounts(
+        allAccounts
+          .filter((account) => !stakedAccounts.find(([_, pair]) => account == pair.stashAddress || account == pair.controllerAddress))
+      );
+    }, [allAccounts]);
+
+    const openAccountCheckingModal = !hasAccounts || stakedAccounts.length == allAccounts.length;
     let errorText = '';
     if (hasAccounts && minimumBond) {
       if ((amount as BN)?.lt(minimumBond as BN)) {
@@ -151,18 +149,25 @@ function NewStake ({ className, isVisible }: Props): React.ReactElement<Props> {
             Stake <b>CENNZ</b> and nominate the best validators to earn <b>CPAY</b> rewards
           </div>
           <div className='nominator--Selection'>
-              <InputAddress
+              {<InputAddress
                   label={t('Stash')}
-                  options={filteredOption}
-                  defaultValue={filteredOption[0] ? filteredOption[0].value : null}
+                  options={
+                    unstakedAccounts.map(address => ({
+                      key: address,
+                      value: address,
+                      name: address,
+                    }))
+                  }
+                  defaultValue={stashAccountId}
                   help={t('Choose an account to stake CENNZ with')}
                   labelExtra={!openAccountCheckingModal && <FormatBalance label={available} value={assetBalance} symbol={STAKING_ASSET_NAME}/>}
                   onChange={setStashAccountId}
                   type='account'
-              />
+              />}
               <InputAddress
                   label={t('Reward to')}
                   help={t('Choose an account where CPAY rewards will be paid')}
+                  defaultValue={rewardDestinationId}
                   onChange={setRewardDestinationId}
                   type='allPlus'
               />
@@ -194,7 +199,7 @@ function NewStake ({ className, isVisible }: Props): React.ReactElement<Props> {
                           {chain? poolRegistry[chain][accountId.toString()]: 'CENTRALITY'}
                         </td>
                         <td>
-                          {validatorPrefs["commission"].toHuman()}
+                          {validatorPrefs['commission'].toHuman()}
                         </td>
                         <td>
                           {exposure.total?.toBn()?.gtn(0) && (
@@ -221,6 +226,13 @@ function NewStake ({ className, isVisible }: Props): React.ReactElement<Props> {
                     isPrimary
                   />
                   <TxButton
+                    onStart={() => {
+                      // clean up after submitting the tx
+                      var unstaked = unstakedAccounts.filter(x => x != stashAccountId?.toString());
+                      setUnstakedAccounts(unstaked);
+                      setStashAccountId(unstaked.length > 0 ? unstaked[0] : '');
+                      setRewardDestinationId(unstaked.length > 0 ? unstaked[0] : '');
+                    }}
                     accountId={stashAccountId}
                     extrinsic={extrinsic}
                     icon={'plus'}

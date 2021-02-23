@@ -61,12 +61,12 @@ export default function ToolboxApp ({ basePath }: Props): React.ReactElement<Pro
         },
         {
             name: 'stake',
-            text: t('New stake')
+            text: t('New Stake')
         },
     ], [t]);
 
     return (
-        <main className='toolbox--App'>
+        <main className='staking--App'>
             <header>
                 <Tabs
                     basePath={basePath}
