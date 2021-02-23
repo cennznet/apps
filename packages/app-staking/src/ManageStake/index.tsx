@@ -182,7 +182,7 @@ function ManageStake ({ className, controllerAddress, stashAddress, onClose }: P
                           <th>{t('Total Staked')}</th>
                           <th></th>
                         </tr>
-                        { validatorInfo.length > 0 && validatorInfo.map(({ accountId, exposure, validatorPrefs }): React.ReactNode => (
+                        { validatorInfo.length > 0 && validatorInfo.map(({ accountId, stakingLedger, validatorPrefs }): React.ReactNode => (
                           <tr className={className} key={accountId.toString()}>
                             <td className='address'>
                               <AddressSmall value={accountId.toString()} />
@@ -194,8 +194,8 @@ function ManageStake ({ className, controllerAddress, stashAddress, onClose }: P
                               {validatorPrefs["commission"].toHuman()}
                             </td>
                             <td>
-                              {exposure.total?.toBn()?.gtn(0) && (
-                                <FormatBalance value={exposure.total} symbol={STAKING_ASSET_NAME}/>)}
+                              {stakingLedger.active?.toBn()?.gten(0) && (
+                                <FormatBalance value={stakingLedger.active} symbol={STAKING_ASSET_NAME}/>)}
                             </td>
                             <td>
                               <input
