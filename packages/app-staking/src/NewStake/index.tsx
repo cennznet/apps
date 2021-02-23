@@ -28,7 +28,6 @@ import { colors } from '../../../../styled-theming';
 import AccountCheckingModal from "@polkadot/app-accounts/modals/AccountsForStaking";
 import { toFormattedBalance } from '@polkadot/react-components/util';
 import { StakePair, STORE_STAKES } from '../MyStake/utils';
-import { faCoins } from '@fortawesome/free-solid-svg-icons';
 
 interface Props extends BareProps {
   isVisible: boolean;
@@ -60,7 +59,7 @@ function NewStake ({ className, isVisible }: Props): React.ReactElement<Props> {
     }, [stashAccountId]);
 
     useEffect((): void => {
-        if (accountIdVec.length === 0 || stashAccountId === null || rewardDestinationId === null || openAccountCheckingModal || amount?.isZero() || amount?.gte(assetBalance) || !acknowledged) {
+        if (accountIdVec.length === 0 || stashAccountId === null || rewardDestinationId === null || openAccountCheckingModal || amount?.isZero() || amount?.gt(assetBalance) || !acknowledged) {
             setIsValid(false);
         } else {
             setIsValid(true);

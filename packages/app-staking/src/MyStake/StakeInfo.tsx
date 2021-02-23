@@ -3,7 +3,7 @@
 // of the Apache-2.0 license. See the LICENSE file for details.
 
 import { Api } from '@cennznet/api';
-import { Option, StakingLedger } from '@cennznet/types';
+import { Nominations, Option, StakingLedger } from '@cennznet/types';
 import {
   SPENDING_ASSET_NAME, STAKING_ASSET_NAME
 } from '@polkadot/app-generic-asset/assetsRegistry';
@@ -17,7 +17,7 @@ import ManageStake from '../ManageStake';
 import { useTranslation } from '../translate';
 import { STAKE_SHARE_DISPLAY_DECIMAL_PLACE } from './config';
 import { Nomination } from './index';
-import { getNextRewardEstimate, getNominations, StakePair } from './utils';
+import { getNextRewardEstimate, getNominationDetails, StakePair } from './utils';
 
 interface Props {
     stakePair: StakePair;
@@ -45,35 +45,37 @@ const _renderStakeShare = (stakeShare: BigNumber) => {
 };
 
 export default function StakeInfo({ stakePair }: Props): React.ReactElement<Props> {
+  const { api } = useApi();
   const { t } = useTranslation();
   const [isSettingsOpen, toggleSettings] = useToggle();
   const [nominations, setNominations] = useState<Nomination[]>();
   const [rewardEstimate, setRewardEstimate] = useState<BigNumber>(new BigNumber(0));
   const [stakedAmount, setStakedAmount] = useState<BigNumber>(new BigNumber(0));
-  const [stakeShare, setStakeShare] = useState<BigNumber>(new BigNumber(0));
-  const { api } = useApi();
 
   let controllerAddress = useCall<string>(api.query.staking.bonded, [stakePair.stashAddress])?.toString() || stakePair.controllerAddress;
   let rewardAddress = useCall<string>(api.query.rewards.payee, [stakePair.stashAddress]);
   let ledger = useCall<Option<StakingLedger>>(api.query.staking.ledger, [controllerAddress]);
+  let nominatedStashes = useCall<Option<Nominations>>(api.query.staking.nominators, [stakePair.stashAddress]);
 
   useEffect(() => {
-    if(ledger === undefined) { return }
+    if(!ledger) return;
+
     const ledger_ = ledger.unwrapOrDefault();
     setStakedAmount(ledger_.total as any);
   }, [ledger]);
-
-  let nominations_ = useCall<string[]>(api.query.staking.nominations, [stakePair.stashAddress]);
 
   useEffect(() => {
     getNextRewardEstimate(stakePair.stashAddress, api as Api).then(
       (amount: any) => setRewardEstimate(new BigNumber(amount))
     );
-  }, []);
+  }, [nominatedStashes]);
 
   useEffect(() => {
-    getNominations(stakePair.stashAddress, api as Api).then((nominations) => setNominations(nominations));
-  }, [nominations_]);
+    if(!nominatedStashes) return;
+
+    getNominationDetails(nominatedStashes.unwrapOrDefault(), stakePair.stashAddress, api as Api)
+      .then((nominations: Nomination[]) => setNominations(nominations));
+  }, [nominatedStashes]);
 
     return (
       <tbody
@@ -169,7 +171,8 @@ export default function StakeInfo({ stakePair }: Props): React.ReactElement<Prop
             <td>{nominee.elected ? '🟢' : '🟡'}</td>
             <td>
               <FormatBalance
-                value={rewardEstimate.toString()}
+                // assumes equal rewards to nominated validators
+                value={rewardEstimate.multipliedBy(nominee.stakeRaw.div(stakedAmount)).toString()}
                 symbol={SPENDING_ASSET_NAME}
               />
             </td>

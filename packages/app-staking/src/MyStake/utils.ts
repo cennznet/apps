@@ -81,19 +81,15 @@ export async function getStashByController(
 }
 
 // Get the nominated validator stash addresses for stashAddress
-export async function getNominations(
+export async function getNominationDetails(
+  nominatedStashes: Nominations,
   stashAddress: string,
   api: ApiPromise
 ): Promise<Nomination[]> {
   const nominations: Nomination[] = [];
-  const nominationsOption = await api.query.staking.nominators(stashAddress);
-  if (nominationsOption.isNone) {
-    return [];
-  }
-  const nominations_ = nominationsOption.unwrapOrDefault() as Nominations;
   const nominated =
-    nominations_ && nominations_.targets
-      ? (nominations_.targets.toJSON() as string[])
+    nominatedStashes && nominatedStashes.targets
+      ? (nominatedStashes.targets.toJSON() as string[])
       : [];
 
   // For each nominator calculate the stashes share of stake
@@ -119,6 +115,7 @@ export async function getNominations(
         })
     )
   );
+
   return nominations;
 }
 
