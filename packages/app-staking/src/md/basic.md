@@ -6,6 +6,7 @@ To become a nominator you must stake the minimum required CENNZ tokens and vote 
 Important things to note are:
 - Nominators share proportionally in CPAY rewards according to their contributed stake, if their validator(s) are elected and participate correctly.
 - If elected validators behave maliciously, nominators' stake will be slashed proportionally alongside the validator's.
+- Validators can either be elected or waiting as a candidate. Candidates do not receive rewards until they become elected by acquiring enough supporting stake.
 
 e.g. if a nominator contributes 30% of a validators total stake they may receive 30% of the reward. Conversely, nominator will share 30% of slashes (confiscation of CENNZ) if the validator misbehaves.
 

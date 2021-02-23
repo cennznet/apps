@@ -4,12 +4,13 @@
 import React, { useEffect, useState } from 'react';
 import { BareProps } from '@polkadot/react-components/types';
 import {
-    InputAddress,
-    Table,
     AddressSmall,
     Button,
     HelpOverlay,
+    InputAddress,
     InputBalance,
+    LabelHelp,
+    Table,
     TxButton
 } from '@polkadot/react-components';
 import { useTranslation } from '@polkadot/app-staking/translate';
@@ -197,8 +198,24 @@ function NewStake ({ className, isVisible }: Props): React.ReactElement<Props> {
                     <tr>
                       <th>{t('Validator')}</th>
                       <th>{t('Pool')}</th>
-                      <th>{t('Commission')}</th>
-                      <th>{t('Total Staked')}</th>
+                      <th>
+                        {t('Commission')}
+                        <LabelHelp
+                          help={t('This validator\'s commission fee from the total reward')}
+                        />
+                      </th>
+                      <th>
+                        {t('Total Staked')}
+                        <LabelHelp
+                          help={t('Total stake supporting this validator. It includes all nominator contributions and its own')}
+                        />
+                      </th>
+                      <th>
+                        {t('Status')}
+                        <LabelHelp
+                          help={t('Elected 🟢 / Candidate 🟡\n')}
+                        />
+                      </th>
                       <th></th>
                     </tr>
                     { validatorInfo.length > 0 && validatorInfo.map(({ accountId, stakingLedger, validatorPrefs }): React.ReactNode => (
@@ -216,6 +233,7 @@ function NewStake ({ className, isVisible }: Props): React.ReactElement<Props> {
                           {stakingLedger.active?.toBn()?.gten(0) && (
                             <FormatBalance value={stakingLedger.active} symbol={STAKING_ASSET_NAME}/>)}
                         </td>
+                        <td>{electedInfo?.nextElected.includes(accountId) ? '🟢' : '🟡'}</td>
                         <td>
                           <input
                             className='checkbox'

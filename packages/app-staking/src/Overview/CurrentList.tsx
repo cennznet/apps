@@ -4,7 +4,7 @@
 import React, { useCallback, useContext, useMemo, useState } from 'react';
 import type { DeriveHeartbeats, DeriveStakingOverview } from '@polkadot/api-derive/types';
 import type { AccountId } from '@polkadot/types/interfaces';
-import { Table } from '@polkadot/react-components';
+import { LabelHelp, Table } from '@polkadot/react-components';
 import { useApi, useCall } from '@polkadot/react-hooks';
 import { BlockAuthorsContext } from '@polkadot/react-query';
 
@@ -73,7 +73,7 @@ function CurrentList ({ favorites, hasQueries, next, stakingOverview, targets, t
   const nominatedBy = useNominations(false);
   const [nameFilter] = useState<string>('');
   const [withIdentity] = useState(false);
-  const {  validators } = useMemo(
+  const { validators } = useMemo(
       () => stakingOverview ? getFiltered(stakingOverview, favorites, next) : {},
       [favorites, next, stakingOverview]
   );
@@ -117,13 +117,19 @@ function CurrentList ({ favorites, hasQueries, next, stakingOverview, targets, t
       <th>{t('Validator')}</th>
       <th>{t('Pool')}</th>
       <th>{t('Status')}</th>
-      <th>{t('Total Staked')}</th>
+      <th>
+        {t('Total Staked')}
+        <LabelHelp
+          help={t('Total stake supporting this validator. It includes all nominator contributions and its own')}
+        />
+      </th>
     </tr>
     </thead>
     <tbody>
       {infoMap ? _renderRows(validators, true): undefined}
     </tbody>
-  </StyledTable>)
+  </StyledTable>
+  )
 }
 
 export default React.memo(CurrentList);
