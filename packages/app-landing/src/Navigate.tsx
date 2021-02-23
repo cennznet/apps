@@ -25,7 +25,7 @@ function Navigate({ className }: Props): React.ReactElement<Props> {
           <div className='icon'>
             <FontAwesomeIcon icon={faUsers} color='blue' size='3x' />
           </div>
-          <div className='header'>Use it as an account</div>
+          <div className='header'>Use it as a wallet</div>
           <div className='content'>
             <p>
               Create or import an account so that you can deposit or withdraw
@@ -71,6 +71,20 @@ function Navigate({ className }: Props): React.ReactElement<Props> {
         </div>
         <div className='feature'>
           <div className='icon'>
+            <FontAwesomeIcon icon={faCoins} color='blue' size='3x' />
+          </div>
+          <div className='header'>Start staking</div>
+          <div className='content'>
+            Stake CENNZ to secure the network and earn CPAY rewards
+          </div>
+          <div className='action'>
+            <Link to='/staking'>
+              <button className='button'>Go to Staking</button>
+            </Link>
+          </div>
+        </div>
+        <div className='feature'>
+          <div className='icon'>
             <FontAwesomeIcon icon={faTools} color='blue' size='3x' />
           </div>
           <div className='header'>Developer tools</div>
@@ -82,13 +96,6 @@ function Navigate({ className }: Props): React.ReactElement<Props> {
               <button className='button'>Open Advanced</button>
             </Link>
           </div>
-        </div>
-        <div className='feature-not-supported'>
-          <div className='icon'>
-            <FontAwesomeIcon icon={faCoins} color='black' size='3x' />
-          </div>
-          <div className='header'>Staking / Delegate</div>
-          <button className='no-action-button'>Coming soon</button>
         </div>
       </div>
     </div>
@@ -152,7 +159,6 @@ export default styled(Navigate)`
       width: 289px;
       border-radius: 20px;
       background-color: #ffffff;
-      box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.06);
 
       .content {
         margin-left: 24px;
@@ -174,6 +180,12 @@ export default styled(Navigate)`
         border: 1px solid #000000;
         border-radius: 20px;
         background-color: #ffffff;
+        cursor: pointer;
+      }
+
+      .action:hover {
+        border: 1px solid orange;
+        border-radius: 20px;
       }
 
       .button {
@@ -192,6 +204,7 @@ export default styled(Navigate)`
         letter-spacing: 0;
         line-height: 21px;
         background: inherit;
+        cursor: pointer;
       }
     }
   }

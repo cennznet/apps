@@ -259,7 +259,6 @@ export default styled(SideBarContainer)`
       .ui.circular.button {
         background: white !important;
         color: #3f3f3f !important;
-        box-shadow: 0 0 0 1px #eee inset !important;
         margin: 0;
         transition: transform 0.15s;
       }

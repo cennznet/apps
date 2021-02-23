@@ -19,7 +19,7 @@ interface Props extends BareProps {
   toggleFavorite: (address: string) => void;
 }
 
-export default function Overview ({ className = '', favorites, hasQueries, next, stakingOverview, targets, toggleFavorite }: Props): React.ReactElement<Props> {
+export default function Overview({ className = '', favorites, hasQueries, next, stakingOverview, targets, toggleFavorite }: Props): React.ReactElement<Props> {
   return (
       <div className={`staking--Overview ${className}`}>
         <CurrentList

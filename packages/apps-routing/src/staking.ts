@@ -5,6 +5,7 @@
 import { Routes } from './types';
 
 import Staking from '@polkadot/app-staking';
+import { faCoins } from '@fortawesome/free-solid-svg-icons';
 
 export default ([
   {
@@ -19,7 +20,7 @@ export default ([
     i18n: {
       defaultValue: 'Staking'
     },
-    icon: 'certificate',
+    icon: faCoins,
     name: 'staking',
     isAdvanced: false
   }

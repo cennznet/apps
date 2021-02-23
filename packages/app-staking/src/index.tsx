@@ -8,7 +8,7 @@ import { useLocation } from 'react-router-dom';
 import { Route, Switch } from 'react-router';
 import Tabs from '@polkadot/react-components/Tabs';
 import { useAccounts, useCall, useApi, useFavorites, useStashIds } from '@polkadot/react-hooks';
-import OnboardNominators from './OnboardNominators';
+import NewStake from './NewStake';
 import Overview from './Overview';
 import Summary from './Overview/Summary';
 import useSortedTargets from './useSortedTargets';
@@ -18,21 +18,19 @@ import { Balance, FixedI128 } from '@polkadot/types/interfaces';
 import { toFormattedBalance } from "@polkadot/react-components/util";
 import { formatBalance } from '@polkadot/util';
 import BN from "bn.js";
-import MyStake from './Overview/MyStake';
-import ManageStake from './ManageStake';
+import MyStake from './MyStake';
 
 export default function ToolboxApp ({ basePath }: Props): React.ReactElement<Props> {
     const { t } = useTranslation();
     const { api } = useApi();
-    const { hasAccounts } = useAccounts();
+    const { allAccounts, hasAccounts } = useAccounts();
     const { pathname } = useLocation();
     const allStashes = useStashIds();
     const stakingOverview = useCall<any>(api.derive.staking.overview, []);
     const transactionFeePot = useCall<Balance>(api.query.rewards.transactionFeePot, []);
-    const inflationRate = useCall<FixedI128>(api.query.rewards.targetInflationPerStakingEra, []);
-    const PERBILL = new BN(1000000000);
-    const calcRewards = transactionFeePot && inflationRate ?
-        transactionFeePot.toBn().add(transactionFeePot.toBn().mul((inflationRate.toBn().div(PERBILL.mul(PERBILL))))) : new BN(0);
+    const baseInflation = useCall<FixedI128>(api.query.rewards.targetInflationPerStakingEra, []);
+    const calcRewards = transactionFeePot && baseInflation ?
+        transactionFeePot.toBn().add(baseInflation.toBn()) : new BN(0);
     const rewards = toFormattedBalance({
         value: calcRewards as BN,
         unit: formatBalance.getDefaults().unit
@@ -63,26 +61,15 @@ export default function ToolboxApp ({ basePath }: Props): React.ReactElement<Pro
         },
         {
             name: 'stake',
-            text: t('New stake')
-        },
-        {
-            name: 'manage',
-            text: t('Manage stake')
+            text: t('New Stake')
         },
     ], [t]);
 
-    const _renderMyStakeComponent = (): React.ReactNode => <MyStake />;
-
     return (
-        <main className='toolbox--App'>
+        <main className='staking--App'>
             <header>
                 <Tabs
                     basePath={basePath}
-                    hidden={
-                        hasAccounts
-                            ? []
-                            : ['sign', 'verify']
-                    }
                     items={items}
                 />
             </header>
@@ -93,7 +80,7 @@ export default function ToolboxApp ({ basePath }: Props): React.ReactElement<Pro
                         next={next}
                         nominators={targets.nominators}
                         stakingOverview={stakingOverview}
-                        rewards={`${rewards}`}
+                        rewards={rewards}
                     />
                 ):
                 null
@@ -109,17 +96,20 @@ export default function ToolboxApp ({ basePath }: Props): React.ReactElement<Pro
                         toggleFavorite={toggleFavorite}
                     />
                 </Route>
-                <Route path={`${basePath}/stake`} component={OnboardNominators} />
-                <Route path={`${basePath}/manage`} component={ManageStake} />
-                <Route path={`${basePath}/mystake`}>{_renderMyStakeComponent()}</Route>
-                <Route><Overview
-                    favorites={favorites}
-                    hasQueries={hasQueries}
-                    next={next}
-                    stakingOverview={stakingOverview}
-                    targets={targets}
-                    toggleFavorite={toggleFavorite}
-                /></Route>
+                <Route path={`${basePath}/stake`} component={NewStake} />
+                <Route path={`${basePath}/mystake`}>
+                    <MyStake accounts={allAccounts}/>
+                </Route>
+                <Route>
+                    <Overview
+                        favorites={favorites}
+                        hasQueries={hasQueries}
+                        next={next}
+                        stakingOverview={stakingOverview}
+                        targets={targets}
+                        toggleFavorite={toggleFavorite}
+                    />
+                </Route>
             </Switch>
         </main>
     );

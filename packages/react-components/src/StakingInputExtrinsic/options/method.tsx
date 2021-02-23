@@ -12,8 +12,8 @@ export default function createOptions (api: ApiPromise, sectionName: string): Dr
   if (!section || Object.keys(section).length === 0) {
     return [];
   }
-  const sudoOperations = ["setValidatorCount", "reapStash" +
-  "", "forceNoEras", "forceNewEra", "setMinimumBond", "setInvulnerables", "forceUnstake", "forceNewEraAlways","cancelDeferredSlash"];
+  // these methods require sudo or advanced knowledge
+  const removeOperations = ["setValidatorCount", "reapStash", "validate", "forceNoEras", "forceNewEra", "setMinimumBond", "setInvulnerables", "forceUnstake", "forceNewEraAlways","cancelDeferredSlash","bond"];
   const stakingDocHelp: Record<string, any> = {
     "setController": ["Change controller account","Set the controller for this stash"],
     "nominate": ["Change nominations", "Nominate different validators for this stash"],
@@ -24,7 +24,7 @@ export default function createOptions (api: ApiPromise, sectionName: string): Dr
     "rebond": ["Cancel withdrawal", "Cancel withdrawal of funds"],
     "chill": ["Chill", "Stop staking funds after this era"]
   };
-  sudoOperations.forEach(element => {
+  removeOperations.forEach(element => {
     delete section[element]
   });
 

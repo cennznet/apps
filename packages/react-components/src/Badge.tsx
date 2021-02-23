@@ -49,7 +49,6 @@ function Badge ({ className, hover, info, isInline, isSmall, isTooltip, onClick,
 
 export default styled(Badge)`
   border-radius: 16px;
-  box-shadow: 0 3px 3px rgba(0, 0, 0, 0.2);
   color: #eee;
   cursor: help;
   font-size: 12px;
