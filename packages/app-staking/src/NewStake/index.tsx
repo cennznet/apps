@@ -28,6 +28,7 @@ import { colors } from '../../../../styled-theming';
 import AccountCheckingModal from '@polkadot/app-accounts/modals/AccountsForStaking';
 import { toFormattedBalance } from '@polkadot/react-components/util';
 import { StakePair, STORE_STAKES } from '../MyStake/utils';
+import { useHistory } from 'react-router-dom';
 
 interface Props extends BareProps {
   isVisible: boolean;
@@ -35,6 +36,7 @@ interface Props extends BareProps {
 
 function NewStake ({ className, isVisible }: Props): React.ReactElement<Props> {
     const { api } = useApi();
+    const history = useHistory();
     const electedInfo = useCall<DeriveStakingElected>(api.derive.staking.electedInfo);
     const waitingInfo = useCall<DeriveStakingWaiting>(api.derive.staking.waitingInfo);
     let validatorInfo: DeriveStakingQuery[] = [];
@@ -261,6 +263,9 @@ function NewStake ({ className, isVisible }: Props): React.ReactElement<Props> {
                       setUnstakedAccounts(unstaked);
                       setStashAccountId(unstaked.length > 0 ? unstaked[0] : '');
                       setRewardDestinationId(unstaked.length > 0 ? unstaked[0] : '');
+                    }}
+                    onUpdate={() => {
+                      history.push(`/staking/mystake`);
                     }}
                     accountId={stashAccountId}
                     extrinsic={extrinsic}
