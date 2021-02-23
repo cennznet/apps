@@ -160,7 +160,7 @@ function ManageStake ({ className, controllerAddress, stashAddress, onClose }: P
                     label={t('Action')}
                     onChange={setMethod}
                   />
-                  <div className='validator-info' style={showValidatorList ? {display: "block"} : {display: "none"}}>
+                  <div className='validator-info' style={showValidatorList ? {display: 'block'} : {display: 'none'}}>
                     <div className='label'>
                       Select validators to nominate
                     </div>
@@ -191,7 +191,7 @@ function ManageStake ({ className, controllerAddress, stashAddress, onClose }: P
                             <td>
                               <input
                                 className='checkbox'
-                                type={"checkbox"}
+                                type={'checkbox'}
                                 value={accountId.toString()}
                                 onClick={_validatorSelected}
                               />

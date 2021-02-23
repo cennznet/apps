@@ -52,6 +52,7 @@ export default function StakeInfo({ stakePair }: Props): React.ReactElement<Prop
   const [nominations, setNominations] = useState<Nomination[]>();
   const [rewardEstimate, setRewardEstimate] = useState<BigNumber>(new BigNumber(0));
   const [stakedAmount, setStakedAmount] = useState<BigNumber>(new BigNumber(0));
+  const [totalStakedAmount, setTotalStakedAmount] = useState<BigNumber>(new BigNumber(0));
   const [unlocking, setUnlocking] = useState<UnlockChunk[]>([]);
 
   let controllerAddress = useCall<string>(api.query.staking.bonded, [stakePair.stashAddress])?.toString() || stakePair.controllerAddress;
@@ -63,7 +64,8 @@ export default function StakeInfo({ stakePair }: Props): React.ReactElement<Prop
     if(!ledger) return;
 
     const ledger_ = ledger.unwrapOrDefault();
-    setStakedAmount(ledger_.total as any);
+    setStakedAmount(ledger_.active as any);
+    setTotalStakedAmount(ledger_.total as any);
     setUnlocking(ledger_.unlocking);
   }, [ledger]);
 
@@ -103,7 +105,7 @@ export default function StakeInfo({ stakePair }: Props): React.ReactElement<Prop
           <th>
             {t('Staked')}
             <LabelHelp
-                help={t('Total balance at stake (includes unlocking amounts)')}
+                help={t('Active balance at stake (excludes unstaking amounts)')}
             />
           </th>
           <th>

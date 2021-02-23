@@ -3,7 +3,7 @@
 // of the Apache-2.0 license. See the LICENSE file for details.
 import React, { useEffect, useState } from 'react';
 import { KeyringSectionOption } from '@polkadot/ui-keyring/options/types';
-import { BareProps } from "@polkadot/react-components/types";
+import { BareProps } from '@polkadot/react-components/types';
 import {
     InputAddress,
     Table,
@@ -12,20 +12,20 @@ import {
     HelpOverlay,
     InputBalance,
     TxButton
-} from "@polkadot/react-components";
-import { useTranslation } from "@polkadot/app-staking/translate";
-import { useAccounts, useApi, useCacheKey, useCall, useToggle } from "@polkadot/react-hooks";
+} from '@polkadot/react-components';
+import { useTranslation } from '@polkadot/app-staking/translate';
+import { useAccounts, useApi, useCacheKey, useCall, useToggle } from '@polkadot/react-hooks';
 import type { DeriveStakingElected } from '@polkadot/api-derive/types';
 import FormatBalance from '@polkadot/app-generic-asset/FormatBalance';
-import { poolRegistry } from "@polkadot/app-staking/Overview/Address/poolRegistry";
-import assetsRegistry, { STAKING_ASSET_NAME } from "@polkadot/app-generic-asset/assetsRegistry";
-import BN from "bn.js";
-import { Balance, Codec } from "@cennznet/types";
+import { poolRegistry } from '@polkadot/app-staking/Overview/Address/poolRegistry';
+import assetsRegistry, { STAKING_ASSET_NAME } from '@polkadot/app-generic-asset/assetsRegistry';
+import BN from 'bn.js';
+import { Balance, Codec } from '@cennznet/types';
 import { SubmittableExtrinsic } from '@polkadot/api/promise/types';
 import styled from 'styled-components';
 import basicMd from '../md/basic.md';
 import { colors } from '../../../../styled-theming';
-import AccountCheckingModal from "@polkadot/app-accounts/modals/AccountsForStaking";
+import AccountCheckingModal from '@polkadot/app-accounts/modals/AccountsForStaking';
 import { toFormattedBalance } from '@polkadot/react-components/util';
 import { StakePair, STORE_STAKES } from '../MyStake/utils';
 

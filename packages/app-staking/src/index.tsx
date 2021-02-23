@@ -28,10 +28,9 @@ export default function ToolboxApp ({ basePath }: Props): React.ReactElement<Pro
     const allStashes = useStashIds();
     const stakingOverview = useCall<any>(api.derive.staking.overview, []);
     const transactionFeePot = useCall<Balance>(api.query.rewards.transactionFeePot, []);
-    const inflationRate = useCall<FixedI128>(api.query.rewards.targetInflationPerStakingEra, []);
-    const PERBILL = new BN(1000000000);
-    const calcRewards = transactionFeePot && inflationRate ?
-        transactionFeePot.toBn().add(transactionFeePot.toBn().mul((inflationRate.toBn().div(PERBILL.mul(PERBILL))))) : new BN(0);
+    const baseInflation = useCall<FixedI128>(api.query.rewards.targetInflationPerStakingEra, []);
+    const calcRewards = transactionFeePot && baseInflation ?
+        transactionFeePot.toBn().add(baseInflation.toBn()) : new BN(0);
     const rewards = toFormattedBalance({
         value: calcRewards as BN,
         unit: formatBalance.getDefaults().unit
@@ -81,7 +80,7 @@ export default function ToolboxApp ({ basePath }: Props): React.ReactElement<Pro
                         next={next}
                         nominators={targets.nominators}
                         stakingOverview={stakingOverview}
-                        rewards={`${rewards}`}
+                        rewards={rewards}
                     />
                 ):
                 null

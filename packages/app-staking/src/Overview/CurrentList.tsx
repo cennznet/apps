@@ -111,7 +111,7 @@ function CurrentList ({ favorites, hasQueries, next, stakingOverview, targets, t
   );
 
   return (
-      <StyledTable>
+  <StyledTable>
     <thead>
     <tr>
       <th>{t('Validator')}</th>

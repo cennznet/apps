@@ -103,13 +103,13 @@ export async function getNominationDetails(
             stashAddress,
             api
           );
-
           nominations.push({
             nominateToAddress,
             stakeRaw,
             stakeShare,
             elected,
           });
+          console.log(nominateToAddress, stakeRaw.toString(), stakeShare.toString());
 
           resolve();
         })
@@ -137,6 +137,8 @@ export async function getStakeShare(
 ): Promise<{ stakeShare: BigNumber; stakeRaw: BigNumber; elected: boolean }> {
   const stakers = (await api.query.staking.stakers(nominatedAddress)) as Exposure;
   const totalStakeAmount = new BigNumber(stakers.total.toString());
+  console.log(totalStakeAmount.toString());
+  console.log(stakers.others);
   const stakersWithStashAccount = stakers.others.find(
     other => other.who.toString() === stashAddress
   );
