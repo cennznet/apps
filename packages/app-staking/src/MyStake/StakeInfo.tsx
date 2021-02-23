@@ -3,7 +3,8 @@
 // of the Apache-2.0 license. See the LICENSE file for details.
 
 import { Api } from '@cennznet/api';
-import { Nominations, Option, StakingLedger } from '@cennznet/types';
+import {UnlockChunk} from '@polkadot/types/interfaces/staking/types';
+import { AccountId, Nominations, Option, StakingLedger } from '@cennznet/types';
 import {
   SPENDING_ASSET_NAME, STAKING_ASSET_NAME
 } from '@polkadot/app-generic-asset/assetsRegistry';
@@ -51,9 +52,10 @@ export default function StakeInfo({ stakePair }: Props): React.ReactElement<Prop
   const [nominations, setNominations] = useState<Nomination[]>();
   const [rewardEstimate, setRewardEstimate] = useState<BigNumber>(new BigNumber(0));
   const [stakedAmount, setStakedAmount] = useState<BigNumber>(new BigNumber(0));
+  const [unlocking, setUnlocking] = useState<UnlockChunk[]>([]);
 
   let controllerAddress = useCall<string>(api.query.staking.bonded, [stakePair.stashAddress])?.toString() || stakePair.controllerAddress;
-  let rewardAddress = useCall<string>(api.query.rewards.payee, [stakePair.stashAddress]);
+  let rewardAddress = useCall<AccountId>(api.query.rewards.payee, [stakePair.stashAddress]);
   let ledger = useCall<Option<StakingLedger>>(api.query.staking.ledger, [controllerAddress]);
   let nominatedStashes = useCall<Option<Nominations>>(api.query.staking.nominators, [stakePair.stashAddress]);
 
@@ -62,6 +64,7 @@ export default function StakeInfo({ stakePair }: Props): React.ReactElement<Prop
 
     const ledger_ = ledger.unwrapOrDefault();
     setStakedAmount(ledger_.total as any);
+    setUnlocking(ledger_.unlocking);
   }, [ledger]);
 
   useEffect(() => {
@@ -97,7 +100,12 @@ export default function StakeInfo({ stakePair }: Props): React.ReactElement<Prop
               )}
             />
           </th>
-          <th>{t('Staked')}</th>
+          <th>
+            {t('Staked')}
+            <LabelHelp
+                help={t('Total balance at stake (includes unlocking amounts)')}
+            />
+          </th>
           <th>
             {t('Reward Destination')}
             <LabelHelp help={t('Account to receive rewards payouts')} />
@@ -117,7 +125,7 @@ export default function StakeInfo({ stakePair }: Props): React.ReactElement<Prop
             />
           </td>
           <td className='address'>
-            {rewardAddress && <AddressSmall value={rewardAddress}/>}
+            {rewardAddress && <AddressSmall value={rewardAddress.toString()}/>}
             <Button
               style={{ marginLeft: "auto" }}
               icon='setting'
@@ -137,7 +145,7 @@ export default function StakeInfo({ stakePair }: Props): React.ReactElement<Prop
         {!nominations || nominations.length === 0 ? (
           <tr/>
         ) : (
-          <tr className="nomination-header">
+          <tr className='nomination-header'>
             <th className='header-secondary'>
               {t('Nominating')}
               <LabelHelp
@@ -176,6 +184,30 @@ export default function StakeInfo({ stakePair }: Props): React.ReactElement<Prop
                 symbol={SPENDING_ASSET_NAME}
               />
             </td>
+          </tr>
+        ))}
+        {!unlocking || unlocking.length === 0 ? (
+          <tr/>
+        ) : (
+          <tr className='unlocking-header'>
+            <th className='header-secondary'>
+              {t('Unstaking')}
+              <LabelHelp
+                help={t('Amount of CENNZ being unstaked')}
+              />
+            </th>
+            <th className='header-secondary'>
+              {t('Withdraw in')}
+              <LabelHelp
+                help={t('Time until stake is available to withdraw')}
+              />
+            </th>
+          </tr>
+        )}
+        {unlocking?.map((chunk: UnlockChunk, index: number) => (
+          <tr className='unlocking-info' key={index}>
+            <td><FormatBalance value={chunk.value.toString()} symbol={STAKING_ASSET_NAME}/></td>
+            <td>{`${chunk.era.toString()} days`}</td>
           </tr>
         ))}
         </tbody>

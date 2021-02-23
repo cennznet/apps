@@ -110,8 +110,14 @@ const StyledTable = styled(Table)`
   }
 
   .nomination-header,
-  .nomination-info {
+  .nomination-info,
+  .unlocking-header,
+  .unlocking-info {
     margin-left: 1.5em;
   }
 
+  .unlocking-header,
+  .unlocking-info {
+    max-width: 500px;
+  }
 `;
