@@ -13,6 +13,7 @@ import {
     Table,
     TxButton
 } from '@polkadot/react-components';
+import { SubmittableResult } from '@polkadot/api';
 import { useTranslation } from '@polkadot/app-staking/translate';
 import { useAccounts, useApi, useCacheKey, useCall, useToggle } from '@polkadot/react-hooks';
 import type { DeriveStakingElected, DeriveStakingWaiting, DeriveStakingQuery } from '@polkadot/api-derive/types';
@@ -264,8 +265,10 @@ function NewStake ({ className, isVisible }: Props): React.ReactElement<Props> {
                       setStashAccountId(unstaked.length > 0 ? unstaked[0] : '');
                       setRewardDestinationId(unstaked.length > 0 ? unstaked[0] : '');
                     }}
-                    onUpdate={() => {
-                      history.push(`/staking/mystake`);
+                    onUpdate={(result: SubmittableResult) => {
+                      if (result.status.isInBlock) {
+                        history.push(`/staking/mystake`);
+                      }
                     }}
                     accountId={stashAccountId}
                     extrinsic={extrinsic}
