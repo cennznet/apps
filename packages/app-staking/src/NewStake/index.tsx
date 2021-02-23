@@ -45,7 +45,6 @@ function NewStake ({ className, isVisible }: Props): React.ReactElement<Props> {
     }
     const minimumBond = useCall<Balance>(api.query.staking.minimumBond);
     const chainInfo = useCall<string>(api.rpc.system.chain, []);
-    const [stashAccountId, setStashAccountId] = useState<string | null | undefined>();
     const [assetBalance, setAssetBalance] = useState<BN>(new BN(0));
     const [extrinsic, setExtrinsic] = useState<SubmittableExtrinsic | null>(null);
     const [rewardDestinationId, setRewardDestinationId] = useState<string | null | undefined>();
@@ -56,6 +55,30 @@ function NewStake ({ className, isVisible }: Props): React.ReactElement<Props> {
     const [acknowledged, toggleAcknowledged] = useToggle(false)
     const [isNoAccountsPopUpOpen, setIsNoAccountsPopUpOpen] = useState(true);
     const [amount, setAmount] = useState<BN | undefined>(new BN(0));
+
+        // If user has no accounts then open a pop-up to create account /manage stake will appear
+    // use cache to load staked accounts
+    const [getCache] = useCacheKey<string>(STORE_STAKES);
+    var stakedAccounts_: Array<[string, StakePair]>;
+    try {
+      stakedAccounts_ = JSON.parse(getCache()!);
+    } catch (err) {
+      stakedAccounts_ = new Array();
+    }
+    const [stakedAccounts] = useState<Array<[string, StakePair]>>(stakedAccounts_);
+    const { hasAccounts, allAccounts } = useAccounts();
+    const [unstakedAccounts, setUnstakedAccounts] = useState<string[]>(
+      allAccounts
+        .filter((account) => !stakedAccounts.find(([_, pair]) => account == pair.stashAddress || account == pair.controllerAddress))
+    );
+    const [stashAccountId, setStashAccountId] = useState<string | null | undefined>(unstakedAccounts[0]);
+
+    useEffect(() => {
+      setUnstakedAccounts(
+        allAccounts
+          .filter((account) => !stakedAccounts.find(([_, pair]) => account == pair.stashAddress || account == pair.controllerAddress))
+      );
+    }, [allAccounts]);
 
     useEffect((): void => {
         if (stashAccountId) {
@@ -107,26 +130,6 @@ function NewStake ({ className, isVisible }: Props): React.ReactElement<Props> {
     const _closeHelp = (): void => {
       setOpenHelpDialog(false);
     }
-
-    // If user has no accounts then open a pop-up to create account /manage stake will appear
-    // use cache to load staked accounts
-    const [getCache] = useCacheKey<string>(STORE_STAKES);
-    var stakedAccounts_: Array<[string, StakePair]>;
-    try {
-      stakedAccounts_ = JSON.parse(getCache()!);
-    } catch (err) {
-      stakedAccounts_ = new Array();
-    }
-    const [stakedAccounts] = useState<Array<[string, StakePair]>>(stakedAccounts_);
-    const [unstakedAccounts, setUnstakedAccounts] = useState<string[]>([]);
-    const { hasAccounts, allAccounts } = useAccounts();
-
-    useEffect(() => {
-      setUnstakedAccounts(
-        allAccounts
-          .filter((account) => !stakedAccounts.find(([_, pair]) => account == pair.stashAddress || account == pair.controllerAddress))
-      );
-    }, [allAccounts]);
 
     const openAccountCheckingModal = !hasAccounts || stakedAccounts.length == allAccounts.length;
     let errorText = '';
