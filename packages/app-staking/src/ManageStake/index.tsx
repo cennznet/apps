@@ -37,15 +37,11 @@ function ManageStake ({ className, controllerAddress, stashAddress, onClose }: P
     const electedInfo = useCall<DeriveStakingElected>(api.derive.staking.electedInfo);
     const waitingInfo = useCall<DeriveStakingWaiting>(api.derive.staking.waitingInfo);
     let validatorInfo: DeriveStakingQuery[] = [];
-    if (electedInfo) {
-      electedInfo.info.forEach((info) => {
-        validatorInfo.push(info);
-      });
+    if (electedInfo && electedInfo.info.length > 0) {
+      validatorInfo = electedInfo.info;
     }
-    if (waitingInfo) {
-      waitingInfo.info.forEach((info) => {
-        validatorInfo.push(info);
-      });
+    if (waitingInfo && waitingInfo.info.length > 0) {
+      validatorInfo = validatorInfo.concat(waitingInfo.info)
     }
 
   const [method, setMethod] = useState<SubmittableExtrinsic | null>();
