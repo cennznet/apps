@@ -4,7 +4,7 @@
 
 import { Api } from '@cennznet/api';
 import {UnlockChunk} from '@polkadot/types/interfaces/staking/types';
-import { AccountId, Nominations, Option, StakingLedger } from '@cennznet/types';
+import { AccountId, Nominations, Option, StakingLedger, u64 } from '@cennznet/types';
 import {
   SPENDING_ASSET_NAME, STAKING_ASSET_NAME
 } from '@polkadot/app-generic-asset/assetsRegistry';
@@ -59,6 +59,7 @@ export default function StakeInfo({ stakePair }: Props): React.ReactElement<Prop
   let rewardAddress = useCall<AccountId>(api.query.rewards.payee, [stakePair.stashAddress]);
   let ledger = useCall<Option<StakingLedger>>(api.query.staking.ledger, [controllerAddress]);
   let nominatedStashes = useCall<Option<Nominations>>(api.query.staking.nominators, [stakePair.stashAddress]);
+  let currentEra = useCall<u64>(api.query.staking.currentEra, []);
 
   useEffect(() => {
     if(!ledger) return;
@@ -209,7 +210,7 @@ export default function StakeInfo({ stakePair }: Props): React.ReactElement<Prop
         {unlocking?.map((chunk: UnlockChunk, index: number) => (
           <tr className='unlocking-info' key={index}>
             <td><FormatBalance value={chunk.value.toString()} symbol={STAKING_ASSET_NAME}/></td>
-            <td>{`${chunk.era.toString()} days`}</td>
+            <td>{`${Math.max(0, chunk.era.toNumber() - currentEra!.toNumber()).toString()} days`}</td>
           </tr>
         ))}
         </tbody>
