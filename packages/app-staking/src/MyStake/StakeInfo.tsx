@@ -52,7 +52,8 @@ export default function StakeInfo({ stakePair }: Props): React.ReactElement<Prop
   const [nominations, setNominations] = useState<Nomination[]>();
   const [rewardEstimate, setRewardEstimate] = useState<BigNumber>(new BigNumber(0));
   const [stakedAmount, setStakedAmount] = useState<BigNumber>(new BigNumber(0));
-  const [totalStakedAmount, setTotalStakedAmount] = useState<BigNumber>(new BigNumber(0));
+ // TODO - commented to fix build error
+ // const [totalStakedAmount, setTotalStakedAmount] = useState<BigNumber>(new BigNumber(0));
   const [unlocking, setUnlocking] = useState<UnlockChunk[]>([]);
 
   let controllerAddress = useCall<string>(api.query.staking.bonded, [stakePair.stashAddress])?.toString() || stakePair.controllerAddress;
@@ -66,7 +67,7 @@ export default function StakeInfo({ stakePair }: Props): React.ReactElement<Prop
 
     const ledger_ = ledger.unwrapOrDefault();
     setStakedAmount(ledger_.active as any);
-    setTotalStakedAmount(ledger_.total as any);
+   // setTotalStakedAmount(ledger_.total as any);
     setUnlocking(ledger_.unlocking);
   }, [ledger]);
 

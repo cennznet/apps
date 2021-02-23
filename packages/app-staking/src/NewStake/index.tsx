@@ -14,7 +14,7 @@ import {
 } from '@polkadot/react-components';
 import { useTranslation } from '@polkadot/app-staking/translate';
 import { useAccounts, useApi, useCacheKey, useCall, useToggle } from '@polkadot/react-hooks';
-import type { DeriveStakingElected } from '@polkadot/api-derive/types';
+import type { DeriveStakingElected, DeriveStakingWaiting, DeriveStakingQuery } from '@polkadot/api-derive/types';
 import FormatBalance from '@polkadot/app-generic-asset/FormatBalance';
 import { poolRegistry } from '@polkadot/app-staking/Overview/Address/poolRegistry';
 import assetsRegistry, { STAKING_ASSET_NAME } from '@polkadot/app-generic-asset/assetsRegistry';
@@ -35,6 +35,14 @@ interface Props extends BareProps {
 function NewStake ({ className, isVisible }: Props): React.ReactElement<Props> {
     const { api } = useApi();
     const electedInfo = useCall<DeriveStakingElected>(api.derive.staking.electedInfo);
+    const waitingInfo = useCall<DeriveStakingWaiting>(api.derive.staking.waitingInfo);
+    let validatorInfo: DeriveStakingQuery[] = [];
+    if (electedInfo && electedInfo.info.length > 0) {
+      validatorInfo = electedInfo.info;
+    }
+    if (waitingInfo && waitingInfo.info.length > 0) {
+      validatorInfo = validatorInfo.concat(waitingInfo.info)
+    }
     const minimumBond = useCall<Balance>(api.query.staking.minimumBond);
     const chainInfo = useCall<string>(api.rpc.system.chain, []);
     const [stashAccountId, setStashAccountId] = useState<string | null | undefined>();
@@ -105,7 +113,7 @@ function NewStake ({ className, isVisible }: Props): React.ReactElement<Props> {
     const [getCache] = useCacheKey<string>(STORE_STAKES);
     var stakedAccounts_: Array<[string, StakePair]>;
     try {
-      stakedAccounts_ = JSON.parse(getCache()!); 
+      stakedAccounts_ = JSON.parse(getCache()!);
     } catch (err) {
       stakedAccounts_ = new Array();
     }
@@ -190,13 +198,13 @@ function NewStake ({ className, isVisible }: Props): React.ReactElement<Props> {
                       <th>{t('Total Staked')}</th>
                       <th></th>
                     </tr>
-                    {electedInfo?.info.map(({ accountId, exposure, validatorPrefs }): React.ReactNode => (
+                    { validatorInfo.length > 0 && validatorInfo.map(({ accountId, exposure, validatorPrefs }): React.ReactNode => (
                       <tr className={className} key={accountId.toString()}>
                         <td className='address'>
                           <AddressSmall value={accountId.toString()} />
                         </td>
                         <td className='address'>
-                          {chain? poolRegistry[chain][accountId.toString()]: 'CENTRALITY'}
+                          {chain? poolRegistry[chain][accountId.toString()] ? poolRegistry[chain][accountId.toString()]: 'Centrality': 'Centrality'}
                         </td>
                         <td>
                           {validatorPrefs['commission'].toHuman()}
