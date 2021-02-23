@@ -9,7 +9,7 @@ import {
 } from '@polkadot/app-generic-asset/assetsRegistry';
 import FormatBalance from '@polkadot/app-generic-asset/FormatBalance';
 import { AddressSmall, Button, LabelHelp } from '@polkadot/react-components';
-import { useApi, useToggle } from '@polkadot/react-hooks';
+import { useApi, useCall, useToggle } from '@polkadot/react-hooks';
 import { BigNumber } from "bignumber.js";
 import React, { useEffect, useState } from 'react';
 import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css';
@@ -48,16 +48,22 @@ export default function StakeInfo({ stakePair }: Props): React.ReactElement<Prop
   const { t } = useTranslation();
   const [isSettingsOpen, toggleSettings] = useToggle();
   const [nominations, setNominations] = useState<Nomination[]>();
-  const [rewardAddress, setRewardAddress] = useState<string>();
-  const [stakedAmount, setStakedAmount] = useState<BigNumber>(new BigNumber(0));
   const [rewardEstimate, setRewardEstimate] = useState<BigNumber>(new BigNumber(0));
+  const [stakedAmount, setStakedAmount] = useState<BigNumber>(new BigNumber(0));
+  const [stakeShare, setStakeShare] = useState<BigNumber>(new BigNumber(0));
   const { api } = useApi();
 
+  let controllerAddress = useCall<string>(api.query.staking.bonded, [stakePair.stashAddress])?.toString() || stakePair.controllerAddress;
+  let rewardAddress = useCall<string>(api.query.rewards.payee, [stakePair.stashAddress]);
+  let ledger = useCall<Option<StakingLedger>>(api.query.staking.ledger, [controllerAddress]);
+
   useEffect(() => {
-    api.query.rewards.payee(stakePair.stashAddress).then(
-      (address: any) => setRewardAddress(address.toString())
-    );
-  }, []);
+    if(ledger === undefined) { return }
+    const ledger_ = ledger.unwrapOrDefault();
+    setStakedAmount(ledger_.total as any);
+  }, [ledger]);
+
+  let nominations_ = useCall<string[]>(api.query.staking.nominations, [stakePair.stashAddress]);
 
   useEffect(() => {
     getNextRewardEstimate(stakePair.stashAddress, api as Api).then(
@@ -66,20 +72,13 @@ export default function StakeInfo({ stakePair }: Props): React.ReactElement<Prop
   }, []);
 
   useEffect(() => {
-    api.query.staking.ledger(stakePair.controllerAddress).then((ledger: Option<StakingLedger>) => {
-      const ledger_ = ledger.unwrapOrDefault();
-      setStakedAmount(ledger_.total as any);
-    });
-  }, []);
-
-  useEffect(() => {
     getNominations(stakePair.stashAddress, api as Api).then((nominations) => setNominations(nominations));
-  }, []);
+  }, [nominations_]);
 
     return (
       <tbody
         className='tbody-container'
-        key={`${stakePair.stashAddress}-${stakePair.controllerAddress}`}
+        key={`${stakePair.stashAddress}-${controllerAddress}`}
       >
         <tr>
           <th data-for='stash-trigger'>
@@ -107,16 +106,16 @@ export default function StakeInfo({ stakePair }: Props): React.ReactElement<Prop
             <AddressSmall value={stakePair.stashAddress} />
           </td>
           <td className='address'>
-            <AddressSmall value={stakePair.controllerAddress} />
+            <AddressSmall value={controllerAddress} />
           </td>
           <td>
             <FormatBalance
-              value={stakedAmount?.toString()}
+              value={stakedAmount.toString()}
               symbol={STAKING_ASSET_NAME}
             />
           </td>
           <td className='address'>
-            <AddressSmall value={rewardAddress}/>
+            {rewardAddress && <AddressSmall value={rewardAddress}/>}
             <Button
               style={{ marginLeft: "auto" }}
               icon='setting'
@@ -130,11 +129,11 @@ export default function StakeInfo({ stakePair }: Props): React.ReactElement<Prop
         {isSettingsOpen && <ManageStake
           key='modal-transfer'
           stashAddress={stakePair.stashAddress}
-          controllerAddress={stakePair.controllerAddress}
+          controllerAddress={controllerAddress}
           onClose={toggleSettings}
         />}
-        {nominations?.length === 0 ? (
-          <tr />
+        {!nominations || nominations.length === 0 ? (
+          <tr/>
         ) : (
           <tr className="nomination-header">
             <th className='header-secondary'>
@@ -170,7 +169,7 @@ export default function StakeInfo({ stakePair }: Props): React.ReactElement<Prop
             <td>{nominee.elected ? '🟢' : '🟡'}</td>
             <td>
               <FormatBalance
-                value={rewardEstimate.multipliedBy(nominee.stakeRaw.div(stakedAmount)).toString()}
+                value={rewardEstimate.toString()}
                 symbol={SPENDING_ASSET_NAME}
               />
             </td>

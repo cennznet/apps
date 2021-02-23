@@ -14,7 +14,7 @@ import {
     TxButton
 } from "@polkadot/react-components";
 import { useTranslation } from "@polkadot/app-staking/translate";
-import { useAccounts, useApi, useCacheKey, useCall } from "@polkadot/react-hooks";
+import { useAccounts, useApi, useCacheKey, useCall, useToggle } from "@polkadot/react-hooks";
 import type { DeriveStakingElected } from '@polkadot/api-derive/types';
 import FormatBalance from '@polkadot/app-generic-asset/FormatBalance';
 import { poolRegistry } from "@polkadot/app-staking/Overview/Address/poolRegistry";
@@ -28,6 +28,7 @@ import { colors } from '../../../../styled-theming';
 import AccountCheckingModal from "@polkadot/app-accounts/modals/AccountsForStaking";
 import { toFormattedBalance } from '@polkadot/react-components/util';
 import { StakePair, STORE_STAKES } from '../MyStake/utils';
+import { faCoins } from '@fortawesome/free-solid-svg-icons';
 
 interface Props extends BareProps {
   isVisible: boolean;
@@ -46,7 +47,7 @@ function NewStake ({ className, isVisible }: Props): React.ReactElement<Props> {
     const chain: string | undefined = chainInfo ? chainInfo.toString() : undefined;
     const [isValid, setIsValid] = useState<boolean>(false);
     const [openHelpDialog, setOpenHelpDialog] = useState<boolean>(false);
-    const [acknowledged, setAcknowledgement] = useState<boolean>(false);
+    const [acknowledged, toggleAcknowledged] = useToggle(false)
     const [isNoAccountsPopUpOpen, setIsNoAccountsPopUpOpen] = useState(true);
     const [amount, setAmount] = useState<BN | undefined>(new BN(0));
 
@@ -90,20 +91,14 @@ function NewStake ({ className, isVisible }: Props): React.ReactElement<Props> {
             }
         }
         setAccountIdVec(accounts);
-        if (accountIdVec.length === 0 || stashAccountId === null || rewardDestinationId === null || openAccountCheckingModal || amount?.isZero() || amount?.gte(assetBalance)) {
-            setIsValid(false);
-        } else {
-            setIsValid(true);
-        }
     }
     const { t } = useTranslation();
     const available = <span className='label'>{t('available')}</span>;
     const _toggleHelp = (): void => {
-      setAcknowledgement(true);
+      toggleAcknowledged();
       setOpenHelpDialog(!openHelpDialog);
     }
     const _closeHelp = (): void => {
-      setAcknowledgement(true);
       setOpenHelpDialog(false);
     }
 
@@ -229,7 +224,7 @@ function NewStake ({ className, isVisible }: Props): React.ReactElement<Props> {
                   <TxButton
                     accountId={stashAccountId}
                     extrinsic={extrinsic}
-                    icon={isValid ? 'fa check square' : 'square'}
+                    icon={'plus'}
                     isDisabled={!isValid}
                     isPrimary
                     label={t('nominate')}

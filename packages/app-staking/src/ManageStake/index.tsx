@@ -209,6 +209,7 @@ function ManageStake ({ className, controllerAddress, stashAddress, onClose }: P
                 extrinsic={extrinsic}
                 icon='sign-in'
                 isDisabled={!isValid}
+                onStart={onClose}
                 isPrimary
                 label={t('Submit Transaction')}
               />
