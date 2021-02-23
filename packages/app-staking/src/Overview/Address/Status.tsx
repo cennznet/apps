@@ -33,25 +33,28 @@ function Status ({ isElected, isMain, nominators = [], onlineCount, onlineMessag
           <StakingBadge
             color='green'
             icon='hand-paper'
+            hover='validator has support from some nominators'
           />
         )
         : null
       }
-      {isElected
-        ? (
+      {(
           <StakingBadge
-            color='blue'
+            color={isElected ? 'green' : 'yellow'}
             icon='chevron-right'
+            hover='validator elected status: elected 🟢 / candidate 🟡'
           />
         )
-        : null
       }
       {isMain && (
         blockCount || onlineMessage
           ? (
             <StakingBadge
-              color='green'
-              info={blockCount || <Icon icon='envelope' />}
+              color='blue'
+              hover={`validator is online and has authored ${blockCount} blocks`}
+              info={blockCount || <Icon icon='envelope'
+            />
+        }
             />
           )
           : null
