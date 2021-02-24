@@ -12,7 +12,7 @@ export const N50 = '#F8F9F9';
 export const N100 = '#EBECED';
 export const N200 = '#D0D3D5';
 export const N300 = '#B5BABD';
-export const N400 = '#9AA0A5';
+export const N400 = '#989b9c';
 export const N500 = '#7F878D';
 export const N600 = '#666D73';
 export const N700 = '#4E5458';
@@ -94,6 +94,11 @@ export const textHover = N200;
 export const link = B500;
 export const linkHover = B600;
 export const popUpBackground = '#1B1C1D';
+
+/* highlighted buttons, orange */
+export const highlightedOrange = '#f19135';
+export const matterhorn = '#4e4e4e';
+export const lightBrown = '#f3e8d4';
 /*
  * NOTICE: this file only contains basic color defination of basic elements like border,
  * text, link, etc.

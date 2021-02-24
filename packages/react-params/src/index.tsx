@@ -148,7 +148,6 @@ class Params extends React.PureComponent<Props, State> {
 
 export default translate(
   styled(Params as React.ComponentClass<Props>)`
-    border-left: 0.25rem solid #f2f2f2;
 
     .ui--Param .ui--Labelled label {
       text-transform: none !important;

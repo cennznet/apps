@@ -53,6 +53,7 @@ function AddressSmall ({ className, defaultName, onClickName, overrideName, togg
             <IdentityIcon
               size={32}
               value={value as Uint8Array}
+              style={{ boxShadow: 'none !important' }}
             />
           </div>
         }
@@ -84,6 +85,7 @@ function AddressSmall ({ className, defaultName, onClickName, overrideName, togg
 export default styled(AddressSmall)`
   vertical-align: middle;
   white-space: nowrap;
+  box-shadow: none !important;
 
   .name--clickable {
     cursor: pointer;
@@ -92,17 +94,22 @@ export default styled(AddressSmall)`
   .ui--IdentityIcon,
   .ui--IdentityIconTrigger,
   .nameInfo {
+    box-shadow: none;
     display: inline-block;
     vertical-align: middle;
     cursor: pointer;
   }
 
   .ui--IdentityIcon {
+    box-shadow: none !important;
+    -webkit-box-shadow: none !important;
+    -moz-box-shadow: none !important;
     margin-right: 0.75rem;
   }
 
   .nameInfo {
     > div {
+      box-shadow: none;
       max-width: 16rem;
       overflow: hidden;
       text-overflow: ellipsis;

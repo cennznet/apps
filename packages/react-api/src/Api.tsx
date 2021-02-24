@@ -89,7 +89,7 @@ async function loadOnReady (api: ApiPromise): Promise<State> {
   // TODO: query from genericAsset.assetRegistry
   // 1) find spending Asset ID
   // 2) find spending Asset ID decimals and symbol
-  const tokenSymbol = 'Cpay';
+  const tokenSymbol = 'CPAY';
   const tokenDecimals = properties.tokenDecimals.unwrapOr(DEFAULT_DECIMALS).toNumber();
 
   const systemChain = _systemChain
