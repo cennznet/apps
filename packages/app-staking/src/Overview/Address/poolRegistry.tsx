@@ -19,8 +19,10 @@ export const poolRegistry: Record<string, any> = {
     "5Cm8JHz75TZw5GAAwVV99qFJKPYtxXsP2hn811WpWLo4UDjG": "Centrality",
     "5FCdFHNPR62USs3xeA8Pnj2D87n4RLG1xRB2jS4tbcs7t19j": "Centrality",
     "5GZRKvW4jVZzx6Z2kvVhE8V81fj4yeLJFJtPvATGPfdVSJxm": "Centrality",
-    "5DfBQtFnS6ameG1u6gnSzX39WE2i2j3poK9aPBFsctVXkaan": "MoonStake",
     "5CkBjPtvJEHf3kNE9wWZEvcZoRHuj48UURXAhbSpoyCe3U83": "Centrality",
-    "5CouA8pyo3d5g3rxCL3GxM3tbtMnoUkatxCDFtqmC9u8odgf": "Centrality"
+    "5CouA8pyo3d5g3rxCL3GxM3tbtMnoUkatxCDFtqmC9u8odgf": "Centrality",
+    "5DfBQtFnS6ameG1u6gnSzX39WE2i2j3poK9aPBFsctVXkaan": "MoonStake",
+    "5GKhdSJuSNvMvVoxTgKpQ8HGqQtFZd1UHw5kdk8P6Ld2Z5tp": "Moonstake",
+    "5HSo1GQAhnnH4u2XPEjyUXjFixiaCphYzQD2wzgaGQZ1vTqL": "Moonstake"
   }
 };
