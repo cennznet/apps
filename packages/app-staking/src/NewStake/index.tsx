@@ -13,6 +13,7 @@ import {
     Table,
     TxButton
 } from '@polkadot/react-components';
+import { SubmittableResult } from '@polkadot/api';
 import { useTranslation } from '@polkadot/app-staking/translate';
 import { useAccounts, useApi, useCacheKey, useCall, useToggle } from '@polkadot/react-hooks';
 import type { DeriveStakingElected, DeriveStakingWaiting, DeriveStakingQuery } from '@polkadot/api-derive/types';
@@ -28,6 +29,7 @@ import { colors } from '../../../../styled-theming';
 import AccountCheckingModal from '@polkadot/app-accounts/modals/AccountsForStaking';
 import { toFormattedBalance } from '@polkadot/react-components/util';
 import { StakePair, STORE_STAKES } from '../MyStake/utils';
+import { useHistory } from 'react-router-dom';
 
 interface Props extends BareProps {
   isVisible: boolean;
@@ -35,6 +37,7 @@ interface Props extends BareProps {
 
 function NewStake ({ className, isVisible }: Props): React.ReactElement<Props> {
     const { api } = useApi();
+    const history = useHistory();
     const electedInfo = useCall<DeriveStakingElected>(api.derive.staking.electedInfo);
     const waitingInfo = useCall<DeriveStakingWaiting>(api.derive.staking.waitingInfo);
     let validatorInfo: DeriveStakingQuery[] = [];
@@ -255,12 +258,16 @@ function NewStake ({ className, isVisible }: Props): React.ReactElement<Props> {
                     isPrimary
                   />
                   <TxButton
-                    onStart={() => {
-                      // clean up after submitting the tx
-                      var unstaked = unstakedAccounts.filter(x => x != stashAccountId?.toString());
-                      setUnstakedAccounts(unstaked);
-                      setStashAccountId(unstaked.length > 0 ? unstaked[0] : '');
-                      setRewardDestinationId(unstaked.length > 0 ? unstaked[0] : '');
+                    onUpdate={(result: SubmittableResult) => {
+                      if (result.status.isInBlock) {
+                        // clean up after submitting the tx
+                        const unstaked = unstakedAccounts.filter(x => x != stashAccountId?.toString());
+                        setUnstakedAccounts(unstaked);
+                        setStashAccountId(unstaked.length > 0 ? unstaked[0] : '');
+                        setRewardDestinationId(unstaked.length > 0 ? unstaked[0] : '');
+                        // navigate to mystake page
+                        history.push(`/staking/mystake`);
+                      }
                     }}
                     accountId={stashAccountId}
                     extrinsic={extrinsic}
