@@ -258,15 +258,14 @@ function NewStake ({ className, isVisible }: Props): React.ReactElement<Props> {
                     isPrimary
                   />
                   <TxButton
-                    onStart={() => {
-                      // clean up after submitting the tx
-                      var unstaked = unstakedAccounts.filter(x => x != stashAccountId?.toString());
-                      setUnstakedAccounts(unstaked);
-                      setStashAccountId(unstaked.length > 0 ? unstaked[0] : '');
-                      setRewardDestinationId(unstaked.length > 0 ? unstaked[0] : '');
-                    }}
                     onUpdate={(result: SubmittableResult) => {
                       if (result.status.isInBlock) {
+                        // clean up after submitting the tx
+                        const unstaked = unstakedAccounts.filter(x => x != stashAccountId?.toString());
+                        setUnstakedAccounts(unstaked);
+                        setStashAccountId(unstaked.length > 0 ? unstaked[0] : '');
+                        setRewardDestinationId(unstaked.length > 0 ? unstaked[0] : '');
+                        // navigate to mystake page
                         history.push(`/staking/mystake`);
                       }
                     }}
