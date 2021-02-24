@@ -10,7 +10,7 @@ import styled from 'styled-components';
 
 interface Props {
   className?: string;
-  color?: 'gray' | 'green' | 'normal' | 'orange' | 'red' | 'transparent' | 'white';
+  color?: 'gray' | 'green' | 'normal' | 'orange' | 'red' | 'transparent' | 'white' | 'yellow';
   icon: IconName;
   isSpinning?: boolean;
   onClick?: () => void;

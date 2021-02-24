@@ -7,7 +7,7 @@ import type { AccountId } from '@polkadot/types/interfaces';
 import { LabelHelp, Table } from '@polkadot/react-components';
 import { useApi, useCall } from '@polkadot/react-hooks';
 import { BlockAuthorsContext } from '@polkadot/react-query';
-
+import type { DeriveStakingQuery, DeriveStakingWaiting } from '@polkadot/api-derive/types';
 import useNominations from '../useNominations';
 import Address from './Address';
 import { SortedTargets, ValidatorInfo } from "@polkadot/app-staking/types";
@@ -70,10 +70,12 @@ function CurrentList ({ favorites, hasQueries, next, stakingOverview, targets, t
   const { api } = useApi();
   const { byAuthor, eraPoints } = useContext( BlockAuthorsContext);
   const recentlyOnline = useCall<DeriveHeartbeats>(api.derive.imOnline?.receivedHeartbeats);
+  const waitingStakingInfo = useCall<DeriveStakingWaiting>(api.derive.staking.waitingInfo);
+  const unelectedStashes: DeriveStakingQuery[] | undefined = waitingStakingInfo?.info;
   const nominatedBy = useNominations(false);
   const [nameFilter] = useState<string>('');
   const [withIdentity] = useState(false);
-  const { validators } = useMemo(
+  const { validators, waiting } = useMemo(
       () => stakingOverview ? getFiltered(stakingOverview, favorites, next) : {},
       [favorites, next, stakingOverview]
   );
@@ -105,6 +107,7 @@ function CurrentList ({ favorites, hasQueries, next, stakingOverview, targets, t
                   toggleFavorite={toggleFavorite}
                   validatorInfo={infoMap?.[address]}
                   withIdentity={withIdentity}
+                  stakingLedger={!isElected? unelectedStashes?.find(element => element.accountId.toString() === address)?.stakingLedger : undefined}
               />
           )),
       [byAuthor, eraPoints, hasQueries, infoMap, nameFilter, nominatedBy, recentlyOnline, toggleFavorite, withIdentity]
@@ -127,6 +130,7 @@ function CurrentList ({ favorites, hasQueries, next, stakingOverview, targets, t
     </thead>
     <tbody>
       {infoMap ? _renderRows(validators, true): undefined}
+      {infoMap ? _renderRows(waiting, true): undefined}
     </tbody>
   </StyledTable>
   )

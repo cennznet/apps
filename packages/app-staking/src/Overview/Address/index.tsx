@@ -3,8 +3,7 @@
 
 import BN from 'bn.js';
 import React, { useMemo } from 'react';
-
-import type { ValidatorPrefs } from '@polkadot/types/interfaces';
+import type { StakingLedger, ValidatorPrefs } from '@polkadot/types/interfaces';
 import { AddressSmall } from '@polkadot/react-components';
 import { useApi, useCall } from '@polkadot/react-hooks';
 import FormatBalance from '@polkadot/app-generic-asset/FormatBalance';
@@ -30,6 +29,7 @@ interface Props {
   toggleFavorite: (accountId: string) => void;
   validatorInfo?: ValidatorInfo;
   withIdentity: boolean;
+  stakingLedger?: StakingLedger;
 }
 
 interface StakingState {
@@ -64,7 +64,7 @@ function expandInfo ({ exposure, validatorPrefs }: ValidatorInfo): StakingState 
   };
 }
 
-function Address ({ address, className = '', filterName, hasQueries, isElected, isFavorite, isMain, lastBlock, nominatedBy, onlineCount, onlineMessage, points, toggleFavorite, validatorInfo, withIdentity }: Props): React.ReactElement<Props> | null {
+function Address ({ address, className = '', filterName, hasQueries, isElected, isFavorite, isMain, lastBlock, nominatedBy, onlineCount, onlineMessage, points, toggleFavorite, validatorInfo, withIdentity, stakingLedger }: Props): React.ReactElement<Props> | null {
   const { api } = useApi();
   const { nominators, stakeTotal } = useMemo(
     () => validatorInfo
@@ -75,7 +75,7 @@ function Address ({ address, className = '', filterName, hasQueries, isElected, 
 
   const chainInfo = useCall<string>(api.rpc.system.chain, []);
   const chain: string | undefined = chainInfo ? chainInfo.toString() : undefined;
-  const pool = chain ? poolRegistry[chain][address] ? poolRegistry[chain][address] : 'unknown' : 'unknown';
+  const pool = chain ? poolRegistry[chain][address] ? poolRegistry[chain][address] : 'Centrality' : 'unknown';
 
   return (
       <tr className={className}>
@@ -96,9 +96,7 @@ function Address ({ address, className = '', filterName, hasQueries, isElected, 
           </td>
           {isMain && (
               <td style={{width:'15%', whiteSpace:'nowrap'}}>
-                {stakeTotal?.gtn(0) && (
-                  <FormatBalance value={stakeTotal} symbol={STAKING_ASSET_NAME}/>
-                )}
+                <FormatBalance value={isElected ? stakeTotal : stakingLedger?.active?.toString()} symbol={STAKING_ASSET_NAME}/>
               </td>
           )}
       </tr>
