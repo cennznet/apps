@@ -28,6 +28,37 @@ interface Props extends BareProps {
   onClose: () => void;
 }
 
+export function _renderRows(validatorInfo: DeriveStakingQuery[], isElected: boolean, chain: string | undefined, _validatorSelected: (element: any) => void, status?: string) {
+  return <>
+    {validatorInfo.map(({accountId, stakingLedger, exposure, validatorPrefs}): React.ReactNode => (
+      <tr key={accountId.toString()}>
+        <td className='address'>
+          <AddressSmall value={accountId.toString()}/>
+        </td>
+        <td className='address'>
+          {chain ? poolRegistry[chain][accountId.toString()] ? poolRegistry[chain][accountId.toString()] : 'Centrality' : 'Centrality'}
+        </td>
+        <td>
+          {validatorPrefs["commission"].toHuman()}
+        </td>
+        <td>
+          {stakingLedger.active?.toBn()?.gten(0) && (
+            <FormatBalance value={isElected ? exposure.total: stakingLedger.active} symbol={STAKING_ASSET_NAME}/>)}
+        </td>
+        {status && <td>{status}</td>}
+        <td>
+          <input
+            className='checkbox'
+            type={'checkbox'}
+            value={accountId.toString()}
+            onClick={_validatorSelected}
+          />
+        </td>
+      </tr>
+    ))}
+  </>;
+}
+
 function ManageStake ({ className, controllerAddress, stashAddress, onClose }: Props): React.ReactElement<Props> {
     const { api } = useApi();
     const defaultSection = Object.keys(api.tx)[0];
@@ -36,15 +67,7 @@ function ManageStake ({ className, controllerAddress, stashAddress, onClose }: P
     const apiDefaultTxSudo = (api.tx.staking && api.tx.staking.setController) || apiDefaultTx;
     const electedInfo = useCall<DeriveStakingElected>(api.derive.staking.electedInfo);
     const waitingInfo = useCall<DeriveStakingWaiting>(api.derive.staking.waitingInfo);
-    let validatorInfo: DeriveStakingQuery[] = [];
-    if (electedInfo && electedInfo.info.length > 0) {
-      validatorInfo = electedInfo.info;
-    }
-    if (waitingInfo && waitingInfo.info.length > 0) {
-      validatorInfo = validatorInfo.concat(waitingInfo.info)
-    }
-
-  const [method, setMethod] = useState<SubmittableExtrinsic | null>();
+    const [method, setMethod] = useState<SubmittableExtrinsic | null>();
     const chainInfo = useCall<string>(api.rpc.system.chain, []);
     // the address which should sign the transaction.
     // it can change between stash or controller.
@@ -131,99 +154,76 @@ function ManageStake ({ className, controllerAddress, stashAddress, onClose }: P
     const { t } = useTranslation();
     const stake = <span className='label'>{t('stake')}</span>;
 
-    return (
+  return (
         <Modal
           className={className}
-          style={{ marginTop: "8rem", minWidth: "50%", maxWidth: "700px" }}
+          style={{marginTop: "8rem", minWidth: "50%", maxWidth: "700px"}}
           header={
             <span>
               {t('Manage stake')}
               <LabelHelp help={
                 'Staking preferences are stored onchain and require sending transactions to approve changes.\
                 Some transactions are authorized by a delegated controller account which may not be the same as the stash.'
-                }
+              }
               />
             </span>
           }
         >
           <Modal.Content>
-              <div className='nominator--Selection'>
-                  <InputAddress
-                      label={t('Stash')}
-                      help={'The account with staked CENNZ'}
-                      defaultValue={stashAddress}
-                      labelExtra={<FormatBalance label={stake} value={assetBalance} symbol={STAKING_ASSET_NAME}/>}
-                      type='account'
-                      isDisabled={true}
-                  />
-                  <InputAddress
-                      label={t('Controller')}
-                      help={'The account which controls perferences for the stash'}
-                      defaultValue={controllerAddress}
-                      labelExtra={<FormatBalance value={controllerCpayBalance} symbol={SPENDING_ASSET_NAME}/>}
-                      type='account'
-                      isDisabled={true}
-                  />
-                  <StakingExtrinsic
-                    defaultValue={apiDefaultTxSudo}
-                    label={t('Action')}
-                    onChange={setMethod}
-                  />
-                  <div className='validator-info' style={showValidatorList ? {display: 'block'} : {display: 'none'}}>
-                    <div className='label'>
-                      Select validators to nominate
-                    </div>
-                    <Table>
-                      <Table.Body>
-                        <tr>
-                          <th>{t('Validator')}</th>
-                          <th>{t('Pool')}</th>
-                          <th>{t('Commission')}</th>
-                          <th>{t('Total Staked')}</th>
-                          <th></th>
-                        </tr>
-                        { validatorInfo.length > 0 && validatorInfo.map(({ accountId, stakingLedger, validatorPrefs }): React.ReactNode => (
-                          <tr className={className} key={accountId.toString()}>
-                            <td className='address'>
-                              <AddressSmall value={accountId.toString()} />
-                            </td>
-                            <td className='address'>
-                              {chain? poolRegistry[chain][accountId.toString()] ? poolRegistry[chain][accountId.toString()]: 'Centrality': 'Centrality'}
-                            </td>
-                            <td>
-                              {validatorPrefs["commission"].toHuman()}
-                            </td>
-                            <td>
-                              {stakingLedger.active?.toBn()?.gten(0) && (
-                                <FormatBalance value={stakingLedger.active} symbol={STAKING_ASSET_NAME}/>)}
-                            </td>
-                            <td>
-                              <input
-                                className='checkbox'
-                                type={'checkbox'}
-                                value={accountId.toString()}
-                                onClick={_validatorSelected}
-                              />
-                            </td>
-                          </tr>
-                        ))}
-                      </Table.Body>
-                    </Table>
-                  </div>
-              </div>
-            </Modal.Content>
-            <Modal.Actions onCancel={onClose}>
-              <TxButton
-                accountId={signingAddress}
-                extrinsic={extrinsic}
-                icon='sign-in'
-                isDisabled={!isValid}
-                onStart={onClose}
-                isPrimary
-                label={t('Submit Transaction')}
+            <div className='nominator--Selection'>
+              <InputAddress
+                label={t('Stash')}
+                help={'The account with staked CENNZ'}
+                defaultValue={stashAddress}
+                labelExtra={<FormatBalance label={stake} value={assetBalance} symbol={STAKING_ASSET_NAME}/>}
+                type='account'
+                isDisabled={true}
               />
+              <InputAddress
+                label={t('Controller')}
+                help={'The account which controls perferences for the stash'}
+                defaultValue={controllerAddress}
+                labelExtra={<FormatBalance value={controllerCpayBalance} symbol={SPENDING_ASSET_NAME}/>}
+                type='account'
+                isDisabled={true}
+              />
+              <StakingExtrinsic
+                defaultValue={apiDefaultTxSudo}
+                label={t('Action')}
+                onChange={setMethod}
+              />
+              <div className='validator-info' style={showValidatorList ? {display: 'block'} : {display: 'none'}}>
+                <div className='label'>
+                  Select validators to nominate
+                </div>
+                <Table>
+                  <Table.Body>
+                    <tr>
+                      <th>{t('Validator')}</th>
+                      <th>{t('Pool')}</th>
+                      <th>{t('Commission')}</th>
+                      <th>{t('Total Staked')}</th>
+                      <th></th>
+                    </tr>
+                    {electedInfo ? _renderRows(electedInfo.info, true, chain, _validatorSelected) : undefined}
+                    {waitingInfo ? _renderRows(waitingInfo.info, false, chain, _validatorSelected) : undefined}
+                  </Table.Body>
+                </Table>
+              </div>
+            </div>
+          </Modal.Content>
+          <Modal.Actions onCancel={onClose}>
+            <TxButton
+              accountId={signingAddress}
+              extrinsic={extrinsic}
+              icon='sign-in'
+              isDisabled={!isValid}
+              onStart={onClose}
+              isPrimary
+              label={t('Submit Transaction')}
+            />
           </Modal.Actions>
-      </Modal>
+        </Modal>
     );
 }
 

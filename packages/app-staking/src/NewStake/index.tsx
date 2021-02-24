@@ -4,7 +4,6 @@
 import React, { useEffect, useState } from 'react';
 import { BareProps } from '@polkadot/react-components/types';
 import {
-    AddressSmall,
     Button,
     HelpOverlay,
     InputAddress,
@@ -16,9 +15,8 @@ import {
 import { SubmittableResult } from '@polkadot/api';
 import { useTranslation } from '@polkadot/app-staking/translate';
 import { useAccounts, useApi, useCacheKey, useCall, useToggle } from '@polkadot/react-hooks';
-import type { DeriveStakingElected, DeriveStakingWaiting, DeriveStakingQuery } from '@polkadot/api-derive/types';
+import type { DeriveStakingElected, DeriveStakingWaiting } from '@polkadot/api-derive/types';
 import FormatBalance from '@polkadot/app-generic-asset/FormatBalance';
-import { poolRegistry } from '@polkadot/app-staking/Overview/Address/poolRegistry';
 import assetsRegistry, { STAKING_ASSET_NAME } from '@polkadot/app-generic-asset/assetsRegistry';
 import BN from 'bn.js';
 import { Balance, Codec } from '@cennznet/types';
@@ -30,6 +28,7 @@ import AccountCheckingModal from '@polkadot/app-accounts/modals/AccountsForStaki
 import { toFormattedBalance } from '@polkadot/react-components/util';
 import { StakePair, STORE_STAKES } from '../MyStake/utils';
 import { useHistory } from 'react-router-dom';
+import {_renderRows} from "@polkadot/app-staking/ManageStake";
 
 interface Props extends BareProps {
   isVisible: boolean;
@@ -40,13 +39,6 @@ function NewStake ({ className, isVisible }: Props): React.ReactElement<Props> {
     const history = useHistory();
     const electedInfo = useCall<DeriveStakingElected>(api.derive.staking.electedInfo);
     const waitingInfo = useCall<DeriveStakingWaiting>(api.derive.staking.waitingInfo);
-    let validatorInfo: DeriveStakingQuery[] = [];
-    if (electedInfo && electedInfo.info.length > 0) {
-      validatorInfo = electedInfo.info;
-    }
-    if (waitingInfo && waitingInfo.info.length > 0) {
-      validatorInfo = validatorInfo.concat(waitingInfo.info)
-    }
     const minimumBond = useCall<Balance>(api.query.staking.minimumBond);
     const chainInfo = useCall<string>(api.rpc.system.chain, []);
     const [assetBalance, setAssetBalance] = useState<BN>(new BN(0));
@@ -153,6 +145,7 @@ function NewStake ({ className, isVisible }: Props): React.ReactElement<Props> {
 
     const closeNoAccountsPopUp = (): void => setIsNoAccountsPopUpOpen(false);
 
+
     return (
       <div className={className}>
         <div className='new-stake-container'>
@@ -221,32 +214,8 @@ function NewStake ({ className, isVisible }: Props): React.ReactElement<Props> {
                       </th>
                       <th></th>
                     </tr>
-                    { validatorInfo.length > 0 && validatorInfo.map(({ accountId, stakingLedger, validatorPrefs }): React.ReactNode => (
-                      <tr className={className} key={accountId.toString()}>
-                        <td className='address'>
-                          <AddressSmall value={accountId.toString()} />
-                        </td>
-                        <td className='address'>
-                          {chain? poolRegistry[chain][accountId.toString()] ? poolRegistry[chain][accountId.toString()]: 'Centrality': 'Centrality'}
-                        </td>
-                        <td>
-                          {validatorPrefs['commission'].toHuman()}
-                        </td>
-                        <td>
-                          {stakingLedger.active?.toBn()?.gten(0) && (
-                            <FormatBalance value={stakingLedger.active} symbol={STAKING_ASSET_NAME}/>)}
-                        </td>
-                        <td>{electedInfo?.nextElected.includes(accountId) ? '🟢' : '🟡'}</td>
-                        <td>
-                          <input
-                            className='checkbox'
-                            type={"checkbox"}
-                            value={accountId.toString()}
-                            onClick={_validatorSelected}
-                          />
-                        </td>
-                      </tr>
-                    ))}
+                    {electedInfo ? _renderRows(electedInfo.info, true, chain, _validatorSelected, '🟢') : undefined}
+                    {waitingInfo ? _renderRows(waitingInfo.info, false, chain, _validatorSelected, '🟡') : undefined}
                   </Table.Body>
                 </Table>
                 <div className='submitTx'>
