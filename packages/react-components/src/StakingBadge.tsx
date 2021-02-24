@@ -114,7 +114,7 @@ export default React.memo(styled(Badge)`
   }
 
   &.yellowColor {
-    background: #ffde00;
+    background: #e6ca36;
   }
 
   &.purpleColor {
