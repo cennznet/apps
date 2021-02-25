@@ -28,8 +28,8 @@ export default function ToolboxApp ({ basePath }: Props): React.ReactElement<Pro
     const { allAccounts, hasAccounts } = useAccounts();
     const { pathname } = useLocation();
     const allStashes = useStashIds();
-    const [ showMyStash, setshowMyStash ] = useState<boolean>(true);
-    findStakedAccounts(api as Api, allAccounts).then(stakedAccounts => stakedAccounts.size === 0 ? setshowMyStash(false): setshowMyStash(true) );
+    const [ showMyStake, setShowMyStake ] = useState<boolean>(true);
+    findStakedAccounts(api as Api, allAccounts).then(stakedAccounts => setShowMyStake(stakedAccounts.size > 0) );
     const stakingOverview = useCall<any>(api.derive.staking.overview, []);
     const transactionFeePot = useCall<Balance>(api.query.rewards.transactionFeePot, []);
     const baseInflation = useCall<FixedI128>(api.query.rewards.targetInflationPerStakingEra, []);
@@ -69,7 +69,7 @@ export default function ToolboxApp ({ basePath }: Props): React.ReactElement<Pro
         },
     ], [t]);
 
-    const hidden = showMyStash ? []: ['mystake'];
+    const hidden = showMyStake ? []: ['mystake'];
 
   return (
         <main className='staking--App'>
