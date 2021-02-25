@@ -53,7 +53,7 @@ export default function ToolboxApp ({ basePath }: Props): React.ReactElement<Pro
         [api, hasAccounts]
     );
 
-    let items = useMemo(() => [
+    const items = useMemo(() => [
         {
             isRoot: true,
             name: 'overview',
@@ -68,7 +68,8 @@ export default function ToolboxApp ({ basePath }: Props): React.ReactElement<Pro
             text: t('New Stake')
         },
     ], [t]);
-  const hidden = showMyStash ? []: ['mystake'];
+
+    const hidden = showMyStash ? []: ['mystake'];
 
   return (
         <main className='staking--App'>
