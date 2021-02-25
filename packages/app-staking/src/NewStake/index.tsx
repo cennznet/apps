@@ -127,7 +127,7 @@ function NewStake ({ className, isVisible }: Props): React.ReactElement<Props> {
       setOpenHelpDialog(false);
     }
 
-    const openAccountCheckingModal = !hasAccounts || stakedAccounts.length == allAccounts.length || unstakedAccounts.length === 0;
+    const openAccountCheckingModal = !hasAccounts || stakedAccounts.length == allAccounts.length;
     let errorText = '';
     if (hasAccounts && minimumBond) {
       if ((amount as BN)?.lt(minimumBond as BN)) {
