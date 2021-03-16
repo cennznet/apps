@@ -79,7 +79,7 @@ function NominatedByModal_({ nominators } : NominatorModalProps): React.ReactEle
   const [isVisible, setIsVisible] = useToggle(true);
 
   // sort by biggest first
-  nominators.sort((a, b) => a.value > b.value ? 1 : -1);
+  nominators.sort((a, b) => b.value.cmp(a.value));
 
   return (
     <Modal open={isVisible} header={modalHeader} style={{ marginTop: '10%', maxWidth: '700px' }}>
