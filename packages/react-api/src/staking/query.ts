@@ -124,7 +124,7 @@ export function query (instanceId: string, api: ApiInterfaceRx): (accountId: Uin
 }
 
 export function queryMulti (instanceId: string, api: ApiInterfaceRx): (accountIds: (Uint8Array | string)[], flags: QueryFlags) => Observable<DeriveStakingQuery[]> {
-  return memo(instanceId, (accountIds: (Uint8Array | string)[], flags: QueryFlags = { withExposure: true }): Observable<DeriveStakingQuery[]> =>
+  return memo(instanceId, (accountIds: (Uint8Array | string)[], flags: QueryFlags = { withExposure: true, withNominations: true, withLedger: true, withDestination: true, withPrefs: true }): Observable<DeriveStakingQuery[]> =>
     accountIds.length
       ? api.derive.session.indexes().pipe(
         switchMap(({ activeEra }): Observable<DeriveStakingQuery[]> => {
