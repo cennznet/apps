@@ -9,7 +9,7 @@ import { useApi, useCacheKey } from '@polkadot/react-hooks';
 import { BigNumber } from "bignumber.js";
 import BN from 'bn.js';
 
-import { findStakedAccounts, StakePair, STORE_STAKES } from './utils';
+import { findStakedAccounts, NominationState, StakePair, STORE_STAKES } from './utils';
 import { Api } from '@cennznet/api';
 import StakeInfo from './StakeInfo';
 import { colors } from '../../../../styled-theming';
@@ -31,8 +31,8 @@ export interface Nomination {
   stakeShare: BigNumber;
   // the raw stake contributed to this nomination
   stakeRaw: BigNumber;
-  // whether the nominated validator is elected this era or not
-  elected: boolean;
+  // the state of the nomination this era
+  state: NominationState;
 }
 
 interface Props {

@@ -11,39 +11,55 @@ import {
 import FormatBalance from '@polkadot/app-generic-asset/FormatBalance';
 import { AddressSmall, Button, LabelHelp } from '@polkadot/react-components';
 import { useApi, useCall, useToggle } from '@polkadot/react-hooks';
-import { BigNumber } from "bignumber.js";
+import { BigNumber } from 'bignumber.js';
 import React, { useEffect, useState } from 'react';
-import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css';
 import ManageStake from '../ManageStake';
 import { useTranslation } from '../translate';
 import { STAKE_SHARE_DISPLAY_DECIMAL_PLACE } from './config';
 import { Nomination } from './index';
-import { getNextRewardEstimate, getNominationDetails, StakePair } from './utils';
+import { getNextRewardEstimate, getNominationDetails, NominationState, StakePair } from './utils';
+import { toFormattedBalance } from '@polkadot/react-components/util';
 
 interface Props {
     stakePair: StakePair;
 }
 
-const _renderStakeShare = (stakeShare: BigNumber) => {
+const _renderStakeShare = (stakeShare: BigNumber, stakeRaw: BigNumber) => {
   // times(100) to convert to percentage
   if (stakeShare.isZero()) {
-    return <div>{`0%`}</div>;
+    console.error('active stake should not be 0');
   }
+
   const percentage = stakeShare
     .times(100)
     .toFixed(STAKE_SHARE_DISPLAY_DECIMAL_PLACE, 1); // 1 means round down. eg: 1. (new BigNumber(0.0001)).toFixed(3, 1) = '0.000'; 2.(new BigNumber(0.0009)).toFixed(3, 1) = '0.000'; 3.(new BigNumber(0.001)).toFixed(3, 1) = '0.001';
   if (percentage === '0.000') {
     // stakeShare less than (1 * 10pow(-STAKE_SHARE_DISPLAY_DECIMAL_PLACE) %)
     return (
-      <div>{`< ${Math.pow(10, -STAKE_SHARE_DISPLAY_DECIMAL_PLACE)}%`}</div>
+      <div>
+        { `${toFormattedBalance({ value: stakeRaw.toString() })} / < ${Math.pow(10, -STAKE_SHARE_DISPLAY_DECIMAL_PLACE)}%` }
+      </div>
     );
   }
   return (
-    <div>{`${stakeShare
-      .times(100)
-      .toFixed(STAKE_SHARE_DISPLAY_DECIMAL_PLACE)}%`}</div>
+    <div>
+      { `${toFormattedBalance({ value: stakeRaw.toString() })} / ${stakeShare.times(100).toFixed(STAKE_SHARE_DISPLAY_DECIMAL_PLACE)}%` }
+    </div>
   );
-};
+}
+
+const getNominationStateSymbol = (state: NominationState) => {
+    if (state == NominationState.ActiveStaked) {
+      return '🟢'
+    } else if (state == NominationState.ActiveReallocated) {
+      return '⚪️'
+    } else if (state == NominationState.ActiveOversubscribed) {
+      return '🟠'
+    } else {
+      // pending
+      return '🟡'
+    }
+}
 
 export default function StakeInfo({ stakePair }: Props): React.ReactElement<Props> {
   const { api } = useApi();
@@ -163,13 +179,20 @@ export default function StakeInfo({ stakePair }: Props): React.ReactElement<Prop
             <th className='header-secondary'>
               {t('Stake share')}
               <LabelHelp
-                help={t('Your contribution of the validator\'s total stake')}
+                help={t('Your contribution of the validator\'s total stake (real / %)')}
               />
             </th>
             <th className='header-secondary'>
               {t('Status')}
               <LabelHelp
-                help={t('Whether the nomination is active now or waiting be applied in the next election')}
+                help={(
+                  <p>
+                  🟢 active yielding rewards<br/>
+                  ⚪️ reallocated towards an active stake<br/>
+                  🟡 awaiting next era<br/>
+                  🟠 oversubscribed missing rewards<br/>
+                  </p>
+                )}
               />
             </th>
             <th className='header-secondary'>
@@ -183,15 +206,15 @@ export default function StakeInfo({ stakePair }: Props): React.ReactElement<Prop
         {nominations?.map((nominee: Nomination, index: number) => (
           <tr className='nomination-info' key={index}>
             <td><AddressSmall value={nominee.nominateToAddress}/></td>
-            <td>{_renderStakeShare(nominee.stakeShare)}</td>
-            <td>{nominee.elected ? '🟢' : '🟡'}</td>
+            <td>{nominee.state == NominationState.ActiveStaked ? _renderStakeShare(nominee.stakeShare, nominee.stakeRaw) : '-'}</td>
+            <td>{getNominationStateSymbol(nominee.state)}</td>
             <td>
-              <FormatBalance
+              {nominee.state == NominationState.ActiveStaked ? (<FormatBalance
                 // assumes equal rewards to nominated validators
                 // toFixed(0) removes decimal places from the calculated number
                 value={rewardEstimate.multipliedBy(nominee.stakeRaw.div(stakedAmount)).toFixed(0)}
                 symbol={SPENDING_ASSET_NAME}
-              />
+              />) : ('-')}
             </td>
           </tr>
         ))}

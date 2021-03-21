@@ -12,7 +12,19 @@ export interface StakePair {
   controllerAddress: string;
 }
 
+export enum NominationState {
+  // The nomination is active and staked
+  ActiveStaked,
+  // The nomination is active but stake has been reallocated this era
+  ActiveReallocated,
+  // The nomination is active but the stake will not be rewarded
+  ActiveOversubscribed,
+  // The nomination will be considered in future eras
+  Pending,
+}
+
 let exposures: Map<string, Exposure> = new Map();
+let exposuresClipped: Map<string, Exposure> = new Map();
 
 // Return a list of all stash, controller pairs associated with the given (local) addresses
 export async function findStakedAccounts(
@@ -95,6 +107,7 @@ export async function getNominationDetails(
     nominatedStashes && nominatedStashes.targets
       ? (nominatedStashes.targets.toJSON() as string[])
       : [];
+  const submittedEraIndex = nominatedStashes.submittedIn;
 
   // For each nominator calculate the stashes share of stake
   await Promise.all(
@@ -102,8 +115,9 @@ export async function getNominationDetails(
       async nominateToAddress =>
         new Promise<void>(async resolve => {
 
-          const { stakeShare, stakeRaw, elected } = await getStakeShare(
+          const { stakeShare, stakeRaw, state } = await getStakeShare(
             eraIndex,
+            submittedEraIndex,
             nominateToAddress,
             stashAddress,
             api
@@ -112,7 +126,7 @@ export async function getNominationDetails(
             nominateToAddress,
             stakeRaw,
             stakeShare,
-            elected,
+            state,
           });
 
           resolve();
@@ -136,30 +150,44 @@ export async function getNextRewardEstimate(
 // Return info on the stake contributed by [[stashAddress]] to [[nominatedAddress]]
 export async function getStakeShare(
   eraIndex: EraIndex,
+  submittedEraIndex: EraIndex,
   nominatedAddress: string,
   stashAddress: string,
   api: ApiPromise
-): Promise<{ stakeShare: BigNumber; stakeRaw: BigNumber; elected: boolean }> {
+): Promise<{ stakeShare: BigNumber; stakeRaw: BigNumber; state: NominationState }> {
   // TODO: cache these exposures
   const stakers = exposures.get(nominatedAddress) || (await api.query.staking.erasStakers(eraIndex, nominatedAddress)) as Exposure;
   exposures.set(nominatedAddress, stakers);
 
   const totalStakeAmount = new BigNumber(stakers.total.toString());
-  const stakersWithStashAccount = stakers.others.find(
+
+  // unclipped
+  const exposure = stakers.others.find(
     other => other.who.toString() === stashAddress
   );
-  if (!stakersWithStashAccount) {
+
+  if (!exposure) {
+    // nominator is not exposed, it may have been reallocated OR the nomination will apply in the next era
     return {
       stakeShare: new BigNumber(0),
       stakeRaw: new BigNumber(0),
-      elected: false
-    };
+      state: submittedEraIndex.toNumber() == eraIndex.toNumber() ? NominationState.Pending : NominationState.ActiveReallocated,
+    }
   }
-  const stashAccountStakeAmount = new BigNumber(stakersWithStashAccount.value.toString());
+
+  const stakersClipped = exposuresClipped.get(nominatedAddress) || (await api.query.staking.erasStakersClipped(eraIndex, nominatedAddress)) as Exposure;
+  exposuresClipped.set(nominatedAddress, stakersClipped);
+
+  // clipped
+  const exposureClipped = stakersClipped.others.find(
+    other => other.who.toString() === stashAddress
+  );
+  const stashAccountStakeAmount = new BigNumber(exposure.value.toString());
 
   return {
     stakeRaw: stashAccountStakeAmount,
     stakeShare: stashAccountStakeAmount.div(totalStakeAmount),
-    elected: true
+    // this nomination is outside of the rewarded nominators set
+    state: exposureClipped ? NominationState.ActiveStaked : NominationState.ActiveOversubscribed,
   };
 }
