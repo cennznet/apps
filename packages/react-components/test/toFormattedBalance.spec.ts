@@ -162,6 +162,5 @@ describe('toFormattedBalance', () => {
       });
       expect(result).toEqual('0.1234');
     });
-
   });
 });

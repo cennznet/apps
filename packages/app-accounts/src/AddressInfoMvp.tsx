@@ -10,12 +10,11 @@ import styled from 'styled-components';
 import { withMulti } from '@polkadot/react-api/hoc';
 import { useAccounts } from '@polkadot/react-hooks';
 import FormatBalance from '@polkadot/app-generic-asset/FormatBalance';
-import assetsRegistry, {SPENDING_ASSET_NAME, STAKING_ASSET_NAME} from '@polkadot/app-generic-asset/assetsRegistry';
+import {AssetRegistry, SPENDING_ASSET_NAME, STAKING_ASSET_NAME} from '@polkadot/app-generic-asset/assetsRegistry';
 import { useApi, useCall } from '@polkadot/react-hooks';
 
 import Label from '@polkadot/react-components/Label';
 import { useTranslation } from './translate';
-import { AssetId } from '@cennznet/types';
 
 // true to display, or (for bonded) provided values [own, ...all extras]
 export interface BalanceActiveType {
@@ -48,28 +47,9 @@ interface Props extends BareProps {
 
 function renderBalances (props: Props, allAccounts: string[], t: (key: string) => string): React.ReactNode {
   const { address } = props;
-
   const { api } = useApi();
-
-    // Populate staking/CENNZ and spending/CPAY IDs from the connected chain
-    const stakingAssetId = useCall<AssetId>(api.query.genericAsset.stakingAssetId as any, []);
-    if (stakingAssetId) {
-      assetsRegistry.add(
-        stakingAssetId.toNumber().toString(),
-        STAKING_ASSET_NAME
-      );
-    }
-  
-    const spendingAssetId = useCall<AssetId>(api.query.genericAsset.spendingAssetId as any, []);
-    if (spendingAssetId) {
-      assetsRegistry.add(
-        spendingAssetId.toNumber().toString(),
-        SPENDING_ASSET_NAME
-      );
-    }
-
-  const cennzBalance = useCall<'Balance'>(api.query.genericAsset.freeBalance as any, [assetsRegistry.getStakingAssetId(), address]);
-  const cpayBalance = useCall<'Balance'>(api.query.genericAsset.freeBalance as any, [assetsRegistry.getSpendingAssetId(), address]);
+  const cennzBalance = useCall<'Balance'>(api.query.genericAsset.freeBalance, [new AssetRegistry().getStakingAssetId(), address]);
+  const cpayBalance = useCall<'Balance'>(api.query.genericAsset.freeBalance, [new AssetRegistry().getSpendingAssetId(), address]);
 
   return (
     <>

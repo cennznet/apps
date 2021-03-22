@@ -11,6 +11,7 @@ import { createType, getTypeDef } from '@polkadot/types';
 
 import Account from './Account';
 import Amount from './Amount';
+import AssetId from './AssetId';
 import Balance from './Balance';
 import Bool from './Bool';
 import Bytes from './Bytes';
@@ -45,6 +46,7 @@ const componentDef: TypeToComponent[] = [
   { c: Account, t: ['AccountId', 'AccountIdOf', 'Address', 'AuthorityId', 'LookupSource', 'LookupTarget', 'SessionKey', 'ValidatorId'] },
   { c: Amount, t: ['AccountIndex', 'AssetId', 'BlockNumber', 'Gas', 'Index', 'Nonce', 'ParaId', 'ProposalIndex', 'PropIndex', 'ReferendumIndex', 'i8', 'i16', 'i32', 'i64', 'i128', 'u8', 'u16', 'u32', 'u64', 'u128', 'u256', 'VoteIndex'] },
   { c: Balance, t: ['Amount', 'AssetOf', 'Balance', 'BalanceOf'] },
+  { c: AssetId, t: ['AssetId'] },
   { c: Bool, t: ['bool'] },
   { c: Bytes, t: ['Bytes'] },
   { c: Call, t: ['Call', 'Proposal'] },

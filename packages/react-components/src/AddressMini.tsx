@@ -121,6 +121,10 @@ export default styled(AddressMini)`
     }
   }
 
+  .container.highlight::before {
+    box-shadow: 0 0 1px 1px #EEE !important;
+  }
+
   &.withShrink {
     .ui--AddressMini-address {
       min-width: 3rem;

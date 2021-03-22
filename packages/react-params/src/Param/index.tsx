@@ -6,8 +6,6 @@ import { BaseProps, Props as CProps, ComponentMap } from '../types';
 
 import React, { useRef } from 'react';
 import { classes } from '@polkadot/react-components/util';
-import { encodeTypeDef } from '@polkadot/types';
-import { isUndefined } from '@polkadot/util';
 
 import findComponent from './findComponent';
 import Static from './Static';
@@ -25,9 +23,7 @@ export default function Param ({ className, defaultValue, isDisabled, isOptional
     return null;
   }
 
-  const label = isUndefined(name)
-    ? encodeTypeDef(type)
-    : `${name}: ${encodeTypeDef(type)}`;
+  const label = name;
 
   return isOptional
     ? (
@@ -41,7 +37,7 @@ export default function Param ({ className, defaultValue, isDisabled, isOptional
       <compRef.current
         className={classes('ui--Param', className)}
         defaultValue={defaultValue}
-        key={`${name}:${type}`}
+        key={name}
         isDisabled={isDisabled}
         label={label}
         name={name}

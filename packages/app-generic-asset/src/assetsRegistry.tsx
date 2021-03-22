@@ -3,76 +3,99 @@
 // of the Apache-2.0 license. See the LICENSE file for details.
 
 import { BehaviorSubject } from 'rxjs';
-import { reservedAssets } from '@polkadot/app-generic-asset/asset-util';
-import { useApi, useCall } from '@polkadot/react-hooks';
+import { defaultReservedAssets } from '@polkadot/app-generic-asset/asset-util';
+import { useApi, useStorageKey, useCall } from '@polkadot/react-hooks';
 
 const ASSETS_KEY = "cennznet-assets";
 export const STAKING_ASSET_NAME = "CENNZ";
 export const SPENDING_ASSET_NAME = "CPAY";
 
-export interface AssetsSubjectInfo { [id: string]: string }
+export interface AssetsSubjectInfo { [id: string]: { symbol: string, decimals: number }}
+let _initializedAssetRegistry: AssetRegistry | undefined;
 
-let initialAssets: AssetsSubjectInfo = {};
+export class AssetRegistry {
+  subject!: BehaviorSubject<AssetsSubjectInfo>;
 
-try {
-  const storedAsset = localStorage.getItem(ASSETS_KEY);
-  if (storedAsset) {
-    initialAssets = JSON.parse(storedAsset);
-  } else {
-    initialAssets = reservedAssets;
+  // needs Api context
+  constructor() {
+    // singleton
+    if(_initializedAssetRegistry !== undefined) return _initializedAssetRegistry;
+
+    const [getStoredAssets, setStoredAssets] = useStorageKey<string>(undefined, ASSETS_KEY);
+
+    let initialAssets: AssetsSubjectInfo = {};
+
+    try {
+      initialAssets = JSON.parse(getStoredAssets()!);
+    } catch (e) {
+      console.warn('no cached assets registered');
+    }
+    this.subject = new BehaviorSubject(initialAssets);
+    this.subject.subscribe({ 
+      next: (assets: AssetsSubjectInfo) => setStoredAssets(JSON.stringify(assets))
+    });
+    _initializedAssetRegistry = this;
   }
-} catch (e) {
-  // ignore error
-}
 
-const subject = new BehaviorSubject(initialAssets);
-
-subject.subscribe((assets): void =>
-  localStorage.setItem(ASSETS_KEY, JSON.stringify(assets))
-);
-
-export default {
-  getSpendingAssetId: (): string => {
-    for (let [id, name] of Object.entries(subject.getValue())) {
-      if (name === SPENDING_ASSET_NAME) return id
+  getSpendingAssetId(): string {
+    for (let [id, { symbol }] of Object.entries(this.subject.getValue())) {
+      if (symbol === SPENDING_ASSET_NAME) return id
     }
     // fallback, re-query the value
     const { api } = useApi();
-    return useCall<string>(api.query.genericAsset.spendingAssetId() as any, [])!
-  },
-  getStakingAssetId: (): string => {
-    for (let [id, name] of Object.entries(subject.getValue())) {
-      if (name === STAKING_ASSET_NAME) return id
+    return useCall<string>(api.query.genericAsset.spendingAssetId, [])!
+  }
+
+  getStakingAssetId(): string {
+    for (let [id, { symbol } ] of Object.entries(this.subject.getValue())) {
+      if (symbol === STAKING_ASSET_NAME) return id
     }
     // fallback, re-query the value
     const { api } = useApi();
-    return useCall<string>(api.query.genericAsset.stakingAssetId() as any, [])!
-  },
-  getAssets: (): AssetsSubjectInfo[] =>
-    Object.entries(subject.getValue()).map(([id, name]): AssetsSubjectInfo => ({ id, name })),
-  add: (id: string, name: string): void => {
+    return useCall<string>(api.query.genericAsset.stakingAssetId, [])!
+  }
+
+  // query asset in the registry
+  get(targetId: string): { symbol: string, decimals: number } | undefined {
+    for (let [id, info ] of Object.entries(this.subject.getValue())) {
+      if (targetId == id) {
+        return info;
+      }
+    }
+    return;
+  }
+
+  // get all assets in the registry
+  getAssets(): AssetsSubjectInfo[] {
+    return Object.entries(this.subject.getValue()).map(([id, info]): AssetsSubjectInfo => ({ [id]: info }))
+  }
+
+  // add a new asset to the registry
+  add(id: string, symbol: string, decimals: number): void {
     // Asset name exists already, update it's ID
-    const assets = subject.getValue();
-    for (let [existingId, existingName] of Object.entries(assets)) {
-      if (name == existingName) {
+    const assets = this.subject.getValue();
+    for (let [existingId, { symbol: existingSymbol }] of Object.entries(assets)) {
+      if (symbol == existingSymbol) {
         const { [existingId]: ignore, ...assetsNew } = assets;
-        subject.next({
+        this.subject.next({
           ...assetsNew,
-          [id]: name
+          [id]: { symbol, decimals },
         });
         return;
       }
     }
     // Add new asset
-    subject.next({
+    this.subject.next({
       ...assets,
-      [id]: name
+      [id]: { symbol, decimals }
     });
-  },
-  remove: (id: string): void => {
+  }
+
+  // remove an asset from the registry
+  remove(id: string): void {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { [id]: ignore, ...assets } = subject.getValue();
-    subject.next(assets);
-  },
-  subject
-};
+    const { [id]: ignore, ...assets } = this.subject.getValue();
+    this.subject.next(assets);
+  }
+
+}

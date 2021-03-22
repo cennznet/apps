@@ -72,9 +72,17 @@ const toFormattedBalance = (
 const decimalToFixedWidth = (
   { value, fixedPoint }: { value: string, fixedPoint: number }
 ): string => {
+
   let [prefix, postfix = ''] = value.split('.');
-  // ensure decimal part is == fixedPoint length
-  postfix = postfix.length > fixedPoint ? postfix.substring(0, fixedPoint) : postfix.padEnd(fixedPoint, '0');
+
+  // no decimal places given, the value should be padded out
+  if(!postfix) {
+    postfix = postfix.padEnd(fixedPoint, '0');
+  } else {
+    // ensure decimal part is shortened to fixedPoint places
+    postfix = postfix.substring(0, fixedPoint);
+  }
+
   // this will also remove leading 0s for fixed width representation
   return (+(prefix + postfix)).toString();
 };

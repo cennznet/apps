@@ -25,6 +25,8 @@ interface Props extends BareProps {
   isFull?: boolean;
   isSi?: boolean;
   isDecimal?: boolean;
+  // how many decimals the value supports
+  decimals: number;
   isZeroable?: boolean;
   label?: React.ReactNode;
   labelExtra?: React.ReactNode;
@@ -113,9 +115,10 @@ function getValuesFromString (value: string, props: Props): [string, BN, boolean
   const valueBn = new BN(
     decimalToFixedWidth({
       value: valueSanitized,
-      fixedPoint: formatBalance.getDefaults().decimals
+      fixedPoint: props.decimals,
     })
   );
+  //console.log('getValuesFromString valueBn', valueBn.toString());
 
   return [
     valueFormatted,
@@ -137,6 +140,7 @@ function getValuesFromBn (valueBn: BN, si: SiDef | null): [string, BN, boolean] 
 }
 
 function getValues (value: BN | string, si: SiDef | null, props: Props): [string, BN, boolean] {
+  //console.log('getValues', value.toString());
   return BN.isBN(value)
     ? getValuesFromBn(value, si)
     : getValuesFromString(value, props);
