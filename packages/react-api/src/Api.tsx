@@ -22,7 +22,7 @@ import {Api as ApiPromise} from '@cennznet/api';
 import * as staking from './staking';
 import { AssetId, AssetInfo } from '@cennznet/types';
 import {AssetRegistry} from '@polkadot/app-generic-asset/assetsRegistry';
-import { useCacheKey } from '@polkadot/react-hooks';
+import { u8aToString } from '@polkadot/util';
 
 interface Props {
   children: React.ReactNode;
@@ -130,7 +130,8 @@ async function loadOnReady (api: ApiPromise): Promise<State> {
 
   let assetsRegistry = new AssetRegistry();
   registeredAssets?.map(([assetId, assetInfo]) => {
-    assetsRegistry.add(assetId.toString(), assetInfo.symbol.toString(), assetInfo.decimalPlaces.toNumber());
+    console.log('registering asset', assetId.toString(), u8aToString(assetInfo.symbol), assetInfo.decimalPlaces.toNumber());
+    assetsRegistry.add(assetId.toString(), u8aToString(assetInfo.symbol), assetInfo.decimalPlaces.toNumber());
   });
 
   return {
@@ -163,8 +164,7 @@ export default function Api ({ children, url }: Props): React.ReactElement<Props
     api.on('disconnected', (): void => setIsApiConnected(false));
     api.on('ready', async (): Promise<void> => {
       try {
-        let state = await loadOnReady(api);
-        setState(state);
+        setState(await loadOnReady(api));
       } catch (error) {
         console.error('Unable to load chain', error);
       }

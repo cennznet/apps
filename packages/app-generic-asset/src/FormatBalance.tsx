@@ -9,6 +9,7 @@ import styled from 'styled-components';
 import { Compact } from '@polkadot/types';
 import { useTranslation } from '@polkadot/react-query/translate';
 import { toFormattedBalance } from '@polkadot/react-components/util';
+import { formatBalance } from '@polkadot/util';
 
 interface Props extends BareProps {
   children?: React.ReactNode;
@@ -21,7 +22,7 @@ interface Props extends BareProps {
 
 function FormatBalance ({ children, className, label, value, withSi, symbol, decimals }: Props): React.ReactElement<Props> {
   const { t } = useTranslation();
-  let fixedPoint = decimals || 4;
+  let fixedPoint = decimals || formatBalance.getDefaults().decimals;
 
   return (
     <div className={`ui--FormatBalance ${className}`}>

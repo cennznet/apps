@@ -38,26 +38,16 @@ function TransferWithType ({ className, onClose, recipientId: propRecipientId, s
   const [decimals, setDecimals] = useState<number | undefined>();
   const [extrinsic, setExtrinsic] = useState<SubmittableExtrinsic | null>(null);
   const [hasAvailable, setHasAvailable] = useState(true);
-  const [options, setOptions] = useState<Option[]>([]);
   const [recipientId, setRecipientId] = useState(propRecipientId || null);
   const [senderId, setSenderId] = useState(propSenderId || null);
 
-  useEffect((): void => {
-      let assetRegistry = new AssetRegistry();
-      const dropdownOptions: Option[] = Object.keys(assetRegistry.getAssets()).map(id => {
-        console.log(assetRegistry.get(id));
-        return {
-          text: assetRegistry.get(id)?.symbol,
-          value: id,
-        } as Option;
-      }) || [];
-
-      if(dropdownOptions.length == 0) return;
-
-      setOptions(dropdownOptions);
-      setAssetId(dropdownOptions[0].value || "0");
-      setAssetName(dropdownOptions[0].text || "?");
-    }, []);
+  let assetRegistry = new AssetRegistry();
+  const dropdownOptions: Option[] = assetRegistry.getAssets().map(([id, info]) => {
+    return {
+      text: info.symbol,
+      value: id,
+    } as Option;
+  }) || [];
 
   // Query balances on assetId or senderId change
   useMemo((): void => {
@@ -129,7 +119,7 @@ function TransferWithType ({ className, onClose, recipientId: propRecipientId, s
             help={t('Select the asset you want to transfer.')}
             label={t('Asset type')}
             onChange={setAsset}
-            options={options}
+            options={dropdownOptions}
             value={assetId}
           />
           <InputBalance

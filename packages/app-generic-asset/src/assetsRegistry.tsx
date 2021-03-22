@@ -10,7 +10,12 @@ const ASSETS_KEY = "cennznet-assets";
 export const STAKING_ASSET_NAME = "CENNZ";
 export const SPENDING_ASSET_NAME = "CPAY";
 
-export interface AssetsSubjectInfo { [id: string]: { symbol: string, decimals: number }}
+export interface AssetInfo {
+  symbol: string;
+  decimals: number;
+}
+
+export interface AssetsSubjectInfo { [id: string]: AssetInfo }
 let _initializedAssetRegistry: AssetRegistry | undefined;
 
 export class AssetRegistry {
@@ -30,10 +35,12 @@ export class AssetRegistry {
     } catch (e) {
       console.warn('no cached assets registered');
     }
+
     this.subject = new BehaviorSubject(initialAssets);
     this.subject.subscribe({ 
       next: (assets: AssetsSubjectInfo) => setStoredAssets(JSON.stringify(assets))
     });
+
     _initializedAssetRegistry = this;
   }
 
@@ -56,35 +63,19 @@ export class AssetRegistry {
   }
 
   // query asset in the registry
-  get(targetId: string): { symbol: string, decimals: number } | undefined {
-    for (let [id, info ] of Object.entries(this.subject.getValue())) {
-      if (targetId == id) {
-        return info;
-      }
-    }
-    return;
+  get(targetId: string): AssetInfo | undefined {
+    const { [targetId]: info } = this.subject.getValue();
+    return info;
   }
 
   // get all assets in the registry
-  getAssets(): AssetsSubjectInfo[] {
-    return Object.entries(this.subject.getValue()).map(([id, info]): AssetsSubjectInfo => ({ [id]: info }))
+  getAssets(): Array<[string, {symbol: string, decimals: number}]> {
+    return Object.entries(this.subject.getValue());
   }
 
-  // add a new asset to the registry
+  // add a new asset to the registry by Id
   add(id: string, symbol: string, decimals: number): void {
-    // Asset name exists already, update it's ID
     const assets = this.subject.getValue();
-    for (let [existingId, { symbol: existingSymbol }] of Object.entries(assets)) {
-      if (symbol == existingSymbol) {
-        const { [existingId]: ignore, ...assetsNew } = assets;
-        this.subject.next({
-          ...assetsNew,
-          [id]: { symbol, decimals },
-        });
-        return;
-      }
-    }
-    // Add new asset
     this.subject.next({
       ...assets,
       [id]: { symbol, decimals }
@@ -97,5 +88,4 @@ export class AssetRegistry {
     const { [id]: ignore, ...assets } = this.subject.getValue();
     this.subject.next(assets);
   }
-
 }

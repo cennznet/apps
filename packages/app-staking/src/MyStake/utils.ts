@@ -155,7 +155,7 @@ export async function getStakeShare(
   stashAddress: string,
   api: ApiPromise
 ): Promise<{ stakeShare: BigNumber; stakeRaw: BigNumber; state: NominationState }> {
-  // TODO: cache these exposures
+  // TODO: cache these exposures properly
   const stakers = exposures.get(nominatedAddress) || (await api.query.staking.erasStakers(eraIndex, nominatedAddress)) as Exposure;
   exposures.set(nominatedAddress, stakers);
 
