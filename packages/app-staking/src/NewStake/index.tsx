@@ -133,7 +133,7 @@ function NewStake ({ className, isVisible }: Props): React.ReactElement<Props> {
     let errorText = '';
     if (hasAccounts && minimumBond) {
       if ((amount as BN)?.lt(minimumBond as BN)) {
-        errorText = `minimum stake: ${toFormattedBalance({ value: minimumBond, unit: "CENNZ" })}`
+        errorText = `minimum stake: ${toFormattedBalance({ value: minimumBond, unit: STAKING_ASSET_NAME })}`
       }
       else if (assetBalance.lt(amount as BN)){
         errorText = 'Not enough available'
