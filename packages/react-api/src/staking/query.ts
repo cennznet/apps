@@ -127,11 +127,11 @@ export function queryMulti (instanceId: string, api: ApiInterfaceRx): (accountId
   return memo(instanceId, (accountIds: (Uint8Array | string)[], flags: QueryFlags = { withExposure: true, withNominations: true, withLedger: true, withDestination: true, withPrefs: true }): Observable<DeriveStakingQuery[]> =>
     accountIds.length
       ? api.derive.session.indexes().pipe(
-        switchMap(({ activeEra, currentEra }): Observable<DeriveStakingQuery[]> => {
+        switchMap(({ activeEra }): Observable<DeriveStakingQuery[]> => {
           const stashIds = accountIds.map((accountId) => api.registry.createType('AccountId', accountId));
           return (
             isFunction(api.query.staking.erasStakers)
-              ? retrieveCurr(api, stashIds, currentEra, flags)
+              ? retrieveCurr(api, stashIds, activeEra, flags)
               : combineLatest(stashIds.map((stashId) => retrievePrev(api, stashId)))
           ).pipe(
             switchMap((results): Observable<DeriveStakingQuery[]> =>
