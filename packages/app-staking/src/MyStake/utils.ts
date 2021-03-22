@@ -156,8 +156,9 @@ export async function getStakeShare(
   api: ApiPromise
 ): Promise<{ stakeShare: BigNumber; stakeRaw: BigNumber; state: NominationState }> {
   // TODO: cache these exposures
-  const stakers = exposures.get(nominatedAddress) || (await api.query.staking.erasStakers(eraIndex, nominatedAddress)) as Exposure;
-  exposures.set(nominatedAddress, stakers);
+  let eraKey = `${nominatedAddress}-${eraIndex}`;
+  const stakers = exposures.get(eraKey) || (await api.query.staking.erasStakers(eraIndex, nominatedAddress)) as Exposure;
+  exposures.set(eraKey, stakers);
 
   const totalStakeAmount = new BigNumber(stakers.total.toString());
 
@@ -166,17 +167,17 @@ export async function getStakeShare(
     other => other.who.toString() === stashAddress
   );
 
-  if (!exposure) {
+  if (exposure === undefined) {
     // nominator is not exposed, it may have been reallocated OR the nomination will apply in the next era
     return {
       stakeShare: new BigNumber(0),
       stakeRaw: new BigNumber(0),
-      state: submittedEraIndex.toNumber() == eraIndex.toNumber() ? NominationState.Pending : NominationState.ActiveReallocated,
+      state: submittedEraIndex.toNumber() >= eraIndex.toNumber() ? NominationState.Pending : NominationState.ActiveReallocated,
     }
   }
 
-  const stakersClipped = exposuresClipped.get(nominatedAddress) || (await api.query.staking.erasStakersClipped(eraIndex, nominatedAddress)) as Exposure;
-  exposuresClipped.set(nominatedAddress, stakersClipped);
+  const stakersClipped = exposuresClipped.get(eraKey) || (await api.query.staking.erasStakersClipped(eraIndex, nominatedAddress)) as Exposure;
+  exposuresClipped.set(eraKey, stakersClipped);
 
   // clipped
   const exposureClipped = stakersClipped.others.find(
@@ -188,6 +189,6 @@ export async function getStakeShare(
     stakeRaw: stashAccountStakeAmount,
     stakeShare: stashAccountStakeAmount.div(totalStakeAmount),
     // this nomination is outside of the rewarded nominators set
-    state: exposureClipped ? NominationState.ActiveStaked : NominationState.ActiveOversubscribed,
+    state: exposureClipped === undefined ? NominationState.ActiveOversubscribed : NominationState.ActiveStaked,
   };
 }
