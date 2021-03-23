@@ -18,14 +18,16 @@ const toFormattedBalance = (
     value: BN | string | Balance;
     fixedPoint?: number;
     unit?: string;
+    trim?: boolean;
   }
 ): string => {
-  const DEFAULT_FIXED_POINT = 4;
+  const DEFAULT_FIXED_POINT = formatBalance.getDefaults().decimals;
   const DEFAULT_UNIT = '';
   const {
     value,
     fixedPoint = DEFAULT_FIXED_POINT,
-    unit = DEFAULT_UNIT
+    unit = DEFAULT_UNIT,
+    trim = false,
   } = args;
   const unitPart = unit ? ` ${unit}` : '';
 
@@ -34,16 +36,20 @@ const toFormattedBalance = (
 
   // values with a decimal point should be converted to their fixed width form.
   const balance: string = raw.indexOf('.') > 0 ?
-    decimalToFixedWidth({ value: raw, fixedPoint }) : raw;
+    decimalToFixedWidth({ value: raw, fixedPoint, pad: trim }) : raw;
 
   /**
    * Condition 1: balance length is smaller than fixed point, e.g:
    * "123" ==> "0.1230" # when value length (3) is smaller than fixed point (4)
    */
-  if (balance.toString().length < fixedPoint) {
+  if (balance.length < fixedPoint) {
     const valueAsBN = new BN(balance);
     const scalingSize = Math.pow(10, 1 - fixedPoint);
-    const valuePart = (valueAsBN.toNumber() * scalingSize).toFixed(fixedPoint);
+    var valuePart = (valueAsBN.toNumber() * scalingSize).toFixed(fixedPoint);
+    if (trim) {
+      // .00000 => ''
+      valuePart = valuePart.replace(/\.0+$/, '');
+    }
 
     return `${valuePart}${unitPart}`;
   }
@@ -62,7 +68,14 @@ const toFormattedBalance = (
   // Note: we could use something simpler like `toLocaleString` but it cannot handle big number input.
   const formattedBalance = formatBalance(balance, polkadotFormatBalanceOptions);
   const integerPart = formattedBalance.split('.')[0];
-  const decimalPart = balance.toString().substr(-fixedPoint);
+  const decimalPart = trim ? 
+    balance.substr(-fixedPoint).replace(/0+$/, '') :
+    balance.substr(-fixedPoint);
+
+  // no important decimals after trimming
+  if (decimalPart.length == 0) {
+    return `${integerPart}${unitPart}`;
+  }
 
   return `${integerPart}.${decimalPart}${unitPart}`;
 };
@@ -70,15 +83,15 @@ const toFormattedBalance = (
 // Convert a value with decimal points into it's fixed width equivalent
 // e.g. '1234.567' => '1234567
 const decimalToFixedWidth = (
-  { value, fixedPoint }: { value: string, fixedPoint: number }
+  { value, fixedPoint, pad = true }: { value: string, fixedPoint: number, pad?: boolean }
 ): string => {
 
   let [prefix, postfix = ''] = value.split('.');
 
-  // no decimal places given, the value should be padded out
-  if(!postfix) {
+  if(pad && postfix.length < fixedPoint) {
+    // no decimal places given, the value should be padded out
     postfix = postfix.padEnd(fixedPoint, '0');
-  } else {
+  } else if (postfix.length > fixedPoint) {
     // ensure decimal part is shortened to fixedPoint places
     postfix = postfix.substring(0, fixedPoint);
   }

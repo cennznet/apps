@@ -4,7 +4,7 @@
 
 import { Balance, Codec } from '@cennznet/types';
 import { SubmittableExtrinsic } from '@polkadot/api/promise/types';
-import {AssetRegistry} from '@polkadot/app-generic-asset/assetsRegistry';
+import { AssetRegistry } from '@polkadot/app-generic-asset/assetsRegistry';
 import FormatBalance from '@polkadot/app-generic-asset/FormatBalance';
 import { withMulti } from '@polkadot/react-api/hoc';
 import { Dropdown, InputAddress, InputBalance, Modal, TxButton } from '@polkadot/react-components';
@@ -15,6 +15,7 @@ import BN from 'bn.js';
 import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import translate from '../../../app-generic-asset/src/translate';
+import { formatBalance } from '@polkadot/util';
 
 interface Props extends I18nProps {
   className?: string;
@@ -30,7 +31,7 @@ interface Option {
 
 function TransferWithType ({ className, onClose, recipientId: propRecipientId, senderId: propSenderId, t }: Props): React.ReactElement<Props> {
   const { api } = useApi();
-  const [assetId, setAssetId] = useState('0');
+  const [assetId, setAssetId] = useState<string | undefined>(undefined);
   const [assetBalance, setAssetBalance] = useState<BN>(new BN(0));
   const [assetName, setAssetName] = useState<string>('');
   // The BN value for transaction (no decimal)
@@ -40,17 +41,20 @@ function TransferWithType ({ className, onClose, recipientId: propRecipientId, s
   const [hasAvailable, setHasAvailable] = useState(true);
   const [recipientId, setRecipientId] = useState(propRecipientId || null);
   const [senderId, setSenderId] = useState(propSenderId || null);
-
-  let assetRegistry = new AssetRegistry();
-  const dropdownOptions: Option[] = assetRegistry.getAssets().map(([id, info]) => {
+  const dropdownOptions: Option[] = new AssetRegistry().getAssets().map(([id, info]) => {
     return {
       text: info.symbol,
       value: id,
     } as Option;
-  }) || [];
+  });
+
+  useEffect(() => {
+    if(!assetId) setAsset(dropdownOptions[0].value);
+  }, [dropdownOptions]);
 
   // Query balances on assetId or senderId change
   useMemo((): void => {
+    if(!assetId) return;
     // @ts-ignore
     api.query.genericAsset.freeBalance(assetId, senderId!).then(
       (balance: Codec) => setAssetBalance((balance as Balance).toBn())
@@ -74,11 +78,11 @@ function TransferWithType ({ className, onClose, recipientId: propRecipientId, s
     );
   }, [amount, assetId, recipientId]);
 
-  // When assetId is selected, update assetName also
+  // When assetId is selected, update asset info also
   function setAsset(assetId: string): void {
     setAssetId(assetId);
     let info = new AssetRegistry().get(assetId);
-    let decimals = info?.decimals || 4;
+    let decimals = info?.decimals || formatBalance.getDefaults().decimals;
     setDecimals(decimals);
     setAssetName(info?.symbol || "?");
   }

@@ -118,7 +118,6 @@ function getValuesFromString (value: string, props: Props): [string, BN, boolean
       fixedPoint: props.decimals || formatBalance.getDefaults().decimals,
     })
   );
-  console.log('getValuesFromString valueBn', valueBn.toString());
 
   return [
     valueFormatted,
