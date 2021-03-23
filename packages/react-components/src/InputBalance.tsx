@@ -38,7 +38,8 @@ interface Props extends BareProps {
 const DEFAULT_BITLENGTH = BitLengthOption.CHAIN_SPEC as BitLength;
 
 function InputBalance ({ autoFocus, className, decimals, defaultValue, help, isDisabled, isError, isFull, isZeroable, label, labelExtra, maxValue, onChange, onEnter, onEscape, placeholder, style, value, withEllipsis, withLabel, withMax }: Props): React.ReactElement<Props> {
-  const formattedDefaultValue =  defaultValue ? toFormattedBalance({ value: defaultValue }) : "";
+  const decimals_ = decimals || formatBalance.getDefaults().decimals;
+  const formattedDefaultValue =  defaultValue ? toFormattedBalance({ value: defaultValue, fixedPoint: decimals_ }) : "";
   const defaultPlaceholder = placeholder || "0.0";
 
   return (
@@ -46,7 +47,7 @@ function InputBalance ({ autoFocus, className, decimals, defaultValue, help, isD
       autoFocus={autoFocus}
       className={`ui--InputBalance ${className}`}
       bitLength={DEFAULT_BITLENGTH}
-      decimals={decimals || formatBalance.getDefaults().decimals}
+      decimals={decimals_}
       defaultValue={formattedDefaultValue}
       help={help}
       isDisabled={isDisabled}

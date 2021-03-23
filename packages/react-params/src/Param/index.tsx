@@ -9,14 +9,17 @@ import { classes } from '@polkadot/react-components/util';
 
 import findComponent from './findComponent';
 import Static from './Static';
+import { InputBalance } from '@polkadot/react-components';
+import { AssetRegistry } from '@polkadot/app-generic-asset/assetsRegistry';
 
 interface Props extends BaseProps {
   isDisabled?: boolean;
   isOptional?: boolean;
   overrides?: ComponentMap;
+  assetIdContext?: string;
 }
 
-export default function Param ({ className, defaultValue, isDisabled, isOptional, name, onChange, onEnter, onEscape, overrides, style, type }: Props): React.ReactElement<Props> | null {
+export default function Param ({ className, defaultValue, isDisabled, isOptional, name, onChange, onEnter, onEscape, overrides, style, type, assetIdContext }: Props): React.ReactElement<Props> | null {
   const compRef = useRef<React.ComponentType<CProps> | null>(findComponent(type, overrides));
 
   if (!compRef.current) {
@@ -24,6 +27,18 @@ export default function Param ({ className, defaultValue, isDisabled, isOptional
   }
 
   const label = name;
+
+  // TODO: this is a quick hack
+  // Balance component is being rendered in context of a specific asset Id
+  if(type.type.includes('Balance') && assetIdContext) {
+    return (<InputBalance
+      defaultValue={defaultValue.value}
+      isDisabled={true}
+      label={label}
+      style={style}
+      decimals={new AssetRegistry().get(assetIdContext)?.decimals}
+    />);
+  }
 
   return isOptional
     ? (

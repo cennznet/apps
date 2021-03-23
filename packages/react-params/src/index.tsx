@@ -13,6 +13,7 @@ import { classes } from '@polkadot/react-components/util';
 import ParamComp from './ParamComp';
 import translate from './translate';
 import { createValue } from './values';
+import { AssetId } from '@polkadot/types/interfaces';
 
 interface Props extends I18nProps {
   isDisabled?: boolean;
@@ -28,11 +29,13 @@ interface Props extends I18nProps {
 interface State {
   params?: ParamDef[] | null;
   values?: RawParams;
+  // the params component has an asset ID in it's context
+  assetIdContext?: string;
 }
 
 class Params extends React.PureComponent<Props, State> {
   public state: State = {
-    params: null
+    params: null,
   };
 
   public static getDerivedStateFromProps ({ isDisabled, params, values }: Props, prevState: State): Pick<State, never> | null {
@@ -80,6 +83,15 @@ class Params extends React.PureComponent<Props, State> {
       return null;
     }
 
+    if (values && params) {
+      params.map(({ type }: ParamDef, index: number) => {
+        if (type.type?.includes('AssetId')) {
+          console.log('got asset Id in this params context', values[index].value.toString());
+          this.state.assetIdContext = values[index].value.toString();
+        }
+      });
+    }
+
     return (
       <div
         className={classes('ui--Params', className)}
@@ -99,6 +111,7 @@ class Params extends React.PureComponent<Props, State> {
                 onEscape={onEscape}
                 overrides={overrides}
                 type={type}
+                assetIdContext={this.state.assetIdContext}
               />
             ))}
           </div>

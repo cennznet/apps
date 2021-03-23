@@ -101,6 +101,28 @@ describe('toFormattedBalance', () => {
       expect(result).toEqual('12,345.2400 CENNZ');
     });
 
+    test('when balance has some extraneous 0s', () => {
+      const stubBalanceValue = '12345.6700';
+      const result = toFormattedBalance({
+        value: stubBalanceValue,
+        unit: 'CENNZ',
+        trim: true,
+      });
+      expect(result).toEqual('12,345.67 CENNZ');
+    });
+
+
+    test('when balance has only extraneous 0s', () => {
+      const stubBalanceValue = '12345.0000';
+      const result = toFormattedBalance({
+        value: stubBalanceValue,
+        unit: 'CENNZ',
+        trim: true,
+      });
+      expect(result).toEqual('12,345 CENNZ');
+    });
+
+
     test('when balance has decimal point with no digits', () => {
       const stubBalanceValue = '12345.';
       const result = toFormattedBalance({
