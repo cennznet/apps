@@ -9,7 +9,6 @@ import { classes } from '@polkadot/react-components/util';
 
 import findComponent from './findComponent';
 import Static from './Static';
-import { InputBalance } from '@polkadot/react-components';
 import { AssetRegistry } from '@polkadot/app-generic-asset/assetsRegistry';
 
 interface Props extends BaseProps {
@@ -31,11 +30,20 @@ export default function Param ({ className, defaultValue, isDisabled, isOptional
   // TODO: this is a quick hack
   // Balance component is being rendered in context of a specific asset Id
   if(type.type.includes('Balance') && assetIdContext) {
-    return (<InputBalance
-      defaultValue={defaultValue.value}
-      isDisabled={true}
+    return (<compRef.current
+      className={classes('ui--Param', className)}
+      defaultValue={defaultValue}
+      isDisabled={isDisabled}
+      key={name}
       label={label}
+      name={name}
+      onChange={onChange}
+      onEnter={onEnter}
+      onEscape={onEscape}
+      overrides={overrides}
       style={style}
+      type={type}
+      // @ts-ignore
       decimals={new AssetRegistry().get(assetIdContext)?.decimals}
     />);
   }

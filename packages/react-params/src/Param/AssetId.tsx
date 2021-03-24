@@ -8,21 +8,30 @@ import React from 'react';
 
 import Bare from './Bare';
 import { Input } from '@polkadot/react-components';
-import {AssetRegistry} from '@polkadot/app-generic-asset/assetsRegistry';
+import { AssetRegistry } from '@polkadot/app-generic-asset/assetsRegistry';
 
-export default function AssetId ({ className, defaultValue: { value }, label, style, withLabel }: Props): React.ReactElement<Props> {
+export default function AssetId ({ className, defaultValue: { value }, isDisabled, isError, label, onChange, onEnter, onEscape, style, withLabel }: Props): React.ReactElement<Props> {
   let symbol = new AssetRegistry().get(value)?.symbol;
-    return (
+
+  const _onChange = (value?: string): void =>
+    onChange && onChange({
+      isValid: !isError && !!value,
+      value
+  });
+
+  return (
     <Bare
       className={className}
       style={style}
     >
       <Input
         className='full'
-        defaultValue={`${symbol} / ${value}`}
-        isDisabled={true}
-        label={label}
-        type={'text'}
+        defaultValue={value || ''}
+        isDisabled={isDisabled}
+        label={symbol || 'unknown asset'}
+        onChange={_onChange}
+        onEnter={onEnter}
+        onEscape={onEscape}
         withEllipsis
         withLabel={withLabel}
       />

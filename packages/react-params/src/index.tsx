@@ -13,7 +13,6 @@ import { classes } from '@polkadot/react-components/util';
 import ParamComp from './ParamComp';
 import translate from './translate';
 import { createValue } from './values';
-import { AssetId } from '@polkadot/types/interfaces';
 
 interface Props extends I18nProps {
   isDisabled?: boolean;

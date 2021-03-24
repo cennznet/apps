@@ -20,13 +20,14 @@ let _initializedAssetRegistry: AssetRegistry | undefined;
 
 export class AssetRegistry {
   subject!: BehaviorSubject<AssetsSubjectInfo>;
+  genesisHash!: string;
 
-  // needs Api context
-  constructor() {
+  constructor(genesisHash: string | undefined) {
     // singleton
     if(_initializedAssetRegistry !== undefined) return _initializedAssetRegistry;
 
-    const [getStoredAssets, setStoredAssets] = useStorageKey<string>(undefined, ASSETS_KEY);
+    this.genesisHash = genesisHash!;
+    const [getStoredAssets, setStoredAssets] = useStorageKey<string>(genesisHash, ASSETS_KEY);
 
     let initialAssets: AssetsSubjectInfo = {};
 

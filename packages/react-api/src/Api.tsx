@@ -128,7 +128,7 @@ async function loadOnReady (api: ApiPromise): Promise<State> {
   const apiDefaultTxSudo = (api.tx.system && api.tx.system.setCode) || apiDefaultTx;
   const isSubstrateV2 = !!Object.keys(api.consts).length;
 
-  let assetsRegistry = new AssetRegistry();
+  let assetsRegistry = new AssetRegistry(api.genesisHash.toString());
   registeredAssets?.map(([assetId, assetInfo]) => {
     console.log('registering asset', assetId.toString(), u8aToString(assetInfo.symbol), assetInfo.decimalPlaces.toNumber());
     assetsRegistry.add(assetId.toString(), u8aToString(assetInfo.symbol), assetInfo.decimalPlaces.toNumber());
