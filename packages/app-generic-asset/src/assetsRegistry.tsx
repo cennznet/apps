@@ -1,9 +1,8 @@
-// Copyright 2019 @polkadot/app-generic-asset authors & contributors
+// Copyright 2019-2021 @polkadot/app-generic-asset authors & contributors
 // This software may be modified and distributed under the terms
 // of the Apache-2.0 license. See the LICENSE file for details.
 
 import { BehaviorSubject } from 'rxjs';
-import { defaultReservedAssets } from '@polkadot/app-generic-asset/asset-util';
 import { useApi, useStorageKey, useCall } from '@polkadot/react-hooks';
 
 const ASSETS_KEY = "cennznet-assets";
@@ -22,8 +21,9 @@ export class AssetRegistry {
   subject!: BehaviorSubject<AssetsSubjectInfo>;
   genesisHash!: string;
 
-  constructor(genesisHash: string | undefined) {
-    // singleton
+  constructor(genesisHash?: string) {
+
+    // it's a singleton
     if(_initializedAssetRegistry !== undefined) return _initializedAssetRegistry;
 
     this.genesisHash = genesisHash!;

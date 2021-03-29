@@ -9,7 +9,7 @@ import styled from 'styled-components';
 import { Compact } from '@polkadot/types';
 import { useTranslation } from '@polkadot/react-query/translate';
 import { toFormattedBalance } from '@polkadot/react-components/util';
-import { formatBalance, formatNumber } from '@polkadot/util';
+import { formatBalance } from '@polkadot/util';
 
 interface Props extends BareProps {
   children?: React.ReactNode;
