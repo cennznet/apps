@@ -190,7 +190,6 @@ export default styled(Navigate)`
 
       .button {
         border: none;
-        height: 21px;
         width: 164px;
         margin-left: 39px;
         margin-right: 73px;
@@ -202,7 +201,6 @@ export default styled(Navigate)`
         font-size: 14px;
         font-weight: bold;
         letter-spacing: 0;
-        line-height: 21px;
         background: inherit;
         cursor: pointer;
       }
