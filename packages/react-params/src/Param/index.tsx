@@ -43,6 +43,7 @@ export default function Param ({ className, defaultValue, isDisabled, isOptional
       overrides={overrides}
       style={style}
       type={type}
+      // it could resolve to one of a few different balance component types at runtime
       // @ts-ignore
       decimals={new AssetRegistry().get(assetIdContext)?.decimals}
     />);

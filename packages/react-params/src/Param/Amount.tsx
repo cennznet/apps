@@ -32,7 +32,7 @@ export default function Amount (props: Props): React.ReactElement<Props> {
     )
     : bnToBn((value as number) || 0).toString();
 
-    return (
+  return (
     <Bare
       className={className}
       style={style}
