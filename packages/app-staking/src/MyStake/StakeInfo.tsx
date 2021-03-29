@@ -98,7 +98,7 @@ export default function StakeInfo({ stakePair }: Props): React.ReactElement<Prop
   }, [nominatedStashes]);
 
   useEffect(() => {
-    if(!nominatedStashes) return;
+    if(!nominatedStashes || eraIndex.toNumber() == 0) return;
 
     getNominationDetails(nominatedStashes.unwrapOrDefault(), stakePair.stashAddress, api as Api, eraIndex)
       .then((nominations: Nomination[]) => setNominations(nominations));

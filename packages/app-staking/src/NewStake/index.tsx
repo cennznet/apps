@@ -19,7 +19,7 @@ import type { DeriveStakingElected, DeriveStakingWaiting } from '@polkadot/api-d
 import FormatBalance from '@polkadot/app-generic-asset/FormatBalance';
 import { AssetRegistry, STAKING_ASSET_NAME } from '@polkadot/app-generic-asset/assetsRegistry';
 import BN from 'bn.js';
-import { Balance, Codec } from '@cennznet/types';
+import { Balance, bool, Codec } from '@cennznet/types';
 import { SubmittableExtrinsic } from '@polkadot/api/promise/types';
 import styled from 'styled-components';
 import basicMd from '../md/basic.md';
@@ -41,6 +41,7 @@ function NewStake ({ className, isVisible }: Props): React.ReactElement<Props> {
     const waitingInfo = useCall<DeriveStakingWaiting>(api.derive.staking.waitingInfo);
     const minimumBond = useCall<Balance>(api.query.staking.minimumBond);
     const chainInfo = useCall<string>(api.rpc.system.chain, []);
+    const isFinalSession = useCall<bool>(api.query.staking.isCurrentSessionFinal) || false;
     const [assetBalance, setAssetBalance] = useState<BN>(new BN(0));
     const [extrinsic, setExtrinsic] = useState<SubmittableExtrinsic | null>(null);
     const [rewardDestinationId, setRewardDestinationId] = useState<string | null | undefined>();
@@ -86,7 +87,7 @@ function NewStake ({ className, isVisible }: Props): React.ReactElement<Props> {
 
     useEffect((): void => {
         openAccountCheckingModal
-        if (accountIdVec.length === 0 || stashAccountId === null || rewardDestinationId === null || openAccountCheckingModal || amount?.isZero() || amount?.gt(assetBalance) || !acknowledged) {
+        if (accountIdVec.length === 0 || stashAccountId === null || rewardDestinationId === null || openAccountCheckingModal || amount?.isZero() || amount?.gt(assetBalance) || !acknowledged || isFinalSession.valueOf()) {
             setIsValid(false);
         } else {
             setIsValid(true);
@@ -132,7 +133,7 @@ function NewStake ({ className, isVisible }: Props): React.ReactElement<Props> {
     let errorText = '';
     if (hasAccounts && minimumBond) {
       if ((amount as BN)?.lt(minimumBond as BN)) {
-        errorText = `minimum stake: ${toFormattedBalance({ value: minimumBond, unit: "CENNZ" })}`
+        errorText = `minimum stake: ${toFormattedBalance({ value: minimumBond, unit: STAKING_ASSET_NAME })}`
       }
       else if (assetBalance.lt(amount as BN)){
         errorText = 'Not enough available'
@@ -219,6 +220,11 @@ function NewStake ({ className, isVisible }: Props): React.ReactElement<Props> {
                     {waitingInfo ? _renderRows(waitingInfo.info, false, chain, _validatorSelected, '🟡') : undefined}
                   </Table.Body>
                 </Table>
+                {isFinalSession.valueOf() &&
+                  <h3 style={{ color: 'red' }}>
+                    ⚠️ cannot stake in the last 10 minutes of an era. try again soon.
+                  </h3>
+                }
                 <div className='submitTx'>
                   <Button
                     className='know-risk'
