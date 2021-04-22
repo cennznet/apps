@@ -1,4 +1,4 @@
-// Copyright 2017-2020 @polkadot/app-staking authors & contributors
+// Copyright 2017-2021 @polkadot/app-staking authors & contributors
 // This software may be modified and distributed under the terms
 // of the Apache-2.0 license. See the LICENSE file for details.
 import React, { useEffect, useState } from 'react';
@@ -14,7 +14,7 @@ import { useApi, useCall } from "@polkadot/react-hooks";
 import type { DeriveStakingElected, DeriveStakingWaiting, DeriveStakingQuery } from '@polkadot/api-derive/types';
 import FormatBalance from '@polkadot/app-generic-asset/FormatBalance';
 import { poolRegistry } from "@polkadot/app-staking/Overview/Address/poolRegistry";
-import assetsRegistry, { SPENDING_ASSET_NAME, STAKING_ASSET_NAME } from "@polkadot/app-generic-asset/assetsRegistry";
+import { AssetRegistry, SPENDING_ASSET_NAME, STAKING_ASSET_NAME } from "@polkadot/app-generic-asset/assetsRegistry";
 import BN from "bn.js";
 import { StakingLedger } from "@cennznet/types";
 import { bool, Option } from '@polkadot/types';
@@ -79,7 +79,7 @@ function ManageStake ({ className, controllerAddress, stashAddress, onClose }: P
     const chain: string | undefined = chainInfo ? chainInfo.toString() : undefined;
     const [isValid, setIsValid] = useState<boolean>(false);
     const [showValidatorList, setShowValidatorList] = useState<boolean>(false);
-    const controllerCpayBalance = useCall<'Balance'>(api.query.genericAsset.freeBalance as any, [assetsRegistry.getSpendingAssetId(), controllerAddress]);
+    const controllerCpayBalance = useCall<'Balance'>(api.query.genericAsset.freeBalance as any, [new AssetRegistry().getSpendingAssetId(), controllerAddress]);
 
     useEffect((): void => {
         if (stashAddress) {

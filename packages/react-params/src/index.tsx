@@ -1,4 +1,4 @@
-// Copyright 2017-2020 @polkadot/react-components authors & contributors
+// Copyright 2017-2021 @polkadot/react-components authors & contributors
 // This software may be modified and distributed under the terms
 // of the Apache-2.0 license. See the LICENSE file for details.
 
@@ -28,11 +28,13 @@ interface Props extends I18nProps {
 interface State {
   params?: ParamDef[] | null;
   values?: RawParams;
+  // the params component has an asset ID in it's context
+  assetIdContext?: string;
 }
 
 class Params extends React.PureComponent<Props, State> {
   public state: State = {
-    params: null
+    params: null,
   };
 
   public static getDerivedStateFromProps ({ isDisabled, params, values }: Props, prevState: State): Pick<State, never> | null {
@@ -80,6 +82,17 @@ class Params extends React.PureComponent<Props, State> {
       return null;
     }
 
+    if (values && params) {
+      params.map(({ type }: ParamDef, index: number) => {
+        if (type.type?.includes('AssetId')) {
+          this.setState(prevState => ({
+            ...prevState,
+            assetIdContext: values[index].value.toString(),
+          }))
+        }
+      });
+    }
+
     return (
       <div
         className={classes('ui--Params', className)}
@@ -99,6 +112,7 @@ class Params extends React.PureComponent<Props, State> {
                 onEscape={onEscape}
                 overrides={overrides}
                 type={type}
+                assetIdContext={this.state.assetIdContext}
               />
             ))}
           </div>

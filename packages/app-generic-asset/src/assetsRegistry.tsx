@@ -1,78 +1,92 @@
-// Copyright 2019 @polkadot/app-generic-asset authors & contributors
+// Copyright 2019-2021 @polkadot/app-generic-asset authors & contributors
 // This software may be modified and distributed under the terms
 // of the Apache-2.0 license. See the LICENSE file for details.
 
 import { BehaviorSubject } from 'rxjs';
-import { reservedAssets } from '@polkadot/app-generic-asset/asset-util';
-import { useApi, useCall } from '@polkadot/react-hooks';
+import { useApi, useStorageKey, useCall } from '@polkadot/react-hooks';
 
 const ASSETS_KEY = "cennznet-assets";
 export const STAKING_ASSET_NAME = "CENNZ";
 export const SPENDING_ASSET_NAME = "CPAY";
 
-export interface AssetsSubjectInfo { [id: string]: string }
-
-let initialAssets: AssetsSubjectInfo = {};
-
-try {
-  const storedAsset = localStorage.getItem(ASSETS_KEY);
-  if (storedAsset) {
-    initialAssets = JSON.parse(storedAsset);
-  } else {
-    initialAssets = reservedAssets;
-  }
-} catch (e) {
-  // ignore error
+export interface AssetInfo {
+  symbol: string;
+  decimals: number;
 }
 
-const subject = new BehaviorSubject(initialAssets);
+export interface AssetsSubjectInfo { [id: string]: AssetInfo }
+let _initializedAssetRegistry: AssetRegistry | undefined;
 
-subject.subscribe((assets): void =>
-  localStorage.setItem(ASSETS_KEY, JSON.stringify(assets))
-);
+export class AssetRegistry {
+  subject!: BehaviorSubject<AssetsSubjectInfo>;
+  genesisHash!: string;
 
-export default {
-  getSpendingAssetId: (): string => {
-    for (let [id, name] of Object.entries(subject.getValue())) {
-      if (name === SPENDING_ASSET_NAME) return id
+  constructor(genesisHash?: string) {
+
+    // it's a singleton
+    if(_initializedAssetRegistry !== undefined) return _initializedAssetRegistry;
+
+    this.genesisHash = genesisHash!;
+    const [getStoredAssets, setStoredAssets] = useStorageKey<string>(genesisHash, ASSETS_KEY);
+
+    let initialAssets: AssetsSubjectInfo = {};
+
+    try {
+      initialAssets = JSON.parse(getStoredAssets()!);
+    } catch (e) {
+      console.warn('no cached assets registered');
     }
-    // fallback, re-query the value
-    const { api } = useApi();
-    return useCall<string>(api.query.genericAsset.spendingAssetId() as any, [])!
-  },
-  getStakingAssetId: (): string => {
-    for (let [id, name] of Object.entries(subject.getValue())) {
-      if (name === STAKING_ASSET_NAME) return id
-    }
-    // fallback, re-query the value
-    const { api } = useApi();
-    return useCall<string>(api.query.genericAsset.stakingAssetId() as any, [])!
-  },
-  getAssets: (): AssetsSubjectInfo[] =>
-    Object.entries(subject.getValue()).map(([id, name]): AssetsSubjectInfo => ({ id, name })),
-  add: (id: string, name: string): void => {
-    // Asset name exists already, update it's ID
-    const assets = subject.getValue();
-    for (let [existingId, existingName] of Object.entries(assets)) {
-      if (name == existingName) {
-        const { [existingId]: ignore, ...assetsNew } = assets;
-        subject.next({
-          ...assetsNew,
-          [id]: name
-        });
-        return;
-      }
-    }
-    // Add new asset
-    subject.next({
-      ...assets,
-      [id]: name
+
+    this.subject = new BehaviorSubject(initialAssets);
+    this.subject.subscribe({ 
+      next: (assets: AssetsSubjectInfo) => setStoredAssets(JSON.stringify(assets))
     });
-  },
-  remove: (id: string): void => {
+
+    _initializedAssetRegistry = this;
+  }
+
+  getSpendingAssetId(): string {
+    for (let [id, { symbol }] of Object.entries(this.subject.getValue())) {
+      if (symbol === SPENDING_ASSET_NAME) return id
+    }
+    // fallback, re-query the value
+    const { api } = useApi();
+    return useCall<string>(api.query.genericAsset.spendingAssetId, [])!
+  }
+
+  getStakingAssetId(): string {
+    for (let [id, { symbol } ] of Object.entries(this.subject.getValue())) {
+      if (symbol === STAKING_ASSET_NAME) return id
+    }
+    // fallback, re-query the value
+    const { api } = useApi();
+    return useCall<string>(api.query.genericAsset.stakingAssetId, [])!
+  }
+
+  // query asset in the registry
+  get(targetId: string): AssetInfo | undefined {
+    const { [targetId]: info } = this.subject.getValue();
+    return info;
+  }
+
+  // get all assets in the registry
+  getAssets(): Array<[string, {symbol: string, decimals: number}]> {
+    return Object.entries(this.subject.getValue());
+  }
+
+  // add a new asset to the registry by Id
+  add(id: string, symbol: string, decimals: number): void {
+    const assets = this.subject.getValue();
+    this.subject.next({
+      ...assets,
+      [id]: { symbol, decimals }
+    });
+  }
+
+  // remove an asset from the registry
+  remove(id: string): void {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { [id]: ignore, ...assets } = subject.getValue();
-    subject.next(assets);
-  },
-  subject
-};
+    const { [id]: ignore, ...assets } = this.subject.getValue();
+    this.subject.next(assets);
+  }
+}

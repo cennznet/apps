@@ -6,28 +6,48 @@ import { BaseProps, Props as CProps, ComponentMap } from '../types';
 
 import React, { useRef } from 'react';
 import { classes } from '@polkadot/react-components/util';
-import { encodeTypeDef } from '@polkadot/types';
-import { isUndefined } from '@polkadot/util';
 
 import findComponent from './findComponent';
 import Static from './Static';
+import { AssetRegistry } from '@polkadot/app-generic-asset/assetsRegistry';
 
 interface Props extends BaseProps {
   isDisabled?: boolean;
   isOptional?: boolean;
   overrides?: ComponentMap;
+  assetIdContext?: string;
 }
 
-export default function Param ({ className, defaultValue, isDisabled, isOptional, name, onChange, onEnter, onEscape, overrides, style, type }: Props): React.ReactElement<Props> | null {
+export default function Param ({ className, defaultValue, isDisabled, isOptional, name, onChange, onEnter, onEscape, overrides, style, type, assetIdContext }: Props): React.ReactElement<Props> | null {
   const compRef = useRef<React.ComponentType<CProps> | null>(findComponent(type, overrides));
 
   if (!compRef.current) {
     return null;
   }
 
-  const label = isUndefined(name)
-    ? encodeTypeDef(type)
-    : `${name}: ${encodeTypeDef(type)}`;
+  const label = name;
+
+  // TODO: this is a quick hack
+  // Balance component is being rendered in context of a specific asset Id
+  if(type.type.includes('Balance') && assetIdContext) {
+    return (<compRef.current
+      className={classes('ui--Param', className)}
+      defaultValue={defaultValue}
+      isDisabled={isDisabled}
+      key={name}
+      label={label}
+      name={name}
+      onChange={onChange}
+      onEnter={onEnter}
+      onEscape={onEscape}
+      overrides={overrides}
+      style={style}
+      type={type}
+      // it could resolve to one of a few different balance component types at runtime
+      // @ts-ignore
+      decimals={new AssetRegistry().get(assetIdContext)?.decimals}
+    />);
+  }
 
   return isOptional
     ? (
@@ -41,7 +61,7 @@ export default function Param ({ className, defaultValue, isDisabled, isOptional
       <compRef.current
         className={classes('ui--Param', className)}
         defaultValue={defaultValue}
-        key={`${name}:${type}`}
+        key={name}
         isDisabled={isDisabled}
         label={label}
         name={name}

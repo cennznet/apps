@@ -8,6 +8,7 @@ export { default as useAddresses } from './useAddresses';
 export { default as useApi } from './useApi';
 export { useBlockTime } from './useBlockTime';
 export { default as useCacheKey } from './useCacheKey';
+export { default as useStorageKey } from './useStorageKey';
 export { default as useCall } from './useCall';
 export { default as useForm } from './useForm';
 export { default as useDebounce } from './useDebounce';

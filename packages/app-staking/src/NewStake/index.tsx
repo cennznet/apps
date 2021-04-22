@@ -17,7 +17,7 @@ import { useTranslation } from '@polkadot/app-staking/translate';
 import { useAccounts, useApi, useCacheKey, useCall, useToggle } from '@polkadot/react-hooks';
 import type { DeriveStakingElected, DeriveStakingWaiting } from '@polkadot/api-derive/types';
 import FormatBalance from '@polkadot/app-generic-asset/FormatBalance';
-import assetsRegistry, { STAKING_ASSET_NAME } from '@polkadot/app-generic-asset/assetsRegistry';
+import { AssetRegistry, STAKING_ASSET_NAME } from '@polkadot/app-generic-asset/assetsRegistry';
 import BN from 'bn.js';
 import { Balance, bool, Codec } from '@cennznet/types';
 import { SubmittableExtrinsic } from '@polkadot/api/promise/types';
@@ -79,7 +79,7 @@ function NewStake ({ className, isVisible }: Props): React.ReactElement<Props> {
 
     useEffect((): void => {
         if (stashAccountId) {
-            api.query.genericAsset.freeBalance(assetsRegistry.getStakingAssetId(), stashAccountId).then(
+            api.query.genericAsset.freeBalance(new AssetRegistry().getStakingAssetId(), stashAccountId).then(
                 (balance: Codec) => setAssetBalance((balance as Balance).toBn())
             );
         }

@@ -20,6 +20,9 @@ import ApiContext from './ApiContext';
 import registry from './typeRegistry';
 import {Api as ApiPromise} from '@cennznet/api';
 import * as staking from './staking';
+import { AssetId, AssetInfo } from '@cennznet/types';
+import {AssetRegistry} from '@polkadot/app-generic-asset/assetsRegistry';
+import { u8aToString } from '@polkadot/util';
 
 interface Props {
   children: React.ReactNode;
@@ -28,6 +31,7 @@ interface Props {
 
 interface State extends ApiState {
   chain?: string | null;
+  registeredAssets?: Array<[AssetId, AssetInfo]>;
 }
 
 interface InjectedAccountExt {
@@ -66,11 +70,13 @@ export function supportOldKeyringInLocalStorage() {
 }
 
 async function loadOnReady (api: ApiPromise): Promise<State> {
-  const [properties, _systemChain, _systemName, _systemVersion, injectedAccounts] = await Promise.all([
+  const [properties, _systemChain, _systemName, _systemVersion, registeredAssets, injectedAccounts] = await Promise.all([
     api.rpc.system.properties(),
     api.rpc.system.chain(),
     api.rpc.system.name(),
     api.rpc.system.version(),
+    // @ts-ignore
+    api.rpc.genericAsset.registeredAssets() as Array<[AssetId, AssetInfo]>,
     web3Accounts().then((accounts): InjectedAccountExt[] =>
       accounts.map(({ address, meta }): InjectedAccountExt => ({
         address,
@@ -82,11 +88,6 @@ async function loadOnReady (api: ApiPromise): Promise<State> {
     )
   ]);
   const ss58Format = properties.ss58Format.unwrapOr(DEFAULT_SS58).toNumber();
-  // TODO: query from genericAsset.assetRegistry
-  // 1) find spending Asset ID
-  // 2) find spending Asset ID decimals and symbol
-  const tokenSymbol = 'CPAY';
-  const tokenDecimals = properties.tokenDecimals.unwrapOr(DEFAULT_DECIMALS).toNumber();
 
   const systemChain = _systemChain
     ? _systemChain.toString()
@@ -102,6 +103,8 @@ async function loadOnReady (api: ApiPromise): Promise<State> {
   setSS58Format(ss58Format);
 
   // first setup the UI helpers
+  const tokenSymbol = 'CPAY';
+  const tokenDecimals = properties.tokenDecimals.unwrapOr(DEFAULT_DECIMALS).toNumber();
   formatBalance.setDefaults({
     decimals: tokenDecimals,
     unit: tokenSymbol
@@ -125,6 +128,12 @@ async function loadOnReady (api: ApiPromise): Promise<State> {
   const apiDefaultTxSudo = (api.tx.system && api.tx.system.setCode) || apiDefaultTx;
   const isSubstrateV2 = !!Object.keys(api.consts).length;
 
+  let assetsRegistry = new AssetRegistry(api.genesisHash.toString());
+  registeredAssets?.map(([assetId, assetInfo]) => {
+    console.log('registering asset', assetId.toString(), u8aToString(assetInfo.symbol), assetInfo.decimalPlaces.toNumber());
+    assetsRegistry.add(assetId.toString(), u8aToString(assetInfo.symbol), assetInfo.decimalPlaces.toNumber());
+  });
+
   return {
     apiDefaultTx,
     apiDefaultTxSudo,
@@ -133,7 +142,8 @@ async function loadOnReady (api: ApiPromise): Promise<State> {
     isSubstrateV2,
     systemChain,
     systemName: _systemName.toString(),
-    systemVersion: _systemVersion.toString()
+    systemVersion: _systemVersion.toString(),
+    registeredAssets,
   } as State;
 }
 

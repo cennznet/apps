@@ -6,7 +6,7 @@ import { BareProps } from '@polkadot/react-api/types';
 import { AccountId, Balance, AccountIndex, Address } from '@polkadot/types/interfaces';
 import React from 'react';
 import { useApi, useCall } from '@polkadot/react-hooks';
-import assetsRegistry, {SPENDING_ASSET_NAME, STAKING_ASSET_NAME} from './assetsRegistry';
+import {AssetRegistry, SPENDING_ASSET_NAME, STAKING_ASSET_NAME} from './assetsRegistry';
 import FormatBalance from './FormatBalance';
 import BN from 'bn.js';
 
@@ -19,8 +19,8 @@ interface Props extends BareProps {
 export default function AvailableDisplay ({ children, className, label, params }: Props): React.ReactElement<Props> {
   const { api } = useApi();
 
-  const cennzBalance = useCall<Balance>(api.query.genericAsset.freeBalance as any, [assetsRegistry.getStakingAssetId(), params]);
-  const cpayBalance = useCall<Balance>(api.query.genericAsset.freeBalance as any, [assetsRegistry.getSpendingAssetId(), params]);
+  const cennzBalance = useCall<Balance>(api.query.genericAsset.freeBalance as any, [new AssetRegistry().getStakingAssetId(), params]);
+  const cpayBalance = useCall<Balance>(api.query.genericAsset.freeBalance as any, [new AssetRegistry().getSpendingAssetId(), params]);
   const zeroBalance = new BN(0);
 
   // Show CENNZ balance unless it's 0 and CPAY is non-zero

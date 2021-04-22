@@ -7,26 +7,22 @@ import BN from 'bn.js';
 import React from 'react';
 import styled from 'styled-components';
 import { Compact } from '@polkadot/types';
-import { formatBalance } from '@polkadot/util';
 import { useTranslation } from '@polkadot/react-query/translate';
+import { toFormattedBalance } from '@polkadot/react-components/util';
+import { formatBalance } from '@polkadot/util';
 
 interface Props extends BareProps {
   children?: React.ReactNode;
   label?: React.ReactNode;
   value?: Compact<any> | BN | string | null | 'all';
   symbol: string;
+  decimals?: number;
   withSi?: boolean;
 }
 
-// Format GA balances for CENNZnet with Asset Symbol
-function formatGenericAssetBalance (value: Compact<any> | BN | string, symbol: string): React.ReactNode {
-  const [prefix, postfix] = formatBalance(value, { forceUnit: '-', withSi: false }).split('.');
-
-  return <>{prefix}.<span className='balance-postfix'>{`0000${postfix || ''}`.slice(-4)}</span> {symbol}</>;
-}
-
-function FormatBalance ({ children, className, label, value, withSi, symbol }: Props): React.ReactElement<Props> {
+function FormatBalance ({ children, className, label, value, withSi, symbol, decimals }: Props): React.ReactElement<Props> {
   const { t } = useTranslation();
+  let fixedPoint = decimals || formatBalance.getDefaults().decimals;
 
   return (
     <div className={`ui--FormatBalance ${className}`}>
@@ -36,7 +32,7 @@ function FormatBalance ({ children, className, label, value, withSi, symbol }: P
             ? t('all available')
             : withSi
               ? value
-              : formatGenericAssetBalance(value, symbol)
+              : <>{toFormattedBalance({ value: value.toString(), unit: symbol, fixedPoint, trim: true })}</>
           : '-'
       }{children}
     </div>

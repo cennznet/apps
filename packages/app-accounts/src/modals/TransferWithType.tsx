@@ -2,30 +2,26 @@
 // This software may be modified and distributed under the terms
 // of the Apache-2.0 license. See the LICENSE file for details.
 
-import { AssetId, Balance, Bytes, Codec } from '@cennznet/types';
+import { Balance, Codec } from '@cennznet/types';
 import { SubmittableExtrinsic } from '@polkadot/api/promise/types';
+import { AssetRegistry } from '@polkadot/app-generic-asset/assetsRegistry';
 import FormatBalance from '@polkadot/app-generic-asset/FormatBalance';
 import { withMulti } from '@polkadot/react-api/hoc';
 import { Dropdown, InputAddress, InputBalance, Modal, TxButton } from '@polkadot/react-components';
 import { I18nProps } from '@polkadot/react-components/types';
 import { useApi } from '@polkadot/react-hooks';
 import Checks from '@polkadot/react-signer/Checks';
-import { u8aToString } from '@polkadot/util';
 import BN from 'bn.js';
 import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import translate from '../../../app-generic-asset/src/translate';
+import { formatBalance } from '@polkadot/util';
 
 interface Props extends I18nProps {
   className?: string;
   onClose: () => void;
   recipientId?: string;
   senderId?: string;
-}
-
-interface AssetInfo {
-  id: AssetId;
-  symbol: Bytes;
 }
 
 interface Option {
@@ -35,37 +31,30 @@ interface Option {
 
 function TransferWithType ({ className, onClose, recipientId: propRecipientId, senderId: propSenderId, t }: Props): React.ReactElement<Props> {
   const { api } = useApi();
-  const [assetId, setAssetId] = useState('0');
+  const [assetId, setAssetId] = useState<string | undefined>(undefined);
   const [assetBalance, setAssetBalance] = useState<BN>(new BN(0));
   const [assetName, setAssetName] = useState<string>('');
   // The BN value for transaction (no decimal)
   const [amount, setAmount] = useState<BN | undefined>(undefined);
+  const [decimals, setDecimals] = useState<number | undefined>();
   const [extrinsic, setExtrinsic] = useState<SubmittableExtrinsic | null>(null);
   const [hasAvailable, setHasAvailable] = useState(true);
-  const [options, setOptions] = useState<Option[]>([]);
   const [recipientId, setRecipientId] = useState(propRecipientId || null);
   const [senderId, setSenderId] = useState(propSenderId || null);
+  const dropdownOptions: Option[] = new AssetRegistry().getAssets().map(([id, info]) => {
+    return {
+      text: info.symbol,
+      value: id,
+    } as Option;
+  });
 
-  // Query registered assets on first load
-  useEffect((): void => {
-    // @ts-ignore
-    api.rpc.genericAsset.registeredAssets().then(
-      (assets: Array<[AssetId, AssetInfo]>) => {
-        const dropdownOptions: Option[] = assets && assets.length > 0 && assets.map(([id, info]) => {
-          return {
-            text: u8aToString(info.symbol),
-            value: id.toString(),
-          } as Option;
-        }) || [];
-
-        setOptions(dropdownOptions);
-        setAssetId(dropdownOptions[0].value || "0");
-        setAssetName(dropdownOptions[0].text || "?");
-      });
-  }, []);
+  useEffect(() => {
+    if(!assetId) setAsset(dropdownOptions[0].value);
+  }, [dropdownOptions]);
 
   // Query balances on assetId or senderId change
   useMemo((): void => {
+    if(!assetId) return;
     // @ts-ignore
     api.query.genericAsset.freeBalance(assetId, senderId!).then(
       (balance: Codec) => setAssetBalance((balance as Balance).toBn())
@@ -89,10 +78,13 @@ function TransferWithType ({ className, onClose, recipientId: propRecipientId, s
     );
   }, [amount, assetId, recipientId]);
 
-  // When assetId is selected, update assetName also
+  // When assetId is selected, update asset info also
   function setAsset(assetId: string): void {
     setAssetId(assetId);
-    setAssetName(options.find(x => x.value == assetId)?.text || "?");
+    let info = new AssetRegistry().get(assetId);
+    let decimals = info?.decimals || formatBalance.getDefaults().decimals;
+    setDecimals(decimals);
+    setAssetName(info?.symbol || "?");
   }
 
   const notEnoughTransferrable = <span style={{ color: "#9f3a38" }}>{t('not enough transferrable')}</span>;
@@ -111,6 +103,7 @@ function TransferWithType ({ className, onClose, recipientId: propRecipientId, s
                 className={className}
                 value={assetBalance}
                 symbol={assetName}
+                decimals={decimals}
               />
             }
             onChange={setSenderId}
@@ -130,10 +123,11 @@ function TransferWithType ({ className, onClose, recipientId: propRecipientId, s
             help={t('Select the asset you want to transfer.')}
             label={t('Asset type')}
             onChange={setAsset}
-            options={options}
+            options={dropdownOptions}
             value={assetId}
           />
           <InputBalance
+            decimals={decimals}
             help={t('Enter the amount you want to transfer.')}
             isError={!hasAvailable}
             label={<span>{t('Send amount')}</span>}

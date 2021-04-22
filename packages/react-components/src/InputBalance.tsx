@@ -10,9 +10,12 @@ import styled from 'styled-components';
 import { BitLengthOption } from '@polkadot/react-components/constants';
 import { InputNumber } from '@polkadot/react-components';
 import { toFormattedBalance } from "@polkadot/react-components/util";
+import { formatBalance } from '@polkadot/util';
 
 interface Props extends BareProps {
   autoFocus?: boolean;
+  // number of decimal places in the value
+  decimals?: number;
   defaultValue?: BN | string;
   help?: React.ReactNode;
   isDisabled?: boolean;
@@ -34,8 +37,9 @@ interface Props extends BareProps {
 
 const DEFAULT_BITLENGTH = BitLengthOption.CHAIN_SPEC as BitLength;
 
-function InputBalance ({ autoFocus, className, defaultValue, help, isDisabled, isError, isFull, isZeroable, label, labelExtra, maxValue, onChange, onEnter, onEscape, placeholder, style, value, withEllipsis, withLabel, withMax }: Props): React.ReactElement<Props> {
-  const formattedDefaultValue =  defaultValue ? toFormattedBalance({ value: defaultValue }) : "";
+function InputBalance ({ autoFocus, className, decimals, defaultValue, help, isDisabled, isError, isFull, isZeroable, label, labelExtra, maxValue, onChange, onEnter, onEscape, placeholder, style, value, withEllipsis, withLabel, withMax }: Props): React.ReactElement<Props> {
+  const decimals_ = decimals || formatBalance.getDefaults().decimals;
+  const formattedDefaultValue =  defaultValue ? toFormattedBalance({ value: defaultValue, fixedPoint: decimals_ }) : "";
   const defaultPlaceholder = placeholder || "0.0";
 
   return (
@@ -43,6 +47,7 @@ function InputBalance ({ autoFocus, className, defaultValue, help, isDisabled, i
       autoFocus={autoFocus}
       className={`ui--InputBalance ${className}`}
       bitLength={DEFAULT_BITLENGTH}
+      decimals={decimals_}
       defaultValue={formattedDefaultValue}
       help={help}
       isDisabled={isDisabled}
