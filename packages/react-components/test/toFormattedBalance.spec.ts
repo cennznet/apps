@@ -22,12 +22,6 @@ describe('toFormattedBalance', () => {
       expect(result).toEqual('0.0123');
     });
 
-    test('when value length is smaller than default fixed point(4) and has leading 0', () => {
-      const stubBalanceValue = '100';
-      const result = toFormattedBalance({ value: stubBalanceValue });
-      expect(result).toEqual('0.0100');
-    });
-
     test('when value length is larger than default fixed point(4)', () => {
       const stubBalanceValue = new BN('123456789');
       const result = toFormattedBalance({ value: stubBalanceValue });

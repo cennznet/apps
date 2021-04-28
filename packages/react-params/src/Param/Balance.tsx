@@ -22,7 +22,7 @@ export default function Balance ({ className, defaultValue: { value }, decimals,
       value
     });
 
-    return (
+  return (
     <Bare
       className={className}
       style={style}
