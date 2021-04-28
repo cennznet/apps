@@ -28,7 +28,6 @@ interface Props extends I18nProps {
 interface State {
   params?: ParamDef[] | null;
   values?: RawParams;
-  // the params component has an asset ID in it's context
   assetIdContext?: string;
 }
 
@@ -44,17 +43,32 @@ class Params extends React.PureComponent<Props, State> {
       return null;
     }
 
+    let values_ = params.reduce(
+      (result: RawParams, param, index): RawParams => [
+        ...result,
+        values && values[index]
+          ? values[index]
+          : createValue(param)
+      ],
+      []
+    );
+
+    // the params component has an asset ID in it's context
+    // this could be inconsistent if there are multiple asset IDs in the component tree
+    // for now this is a best effort for most use cases.
+    let assetIdContext = undefined;
+    if (values && params) {
+      params.map(({ type }: ParamDef, index: number) => {
+        if (type.type?.includes('AssetId')) {
+          assetIdContext = values[index].value.toString();
+        }
+      });
+    }
+
     return {
       params,
-      values: params.reduce(
-        (result: RawParams, param, index): RawParams => [
-          ...result,
-          values && values[index]
-            ? values[index]
-            : createValue(param)
-        ],
-        []
-      )
+      values: values_,
+      assetIdContext,
     };
   }
 
@@ -80,14 +94,6 @@ class Params extends React.PureComponent<Props, State> {
 
     if (!values || !values.length) {
       return null;
-    }
-
-    if (values && params) {
-      params.map(({ type }: ParamDef, index: number) => {
-        if (type.type?.includes('AssetId')) {
-          this.state.assetIdContext = values[index].value.toString();
-        }
-      });
     }
 
     return (
