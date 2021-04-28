@@ -9,7 +9,7 @@ import FormatBalance from '@polkadot/app-generic-asset/FormatBalance';
 import { withMulti } from '@polkadot/react-api/hoc';
 import { Dropdown, InputAddress, InputBalance, Modal, TxButton } from '@polkadot/react-components';
 import { I18nProps } from '@polkadot/react-components/types';
-import { useApi, useCall } from '@polkadot/react-hooks';
+import { useApi } from '@polkadot/react-hooks';
 import Checks from '@polkadot/react-signer/Checks';
 import BN from 'bn.js';
 import React, { useEffect, useMemo, useState } from 'react';
@@ -55,7 +55,7 @@ function TransferWithType ({ className, onClose, recipientId: propRecipientId, s
   );
 
   // Query balances on asset change
-  useEffect((): void => {
+  useMemo((): void => {
     // @ts-ignore
     api.query.genericAsset.freeBalance(asset.id, senderId!).then(
       (balance: Codec) => setAssetBalance((balance as Balance).toBn())
