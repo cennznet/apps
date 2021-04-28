@@ -94,5 +94,7 @@
   "no judgements": "no judgements",
   " ({{count}} waiting)": " ({{count}} waiting)",
   "all available": "all available",
-  "Uncaught error. Something went wrong with the query and rendering of this component.": "Uncaught error. Something went wrong with the query and rendering of this component."
+  "Uncaught error. Something went wrong with the query and rendering of this component.": "Uncaught error. Something went wrong with the query and rendering of this component.",
+  "Click to copy public address": "Click to copy public address",
+  "Details": "Details"
 }

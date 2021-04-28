@@ -87,8 +87,7 @@ function isValidNumber (bn: BN, { bitLength = DEFAULT_BITLENGTH, isZeroable, max
 
 // Format user input into the current number input.
 // This is setup to invoke on every keystroke.
-const regexCheckFormatted = RegExp('^\\d{1,3}(,\\d{3})*(\\.\\d+)?$');
-const regexCheckZero = RegExp('^(0\\d)');
+const regexCheckFormatted = RegExp('^\\[1-9]{1,3}(,\\d{3})*(\\.\\d+)?$');
 export function formatInput (value: string) {
   let formattedValue = value;
   // Sometimes the value is already formatted, avoid formatting in those cases
@@ -101,9 +100,6 @@ export function formatInput (value: string) {
       formattedValue = formatNumber(new BN(value));
     }
   }
-
-  // Remove a leading 0 e.g `01` -> `1`
-  formattedValue = regexCheckZero.exec(value) ? value.substr(1) : formattedValue;
 
   return formattedValue;
 }

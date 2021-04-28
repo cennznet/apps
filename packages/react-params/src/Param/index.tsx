@@ -30,6 +30,7 @@ export default function Param ({ className, defaultValue, isDisabled, isOptional
   // TODO: this is a quick hack
   // Balance component is being rendered in context of a specific asset Id
   if(type.type.includes('Balance') && assetIdContext) {
+    let decimals = new AssetRegistry().get(assetIdContext)?.decimals;
     return (<compRef.current
       className={classes('ui--Param', className)}
       defaultValue={defaultValue}
@@ -45,7 +46,7 @@ export default function Param ({ className, defaultValue, isDisabled, isOptional
       type={type}
       // it could resolve to one of a few different balance component types at runtime
       // @ts-ignore
-      decimals={new AssetRegistry().get(assetIdContext)?.decimals}
+      decimals={decimals}
     />);
   }
 

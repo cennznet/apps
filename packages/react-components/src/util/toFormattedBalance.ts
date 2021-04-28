@@ -36,22 +36,20 @@ const toFormattedBalance = (
 
   // values with a decimal point should be converted to their fixed width form.
   const balance: string = raw.indexOf('.') > 0 ?
-    decimalToFixedWidth({ value: raw, fixedPoint, pad: trim }) : raw;
+    decimalToFixedWidth({ value: raw, fixedPoint, pad: !trim }) : raw;
 
   /**
    * Condition 1: balance length is smaller than fixed point, e.g:
-   * "123" ==> "0.1230" # when value length (3) is smaller than fixed point (4)
+   * "123" ==> "0.0123" # when value length (3) is smaller than fixed point (4)
    */
   if (balance.length < fixedPoint) {
-    const valueAsBN = new BN(balance);
-    const scalingSize = Math.pow(10, 1 - fixedPoint);
-    var valuePart = (valueAsBN.toNumber() * scalingSize).toFixed(fixedPoint);
+    var decimalValue = balance.padStart(fixedPoint, '0');
     if (trim) {
       // .00000 => ''
-      valuePart = valuePart.replace(/\.0+$/, '');
+      decimalValue = decimalValue.replace(/\.0+$/, '');
     }
 
-    return `${valuePart}${unitPart}`;
+    return `0.${decimalValue}${unitPart}`;
   }
 
   /**
@@ -85,19 +83,10 @@ const toFormattedBalance = (
 const decimalToFixedWidth = (
   { value, fixedPoint, pad = true }: { value: string, fixedPoint: number, pad?: boolean }
 ): string => {
-
-  let [prefix, postfix = ''] = value.split('.');
-
-  if(pad && postfix.length < fixedPoint) {
-    // no decimal places given, the value should be padded out
-    postfix = postfix.padEnd(fixedPoint, '0');
-  } else if (postfix.length > fixedPoint) {
-    // ensure decimal part is shortened to fixedPoint places
-    postfix = postfix.substring(0, fixedPoint);
-  }
-
-  // this will also remove leading 0s for fixed width representation
-  return (+(prefix + postfix)).toString();
+    let [prefix, postfix = ''] = value.split('.');
+    postfix = pad && postfix.length <= fixedPoint ? postfix.padEnd(fixedPoint, '0') : postfix.substring(0, fixedPoint);
+    // this will also remove leading 0s for fixed width representation
+    return (+(prefix + postfix)).toString();
 };
 
 export default toFormattedBalance;

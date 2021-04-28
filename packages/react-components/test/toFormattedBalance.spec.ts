@@ -1,13 +1,31 @@
 import BN from 'bn.js';
 import toFormattedBalance from '../src/util/toFormattedBalance';
 import { decimalToFixedWidth } from '../src/util/toFormattedBalance';
+import { formatBalance } from '@polkadot/util';
 
 describe('toFormattedBalance', () => {
+
+  beforeAll(() => {
+    formatBalance.setDefaults({ decimals: 4 })
+  });
+
   describe('with default settings', () => {
+    test('when wei value', () => {
+      const stubBalanceValue = new BN('1');
+      const result = toFormattedBalance({ value: stubBalanceValue });
+      expect(result).toEqual('0.0001');
+    });
+
     test('when value length is smaller than default fixed point(4)', () => {
       const stubBalanceValue = new BN('123');
       const result = toFormattedBalance({ value: stubBalanceValue });
-      expect(result).toEqual('0.1230');
+      expect(result).toEqual('0.0123');
+    });
+
+    test('when value length is smaller than default fixed point(4) and has leading 0', () => {
+      const stubBalanceValue = '100';
+      const result = toFormattedBalance({ value: stubBalanceValue });
+      expect(result).toEqual('0.0100');
     });
 
     test('when value length is larger than default fixed point(4)', () => {
@@ -29,6 +47,16 @@ describe('toFormattedBalance', () => {
       const result = toFormattedBalance({ value: stubBalanceValue });
       expect(result).toEqual(
         '12,345,678,901,234,567,890,123,456,789,012,345,678,901,234,567,890,123,456.7890'
+      );
+    });
+
+    test('when value decimals is big number', () => {
+      const stubBalanceValue = new BN(
+        '123456789999999999999999999'
+      );
+      const result = toFormattedBalance({ value: stubBalanceValue, fixedPoint: 18 });
+      expect(result).toEqual(
+        '123,456,789.999999999999999999'
       );
     });
   });
@@ -127,7 +155,7 @@ describe('toFormattedBalance', () => {
       const stubBalanceValue = '12345.';
       const result = toFormattedBalance({
         value: stubBalanceValue,
-        unit: 'CENNZ'
+        unit: 'CENNZ',
       });
       expect(result).toEqual('12,345.0000 CENNZ');
     });

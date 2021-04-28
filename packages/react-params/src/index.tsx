@@ -85,10 +85,7 @@ class Params extends React.PureComponent<Props, State> {
     if (values && params) {
       params.map(({ type }: ParamDef, index: number) => {
         if (type.type?.includes('AssetId')) {
-          this.setState(prevState => ({
-            ...prevState,
-            assetIdContext: values[index].value.toString(),
-          }))
+          this.state.assetIdContext = values[index].value.toString();
         }
       });
     }

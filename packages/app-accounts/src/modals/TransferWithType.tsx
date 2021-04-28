@@ -9,7 +9,7 @@ import FormatBalance from '@polkadot/app-generic-asset/FormatBalance';
 import { withMulti } from '@polkadot/react-api/hoc';
 import { Dropdown, InputAddress, InputBalance, Modal, TxButton } from '@polkadot/react-components';
 import { I18nProps } from '@polkadot/react-components/types';
-import { useApi } from '@polkadot/react-hooks';
+import { useApi, useCall } from '@polkadot/react-hooks';
 import Checks from '@polkadot/react-signer/Checks';
 import BN from 'bn.js';
 import React, { useEffect, useMemo, useState } from 'react';
@@ -29,14 +29,17 @@ interface Option {
   value: string;
 }
 
+interface AssetInfo {
+  decimals: number;
+  name: string;
+  id: string;
+}
+
 function TransferWithType ({ className, onClose, recipientId: propRecipientId, senderId: propSenderId, t }: Props): React.ReactElement<Props> {
   const { api } = useApi();
-  const [assetId, setAssetId] = useState<string | undefined>(undefined);
   const [assetBalance, setAssetBalance] = useState<BN>(new BN(0));
-  const [assetName, setAssetName] = useState<string>('');
   // The BN value for transaction (no decimal)
   const [amount, setAmount] = useState<BN | undefined>(undefined);
-  const [decimals, setDecimals] = useState<number | undefined>();
   const [extrinsic, setExtrinsic] = useState<SubmittableExtrinsic | null>(null);
   const [hasAvailable, setHasAvailable] = useState(true);
   const [recipientId, setRecipientId] = useState(propRecipientId || null);
@@ -47,19 +50,17 @@ function TransferWithType ({ className, onClose, recipientId: propRecipientId, s
       value: id,
     } as Option;
   });
+  const [asset, setAsset] = useState<AssetInfo>(
+    getAssetInfo(dropdownOptions[0].value)
+  );
 
-  useEffect(() => {
-    if(!assetId) setAsset(dropdownOptions[0].value);
-  }, [dropdownOptions]);
-
-  // Query balances on assetId or senderId change
-  useMemo((): void => {
-    if(!assetId) return;
+  // Query balances on asset change
+  useEffect((): void => {
     // @ts-ignore
-    api.query.genericAsset.freeBalance(assetId, senderId!).then(
+    api.query.genericAsset.freeBalance(asset.id, senderId!).then(
       (balance: Codec) => setAssetBalance((balance as Balance).toBn())
     );
-  }, [assetId]);
+  }, [asset]);
 
   useEffect((): void => {
     if (amount !== undefined && !amount!.isZero()) {
@@ -67,24 +68,26 @@ function TransferWithType ({ className, onClose, recipientId: propRecipientId, s
     } else {
       setHasAvailable(true);
     }
-  }, [assetId, amount, assetBalance]);
+  }, [amount, assetBalance]);
 
   // create an extrinsic if we have correct values
   useEffect((): void => {
     setExtrinsic(
       recipientId && senderId && amount
-        ? api.tx.genericAsset.transfer(assetId, recipientId, amount)
+        ? api.tx.genericAsset.transfer(asset.id, recipientId, amount)
         : null
     );
-  }, [amount, assetId, recipientId]);
+  }, [asset, amount, recipientId]);
 
   // When assetId is selected, update asset info also
-  function setAsset(assetId: string): void {
-    setAssetId(assetId);
+  function getAssetInfo(assetId: string): AssetInfo {
     let info = new AssetRegistry().get(assetId);
     let decimals = info?.decimals || formatBalance.getDefaults().decimals;
-    setDecimals(decimals);
-    setAssetName(info?.symbol || "?");
+    return {
+      id: assetId,
+      decimals,
+      name: info?.symbol || "?",
+    }
   }
 
   const notEnoughTransferrable = <span style={{ color: "#9f3a38" }}>{t('not enough transferrable')}</span>;
@@ -102,8 +105,8 @@ function TransferWithType ({ className, onClose, recipientId: propRecipientId, s
               <FormatBalance
                 className={className}
                 value={assetBalance}
-                symbol={assetName}
-                decimals={decimals}
+                symbol={asset.name}
+                decimals={asset.decimals}
               />
             }
             onChange={setSenderId}
@@ -122,12 +125,12 @@ function TransferWithType ({ className, onClose, recipientId: propRecipientId, s
           <Dropdown
             help={t('Select the asset you want to transfer.')}
             label={t('Asset type')}
-            onChange={setAsset}
+            onChange={(assetId) => setAsset(getAssetInfo(assetId))}
             options={dropdownOptions}
-            value={assetId}
+            value={asset.id}
           />
           <InputBalance
-            decimals={decimals}
+            decimals={asset.decimals}
             help={t('Enter the amount you want to transfer.')}
             isError={!hasAvailable}
             label={<span>{t('Send amount')}</span>}
