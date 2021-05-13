@@ -8,7 +8,10 @@ export const poolRegistry: Record<string, any> = {
     "5FCfAonRZgTFrTd9HREEyeJjDpT397KMzizE6T3DvebLFE7n": "Centrality",
     "5Ck5SLSHYac6WFt5UZRSsdJjwmpSZq85fd5TRNAdZQVzEAPT": "Centrality",
     "5GNJqTPyNqANBkUVMN1LPPrxXnFouWXoe2wNSmmEoLctxiZY": "Centrality",
-    "5FxnZ1t7ry4zzS7QwB7BMuZvqzBHta4Eh8vvyFY9AjK4aRhQ": "Centrality"
+    "5FxnZ1t7ry4zzS7QwB7BMuZvqzBHta4Eh8vvyFY9AjK4aRhQ": "Centrality",
+    "5GnNQBgBzbKdcjW4SGoYoMZNr568EdCqSmC8KJFF62yRgHHC": "Centrality",
+    "5CAT41NyWwec6h5HJBUJDyMmAomNXR3QXoM6vvdwyAa619zK": "Centrality",
+    "5FZHCEhg2eonnazusuSJkekuRsJRhsBL6NqRAtQR7FooPryS": "Centrality",
   },
   "CENNZnet Azalea": {
     "5CFNYab6UKkZJ87WpW3WVbG8huwpKczvCYpZyrwH37uFj2QM": "Centrality",
@@ -29,6 +32,7 @@ export const poolRegistry: Record<string, any> = {
     "5HNE66z29TYnnR8LzJ89MQd7dEfmHVkw2HLJtRX4vBRdUeKx": "TOWO",
     "5CfULUgHuNwhKN4x4HxVpVmdwuxgMx7dAqXbWy6W9j42jcfN": "亀",
     "5CA51CGS5n2kMQYiNuapTHswFW9GCNjDnX5hoLrFFxocxZ5p": "ISP",
-    "5EZzxmJY5dyexnKsv8Q9xQY34Ugc56hjwM1CYCX8Nsinye2J": "Moon"
+    "5EZzxmJY5dyexnKsv8Q9xQY34Ugc56hjwM1CYCX8Nsinye2J": "Moon",
+    "5HbTLNBVLE6t6LeWUHgrxc1RCcmwujPKvYCA2kxG5sbBC1Ad": "Carbon Click"
   }
 };
