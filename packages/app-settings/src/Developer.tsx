@@ -14,7 +14,16 @@ import { isJsonObject, stringToU8a, u8aToString } from '@polkadot/util';
 import { useTranslation } from './translate';
 
 const EMPTY_CODE = '{\n\n}';
-const EMPTY_TYPES = {};
+// Adjusted type definitions which allow
+// UI to render NFT components nicely
+const EMPTY_TYPES = {
+  "NFTSchema": {
+    "_": "Vec<(String, NFTAttributeTypeId)>"
+  },
+  "RoyaltiesSchedule": {
+    "entitlements": "Vec<(AccountId, Permill)>"
+  },
+};
 
 function Developer ({ className, onStatusChange }: Props): React.ReactElement<Props> {
   const { t } = useTranslation();
