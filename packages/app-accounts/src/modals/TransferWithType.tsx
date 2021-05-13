@@ -60,7 +60,7 @@ function TransferWithType ({ className, onClose, recipientId: propRecipientId, s
     api.query.genericAsset.freeBalance(asset.id, senderId!).then(
       (balance: Codec) => setAssetBalance((balance as Balance).toBn())
     );
-  }, [asset]);
+  }, [asset, senderId]);
 
   useEffect((): void => {
     if (amount !== undefined && !amount!.isZero()) {
