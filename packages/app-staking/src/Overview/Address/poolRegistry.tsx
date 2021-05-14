@@ -24,7 +24,7 @@ export const poolRegistry: Record<string, any> = {
     "5GZRKvW4jVZzx6Z2kvVhE8V81fj4yeLJFJtPvATGPfdVSJxm": "Centrality",
     "5CkBjPtvJEHf3kNE9wWZEvcZoRHuj48UURXAhbSpoyCe3U83": "Centrality",
     "5CouA8pyo3d5g3rxCL3GxM3tbtMnoUkatxCDFtqmC9u8odgf": "Centrality",
-    "5DfBQtFnS6ameG1u6gnSzX39WE2i2j3poK9aPBFsctVXkaan": "MoonStake",
+    "5DfBQtFnS6ameG1u6gnSzX39WE2i2j3poK9aPBFsctVXkaan": "Moonstake",
     "5GKhdSJuSNvMvVoxTgKpQ8HGqQtFZd1UHw5kdk8P6Ld2Z5tp": "Moonstake",
     "5HSo1GQAhnnH4u2XPEjyUXjFixiaCphYzQD2wzgaGQZ1vTqL": "Moonstake",
     "5GFETWYj1gpdrbLLRZqXUqRor4THLJWNW5c62t2e2buniDNm": "TOWO",
@@ -33,6 +33,9 @@ export const poolRegistry: Record<string, any> = {
     "5CfULUgHuNwhKN4x4HxVpVmdwuxgMx7dAqXbWy6W9j42jcfN": "亀",
     "5CA51CGS5n2kMQYiNuapTHswFW9GCNjDnX5hoLrFFxocxZ5p": "ISP",
     "5EZzxmJY5dyexnKsv8Q9xQY34Ugc56hjwM1CYCX8Nsinye2J": "Moon",
-    "5HbTLNBVLE6t6LeWUHgrxc1RCcmwujPKvYCA2kxG5sbBC1Ad": "Carbon Click"
+    "5HbTLNBVLE6t6LeWUHgrxc1RCcmwujPKvYCA2kxG5sbBC1Ad": "Carbon Click",
+    "5GE9xXWYM7gpQVNDQJLYHSUVK8ifzZMwJiT6BQo5W6WqpWBK": "SNSG",
+    "5EvtMZnRJDuwPYnEWU6ZGuo1buoXUyDaLPSRWCEUV1EXSj1Q": "SNSG",
+    "5Gy3UZNmZZHFmSjF42EEPUMvoF38yF3TQsavyzvDjRywzknr": "SNSG"
   }
 };
