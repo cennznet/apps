@@ -1,7 +1,13 @@
 import BN from 'bn.js';
+import BigNumber from 'bignumber.js';
 
 import { Balance } from '@polkadot/types/interfaces';
 import { formatBalance } from '@polkadot/util';
+
+// Using BigNumber to render strings of numbers
+// Force scientific notation off when numbers have <= 36 digits
+// This prevents BN.js parsing scientific notation and breaking e.g. '1.234e21'
+BigNumber.config({ EXPONENTIAL_AT: 36 });
 
 /**
  * To format balance with preference options
@@ -86,7 +92,7 @@ const decimalToFixedWidth = (
     let [prefix, postfix = ''] = value.split('.');
     postfix = pad && postfix.length <= fixedPoint ? postfix.padEnd(fixedPoint, '0') : postfix.substring(0, fixedPoint);
     // this will also remove leading 0s for fixed width representation
-    return (+(prefix + postfix)).toString();
+    return new BigNumber((+(prefix + postfix))).toString();
 };
 
 export default toFormattedBalance;

@@ -3,6 +3,7 @@
 // of the Apache-2.0 license. See the LICENSE file for details.
 
 import BN from 'bn.js';
+import BigNumber from 'bignumber.js';
 import React, { useEffect, useState } from 'react';
 
 import { decimalToFixedWidth } from '@polkadot/react-components/util';
@@ -108,12 +109,11 @@ function getValuesFromString (value: string, props: Props): [string, BN, boolean
   // sanitize the user input value, keeping digits and decimal point only.
   const valueSanitized = value.replace(/[^\d|\.]/g, '');
   const valueFormatted = formatInput(valueSanitized);
-  const valueBn = new BN(
-    decimalToFixedWidth({
-      value: valueSanitized,
-      fixedPoint: props.decimals || formatBalance.getDefaults().decimals,
-    })
-  );
+  let valueWei = decimalToFixedWidth({
+    value: valueSanitized,
+    fixedPoint: props.decimals || formatBalance.getDefaults().decimals,
+  });
+  let valueBn = new BN(valueWei);
 
   return [
     valueFormatted,

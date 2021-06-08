@@ -206,5 +206,14 @@ describe('toFormattedBalance', () => {
       });
       expect(result).toEqual('0.1234');
     });
+
+    test('when value is a BN it is not scientific', () => {
+      const stubBalanceValue = '100000000.000000000000000000'; // 100 million, 18 dp
+      const result = decimalToFixedWidth({
+        value: stubBalanceValue,
+        fixedPoint: 18,
+      });
+      expect(result).toEqual('100000000000000000000000000');
+    });
   });
 });
