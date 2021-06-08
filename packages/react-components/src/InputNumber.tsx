@@ -3,7 +3,6 @@
 // of the Apache-2.0 license. See the LICENSE file for details.
 
 import BN from 'bn.js';
-import BigNumber from 'bignumber.js';
 import React, { useEffect, useState } from 'react';
 
 import { decimalToFixedWidth } from '@polkadot/react-components/util';

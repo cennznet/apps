@@ -92,7 +92,7 @@ const decimalToFixedWidth = (
     let [prefix, postfix = ''] = value.split('.');
     postfix = pad && postfix.length <= fixedPoint ? postfix.padEnd(fixedPoint, '0') : postfix.substring(0, fixedPoint);
     // this will also remove leading 0s for fixed width representation
-    return new BigNumber((+(prefix + postfix))).toString();
+    return new BigNumber(+(prefix + postfix)).toString();
 };
 
 export default toFormattedBalance;
