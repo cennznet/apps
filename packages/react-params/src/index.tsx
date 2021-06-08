@@ -39,8 +39,20 @@ class Params extends React.PureComponent<Props, State> {
   public static getDerivedStateFromProps ({ isDisabled, params, values }: Props, prevState: State): Pick<State, never> | null {
     const isSame = JSON.stringify(prevState.params) === JSON.stringify(params);
 
+    // the params component has an asset ID in its context
+    // this could be inconsistent if there are multiple asset IDs in the component tree
+    // for now this is a best effort for most use cases.
+    let assetIdContext = undefined;
+    if (values && params) {
+      params.map(({ type }: ParamDef, index: number) => {
+        if (type.type?.includes('AssetId')) {
+          assetIdContext = values[index].value.toString();
+        }
+      });
+    }
+
     if (isDisabled || isSame) {
-      return null;
+      return { assetIdContext };
     }
 
     let values_ = params.reduce(
@@ -52,18 +64,6 @@ class Params extends React.PureComponent<Props, State> {
       ],
       []
     );
-
-    // the params component has an asset ID in it's context
-    // this could be inconsistent if there are multiple asset IDs in the component tree
-    // for now this is a best effort for most use cases.
-    let assetIdContext = undefined;
-    if (values && params) {
-      params.map(({ type }: ParamDef, index: number) => {
-        if (type.type?.includes('AssetId')) {
-          assetIdContext = values[index].value.toString();
-        }
-      });
-    }
 
     return {
       params,
