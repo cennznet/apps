@@ -42,7 +42,7 @@ class Params extends React.PureComponent<Props, State> {
     // the params component has an asset ID in its context
     // this could be inconsistent if there are multiple asset IDs in the component tree
     // for now this is a best effort for most use cases.
-    let assetIdContext = undefined;
+    let assetIdContext = prevState.assetIdContext;
     if (values && params) {
       params.map(({ type }: ParamDef, index: number) => {
         if (type.type?.includes('AssetId')) {
@@ -90,7 +90,7 @@ class Params extends React.PureComponent<Props, State> {
 
   public render (): React.ReactNode {
     const { className, isDisabled, onEnter, onEscape, overrides, params, style } = this.props;
-    const { values = this.props.values } = this.state;
+    const { values = this.props.values, assetIdContext } = this.state;
 
     if (!values || !values.length) {
       return null;
@@ -115,7 +115,7 @@ class Params extends React.PureComponent<Props, State> {
                 onEscape={onEscape}
                 overrides={overrides}
                 type={type}
-                assetIdContext={this.state.assetIdContext}
+                assetIdContext={assetIdContext}
               />
             ))}
           </div>
@@ -125,7 +125,7 @@ class Params extends React.PureComponent<Props, State> {
   }
 
   private onChangeParam = (index: number, newValue: RawParamOnChangeValue): void => {
-    const { isDisabled } = this.props;
+    const { isDisabled, params } = this.props;
 
     if (isDisabled) {
       return;
@@ -139,7 +139,8 @@ class Params extends React.PureComponent<Props, State> {
           prevIndex !== index
             ? prev
             : { isValid, value }
-        )
+        ),
+        assetIdContext: params[index].type.type?.includes('AssetId') ? value.toString() : prevState.assetIdContext,
       }),
       this.triggerUpdate
     );
