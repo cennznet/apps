@@ -7,7 +7,6 @@ const SideBarScroll = styled.div.attrs({
   @media (min-width:1000px){
     .expanded & {
       position: fixed;
-      width: 12%;
     }
   }
   align-items: center;
