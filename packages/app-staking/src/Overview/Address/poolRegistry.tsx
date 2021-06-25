@@ -12,6 +12,10 @@ export const poolRegistry: Record<string, any> = {
     "5GnNQBgBzbKdcjW4SGoYoMZNr568EdCqSmC8KJFF62yRgHHC": "Centrality",
     "5CAT41NyWwec6h5HJBUJDyMmAomNXR3QXoM6vvdwyAa619zK": "Centrality",
     "5FZHCEhg2eonnazusuSJkekuRsJRhsBL6NqRAtQR7FooPryS": "Centrality",
+    "5D7nc2LVeHJKJ2WQQueecH8hJnv3UQVBZcwzspxn5EzuFgaN": "Centrality",
+    "5EA7RChxWwmQhcKXQVCbebhiBjLnKGCVtxuHZQ9gdMiuJSwa": "Centrality",
+    "5FNu2kkrMCf4za5EAo6LRxvmLkqjXLqUGsTHEx4xUnJzHDyn": "Centrality",
+    "5CLa1oyLG8ceuzbKhX6mmgZdDrfn5C91b3E32sQjYSvNKUck": "Centrality",
   },
   "CENNZnet Azalea": {
     "5CFNYab6UKkZJ87WpW3WVbG8huwpKczvCYpZyrwH37uFj2QM": "Centrality",
